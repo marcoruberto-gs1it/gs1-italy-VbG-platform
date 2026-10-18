@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BadgeCheck, ChevronRight, Globe2, LayoutDashboard, LogOut, Map as MapIcon, QrCode, RefreshCw,
-  ShieldAlert, Tags, Link2, TriangleAlert, MapPin, Table2,
+  ShieldAlert, Tags, Link2, TriangleAlert, MapPin, Table2, Award,
 } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { fillDays } from '../lib/days'
 import { dateTime, day, gtinDisplay, num, pct, regionName } from '../lib/format'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 import type { DashboardData, Kpi } from '../lib/types'
-import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RegionTable, RingGauge, SymbologyGrid } from './charts'
+import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RankingList, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
 import { RawData } from './RawData'
 import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
@@ -26,6 +26,7 @@ const SECTIONS = [
   { id: 'territorio', label: 'Territorio', icon: MapIcon },
   { id: 'qualita', label: 'Qualità dei codici', icon: BadgeCheck },
   { id: 'categorie', label: 'Categorie', icon: Tags },
+  { id: 'brand', label: 'Brand', icon: Award },
   { id: 'protezione', label: 'Brand protection', icon: ShieldAlert },
   { id: 'dati', label: 'Dati grezzi', icon: Table2 },
 ] as const
@@ -275,7 +276,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                     <DailyChart data={fillDays(data.giornaliero, days)} />
                   </Panel>
                 </div>
-                <Panel title="Simbologie lette" subtitle="In blu le simbologie degli standard GS1.">
+                <Panel title="Simbologie lette" subtitle="Prima le simbologie degli standard GS1 (in blu), poi gli altri codici. La torta indica la quota sul totale delle scansioni.">
                   <SymbologyGrid data={data.simbologie} />
                 </Panel>
               </section>
@@ -329,27 +330,67 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
               {/* ───── Categorie ───── */}
               <section className="section">
                 <SectionHeader id="categorie" title="Categorie di prodotto (GPC)" text="Le categorie più lette, con la completezza delle schede Verified by GS1." />
-                {data.categorie.length ? (
-                  <ul className="cat-grid">
-                    {data.categorie.map((c, i) => {
-                      const complete = share(c.schede_complete, c.letture)
-                      return (
-                        <li key={c.gpc_brick} className="cat-card reveal">
-                          <span className="cat-rank">{i + 1}</span>
-                          <p className="cat-segment">{c.segmento ?? 'GPC'}</p>
-                          <h3>{c.categoria ?? `GPC ${c.gpc_brick}`}</h3>
-                          <p className="cat-reads"><b>{num(c.letture)}</b> scansioni · {num(c.gtin_distinti)} prodotti</p>
-                          <div className="cat-meter" aria-label={`Schede complete: ${pct(c.schede_complete, c.letture)}`}>
-                            <span style={{ width: `${complete * 100}%` }} />
-                          </div>
-                          <p className="cat-foot"><span>Schede complete <b>{pct(c.schede_complete, c.letture)}</b></span><span>Media <b>{c.media_dati?.toLocaleString('it-IT') ?? '–'}/7</b></span></p>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                ) : (
-                  <Panel title="Categorie"><Empty /></Panel>
-                )}
+                <Panel
+                  title="Classifica delle categorie"
+                  subtitle="Per numero di scansioni. Schede complete: quota di scansioni con tutti i 7 attributi essenziali su Verified by GS1."
+                  table={
+                    <DataTable rows={data.categorie} columns={[
+                      { label: 'Categoria', render: (c) => c.categoria ?? `GPC ${c.gpc_brick}` },
+                      { label: 'Brick GPC', render: (c) => c.gpc_brick },
+                      { label: 'Scansioni', render: (c) => num(c.letture), numeric: true },
+                      { label: 'Prodotti', render: (c) => num(c.gtin_distinti), numeric: true },
+                      { label: 'Schede complete', render: (c) => pct(c.schede_complete, c.letture), numeric: true },
+                      { label: 'Media attributi', render: (c) => `${c.media_dati?.toLocaleString('it-IT') ?? '–'}/7`, numeric: true },
+                    ]} />
+                  }
+                >
+                  <RankingList rows={data.categorie.map((c) => ({
+                    key: c.gpc_brick,
+                    label: c.categoria ?? `GPC ${c.gpc_brick}`,
+                    sub: c.segmento,
+                    value: c.letture,
+                    stats: [
+                      { label: 'Prodotti', value: num(c.gtin_distinti) },
+                      { label: 'Schede complete', value: pct(c.schede_complete, c.letture), meter: share(c.schede_complete, c.letture) },
+                      { label: 'Media attributi', value: `${c.media_dati?.toLocaleString('it-IT') ?? '–'}/7` },
+                    ],
+                  }))} />
+                </Panel>
+              </section>
+
+              {/* ───── Brand ───── */}
+              <section className="section">
+                <SectionHeader id="brand" title="Brand più scansionati" text="I marchi dei prodotti verificati su Verified by GS1, con il titolare del codice." />
+                <Panel
+                  title="Classifica dei brand"
+                  subtitle="Per numero di scansioni nel periodo."
+                  table={
+                    <DataTable rows={data.brand ?? []} columns={[
+                      { label: 'Brand', render: (b) => b.brand },
+                      { label: 'Titolare', render: (b) => b.titolare ?? '–' },
+                      { label: 'Scansioni', render: (b) => num(b.letture), numeric: true },
+                      { label: 'Prodotti', render: (b) => num(b.prodotti), numeric: true },
+                      { label: 'Quota 2D', render: (b) => pct(b.letture_2d, b.letture), numeric: true },
+                      { label: 'Schede complete', render: (b) => pct(b.schede_complete, b.letture), numeric: true },
+                    ]} />
+                  }
+                >
+                  {data.brand?.length ? (
+                    <RankingList rows={data.brand.map((b) => ({
+                      key: b.brand,
+                      label: b.brand,
+                      sub: b.titolare,
+                      value: b.letture,
+                      stats: [
+                        { label: 'Prodotti', value: num(b.prodotti) },
+                        { label: 'Quota 2D', value: pct(b.letture_2d, b.letture) },
+                        { label: 'Schede complete', value: pct(b.schede_complete, b.letture), meter: share(b.schede_complete, b.letture) },
+                      ],
+                    }))} />
+                  ) : (
+                    <Empty text="Nessun brand nel periodo: il marchio viene registrato con le scansioni dei prodotti presenti su Verified by GS1." />
+                  )}
+                </Panel>
               </section>
 
               {/* ───── Brand protection ───── */}

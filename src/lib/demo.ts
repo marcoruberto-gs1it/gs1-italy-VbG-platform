@@ -88,6 +88,19 @@ export function demoData(days: number): DashboardData {
       { company_prefix: '8076809', titolare: 'Marchio Esempio S.p.A.', gtin: '08076809513388', dominio: 'marchio-esernpio.com', somiglia_a: 'marchio-esempio.com', sospetto: true, segnalato_google: true, letture: 17, ultima: new Date(Date.now() - 3600e3 * 5).toISOString(), regioni: ['25', '62'] },
       { company_prefix: '8012345', titolare: 'Pastificio Esempio S.r.l.', gtin: '08012345000017', dominio: 'promo-qr.example', somiglia_a: null, sospetto: false, segnalato_google: false, letture: 6, ultima: new Date(Date.now() - 3600e3 * 30).toISOString(), regioni: ['72'] },
     ],
+    brand: [
+      ['Marchio Esempio', 'Marchio Esempio S.p.A.', 0.088, 0.74, 6.7],
+      ['Pasta Campione', 'Pastificio Esempio S.r.l.', 0.061, 0.66, 6.4],
+      ['Latte del Borgo', 'Latteria Campione Soc. Coop.', 0.047, 0.38, 5.6],
+      ['Sugo Demo', 'Conserve Dimostrative S.p.A.', 0.041, 0.71, 6.6],
+      ['Frollini Prova', 'Dolciaria Esempio S.p.A.', 0.036, 0.58, 6.1],
+      ['Fonte Esempio', 'Fonti Dimostrative S.r.l.', 0.029, 0.49, 5.9],
+      ['Casa Pulita Demo', 'Detergenti Esempio S.r.l.', 0.018, 0.44, 5.7],
+      ['Caffè del Campione', 'Torrefazione Demo S.r.l.', 0.014, 0.55, 6.2],
+    ].map(([brand, titolare, quota, completezza, media]) => {
+      const l = Math.round(letture * Number(quota))
+      return { brand: String(brand), titolare: String(titolare), letture: l, prodotti: Math.max(3, Math.round(l * 0.04)), media_dati: Number(media), schede_complete: Math.round(l * Number(completezza)), letture_2d: Math.round(l * (0.12 + r() * 0.18)) }
+    }),
     non_assegnati: [
       { inizio_codice: '08099999', letture: 42, codici: 7, ultima: new Date(Date.now() - 3600e3 * 2).toISOString() },
       { inizio_codice: '08000000', letture: 11, codici: 2, ultima: new Date(Date.now() - 3600e3 * 50).toISOString() },

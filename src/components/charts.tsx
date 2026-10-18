@@ -152,31 +152,115 @@ export function RingGauge({ value, total, label, caption }: { value: number; tot
   )
 }
 
-/* ───── Simbologie: schede con il disegno del codice ───── */
+/* ───── Simbologie: schede con il disegno del codice, prima quelle degli standard GS1 ───── */
+
+/** Torta piccola: la quota della simbologia sul totale delle scansioni. */
+function MiniPie({ value, color }: { value: number; color: string }) {
+  const r = 20
+  const angle = Math.min(value, 0.9999) * 2 * Math.PI
+  const x = 22 + r * Math.sin(angle)
+  const y = 22 - r * Math.cos(angle)
+  return (
+    <svg className="mini-pie" viewBox="0 0 44 44" width="44" height="44" aria-hidden="true">
+      <circle cx="22" cy="22" r={r} className="mini-pie-track" />
+      {value > 0 && <path className="mini-pie-slice" d={`M22 22 L22 2 A${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${x} ${y} Z`} fill={color} />}
+    </svg>
+  )
+}
+
+function SymbologyCards({ rows, total }: { rows: DashboardData['simbologie']; total: number }) {
+  return (
+    <ul className="sym-grid">
+      {rows.map((s) => {
+        const gs1 = isGs1Symbology(s.simbologia)
+        return (
+          <li key={s.simbologia} className={`sym-card ${gs1 ? 'is-gs1' : ''}`}>
+            <span className="sym-glyph"><SymbologyGlyph kind={glyphFor(s.simbologia)} size={40} /></span>
+            <span className="sym-text">
+              <strong>{s.simbologia}</strong>
+              <small>{s.is_2d == null ? 'senza simbolo' : s.is_2d ? 'codice 2D' : 'barcode 1D'}</small>
+              <small>{num(s.letture)} scansioni</small>
+            </span>
+            <span className="sym-share">
+              <MiniPie value={total ? s.letture / total : 0} color={s.is_2d ? 'var(--series-2)' : 'var(--series-1)'} />
+              <b>{pct(s.letture, total)}</b>
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
 
 export function SymbologyGrid({ data }: { data: DashboardData['simbologie'] }) {
-  const ref = useRef<HTMLUListElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const total = data.reduce((a, s) => a + s.letture, 0)
-  const max = Math.max(1, ...data.map((s) => s.letture))
+  const byReads = [...data].sort((a, b) => b.letture - a.letture)
+  const gs1 = byReads.filter((s) => isGs1Symbology(s.simbologia))
+  const other = byReads.filter((s) => !isGs1Symbology(s.simbologia))
   useReveal(ref, (tl) => {
-    tl.from(ref.current!.querySelectorAll('.sym-card'), { y: 18, opacity: 0, duration: 0.5, stagger: 0.06, ease: 'power3.out' })
-      .from(ref.current!.querySelectorAll('.sym-bar span'), { scaleX: 0, transformOrigin: '0 50%', duration: 0.8, stagger: 0.06, ease: 'power3.out' }, '<0.2')
+    tl.from(ref.current!.querySelectorAll('.sym-card'), { y: 18, opacity: 0, duration: 0.5, stagger: 0.05, ease: 'power3.out' })
+      .from(ref.current!.querySelectorAll('.mini-pie-slice'), { scale: 0, transformOrigin: '22px 22px', duration: 0.6, stagger: 0.05, ease: 'back.out(1.6)' }, '<0.2')
   }, [total])
   if (!data.length) return <Empty />
   return (
-    <ul className="sym-grid" ref={ref}>
-      {data.map((s) => (
-        <li key={s.simbologia} className={`sym-card ${isGs1Symbology(s.simbologia) ? 'is-gs1' : ''}`}>
-          <span className="sym-glyph"><SymbologyGlyph kind={glyphFor(s.simbologia)} size={40} /></span>
-          <span className="sym-text">
-            <strong>{s.simbologia}</strong>
-            <small>{s.is_2d == null ? 'senza simbolo' : s.is_2d ? 'codice 2D' : 'barcode 1D'}</small>
-          </span>
-          <span className="sym-value"><b>{num(s.letture)}</b><small>{pct(s.letture, total)}</small></span>
-          <span className="sym-bar"><span style={{ width: `${(s.letture / max) * 100}%`, background: s.is_2d ? 'var(--series-2)' : 'var(--series-1)' }} /></span>
-        </li>
-      ))}
-    </ul>
+    <div className="sym-groups" ref={ref}>
+      {gs1.length > 0 && (
+        <section>
+          <h4 className="sym-group-title">Standard GS1 <span>{pct(gs1.reduce((a, s) => a + s.letture, 0), total)} delle scansioni</span></h4>
+          <SymbologyCards rows={gs1} total={total} />
+        </section>
+      )}
+      {other.length > 0 && (
+        <section>
+          <h4 className="sym-group-title">Altri codici <span>{pct(other.reduce((a, s) => a + s.letture, 0), total)} delle scansioni</span></h4>
+          <SymbologyCards rows={other} total={total} />
+        </section>
+      )}
+    </div>
+  )
+}
+
+/* ───── Classifica a righe: posizione, nome, barra delle scansioni e indicatori ───── */
+
+export type RankRow = { key: string; label: string; sub?: string | null; value: number; stats: { label: string; value: string; meter?: number }[] }
+
+export function RankingList({ rows, valueLabel = 'Scansioni' }: { rows: RankRow[]; valueLabel?: string }) {
+  const ref = useRef<HTMLOListElement>(null)
+  const max = Math.max(...rows.map((r) => r.value), 1)
+  useReveal(ref, (tl) => {
+    tl.from(ref.current!.querySelectorAll('.rank-row'), { y: 12, opacity: 0, duration: 0.45, stagger: 0.04, ease: 'power3.out' })
+      .from(ref.current!.querySelectorAll('.rank-bar span, .rank-meter span'), { scaleX: 0, transformOrigin: '0 50%', duration: 0.8, stagger: 0.02, ease: 'power3.out' }, '<0.15')
+  }, [rows.map((r) => r.value).join(',')])
+  if (!rows.length) return <Empty />
+  return (
+    <div className="rank">
+      <div className="rank-head" aria-hidden="true">
+        <span>#</span>
+        <span>Nome</span>
+        <span>{valueLabel}</span>
+        {rows[0].stats.map((s) => <span key={s.label}>{s.label}</span>)}
+      </div>
+      <ol className="rank-list" ref={ref}>
+        {rows.map((r, i) => (
+          <li key={r.key} className="rank-row">
+            <span className="rank-pos">{i + 1}</span>
+            <span className="rank-name"><b>{r.label}</b>{r.sub && <small>{r.sub}</small>}</span>
+            <span className="rank-value">
+              <b>{num(r.value)}</b>
+              <span className="rank-bar"><span style={{ width: `${(r.value / max) * 100}%` }} /></span>
+            </span>
+            {r.stats.map((s) => (
+              <span key={s.label} className="rank-stat">
+                <small>{s.label}</small>
+                <b>{s.value}</b>
+                {s.meter != null && <span className="rank-meter"><span style={{ width: `${s.meter * 100}%` }} /></span>}
+              </span>
+            ))}
+          </li>
+        ))}
+      </ol>
+    </div>
   )
 }
 

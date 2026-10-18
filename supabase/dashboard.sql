@@ -9,6 +9,9 @@
 --    dalla funzione dashboard_data, che verifica l'autorizzazione prima di calcolarli.
 -- ============================================================================
 
+-- Colonne di scan_events aggiunte dopo la prima versione ----------------------
+alter table public.scan_events add column if not exists brand_name text;
+
 -- Utenti abilitati -----------------------------------------------------------
 create table if not exists public.dashboard_users (
   email       text primary key check (email = lower(email)),
@@ -110,6 +113,18 @@ begin
         from e where gpc_brick is not null
         group by gpc_brick order by count(*) desc limit 15
       ) c
+    ),
+    'brand', (
+      select coalesce(jsonb_agg(b order by b.letture desc), '[]'::jsonb) from (
+        select brand_name as brand, max(licensee_name) as titolare,
+               count(*)                                      as letture,
+               count(distinct primary_key)                   as prodotti,
+               round(avg(vbg_core_count), 1)                 as media_dati,
+               count(*) filter (where vbg_core_count = 7)    as schede_complete,
+               count(*) filter (where is_2d)                 as letture_2d
+        from e where brand_name is not null
+        group by brand_name order by count(*) desc limit 20
+      ) b
     ),
     'qualita', (
       select coalesce(jsonb_agg(q order by q.errori desc, q.letture desc), '[]'::jsonb) from (

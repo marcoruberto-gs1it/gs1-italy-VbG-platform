@@ -23,7 +23,7 @@ npm run dev
 
 ## Configurazione Supabase (una tantum)
 
-1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app) e poi `supabase/raw-data.sql`.
+1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app) e poi `supabase/raw-data.sql` (rieseguire `dashboard.sql` aggiunge anche la colonna del marchio usata dalla classifica dei brand).
 2. **Authentication → Sign In / Providers**: disattiva *Allow new users to sign up*.
 3. **Authentication → URL Configuration**: imposta *Site URL* e *Redirect URLs* con `https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/` (e `http://localhost:5173` per lo sviluppo). Con l'accesso a password della demo non sono usati, servono per i futuri accessi via email.
 4. **Authentication → Users → Add user**: crea gli utenti (email e password, con *Auto Confirm User*), poi abilitali:

@@ -11,8 +11,14 @@ export function glyphFor(symbology: string): GlyphKind {
   return 'ean'
 }
 
-/** La simbologia appartiene agli standard GS1? (Un QR Code o un link senza dati GS1 no.) */
-export function isGs1Symbology(symbology: string): boolean {
-  if (/a mano|Codice con/i.test(symbology)) return false
-  return /GS1|EAN|UPC|ITF-14/i.test(symbology)
-}
+/**
+ * Simbologie degli standard GS1, secondo le GS1 General Specifications (§5.1.1):
+ * EAN/UPC (EAN-13, EAN-8, UPC-A, UPC-E, con eventuali add-on), ITF-14, GS1-128, famiglia GS1 DataBar
+ * (anche Composite), GS1 DataMatrix, GS1 QR Code, GS1 DotCode, e Data Matrix / QR Code con GS1 Digital Link.
+ * Non ne fanno parte: Code 128 senza FNC1, Code 39, Code 93, Codabar, ITF di lunghezza diversa da 14,
+ * QR Code e Data Matrix senza dati GS1, Aztec (anche con dati GS1), PDF417, MaxiCode, Micro QR, rMQR.
+ * I nomi sono quelli registrati dall'app di scansione.
+ */
+const GS1_SYMBOLOGIES = /^(EAN-13|EAN-8|UPC-A|UPC-E|ITF-14|GS1-128|GS1 DataBar( .+)?|GS1 Composite( .+)?|GS1 DataMatrix|QR Code Standard GS1|Data Matrix con GS1 Digital Link|GS1 DotCode)$/
+
+export const isGs1Symbology = (symbology: string) => GS1_SYMBOLOGIES.test(symbology)

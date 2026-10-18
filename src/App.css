@@ -204,14 +204,8 @@
 .sym-text { display: grid; gap: 2px; min-width: 0; }
 .sym-text strong { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); line-height: 1.3; }
 .sym-text small { font-size: var(--fs-xs); color: var(--muted); }
-.sym-value { display: grid; text-align: right; }
-.sym-value b { font-size: var(--fs-lg); font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
-.sym-value small { font-size: var(--fs-xs); color: var(--muted); }
 .sym-card.is-gs1 { background: var(--sky); box-shadow: inset 0 0 0 1.5px var(--navy-2); }
 .sym-card.is-gs1 .sym-text small { color: var(--navy-2); font-weight: 600; }
-.sym-card.is-gs1 .sym-bar { background: #fff; }
-.sym-bar { grid-column: 2 / -1; height: 6px; border-radius: 3px; background: var(--mist); }
-.sym-bar span { display: block; height: 100%; border-radius: 0 3px 3px 0; min-width: 2px; }
 
 /* ───── Classifica ───── */
 .barlist { display: grid; gap: 12px; }
@@ -262,18 +256,6 @@ th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
 code.wrap { white-space: normal; overflow-wrap: anywhere; }
 
 /* ───── Categorie ───── */
-.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
-.cat-card { position: relative; display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 8px; align-items: start; padding: 18px 18px 16px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); transition: translate 200ms var(--ease-out), box-shadow 200ms ease; }
-.cat-rank { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--sky); font-size: var(--fs-xs); font-weight: 800; color: var(--navy); }
-.cat-card:first-child .cat-rank { background: var(--orange); color: #fff; }
-.cat-segment { font-size: var(--fs-xs); font-weight: 700; color: var(--orange-2); padding-right: 36px; }
-.cat-card h3 { font-size: var(--fs-md); font-weight: 800; line-height: 1.3; color: var(--navy); padding-right: 30px; }
-.cat-reads { font-size: var(--fs-sm); color: var(--ink-2); }
-.cat-reads b { color: var(--navy); }
-.cat-meter { align-self: end; height: 8px; border-radius: 4px; background: var(--mist); overflow: hidden; margin-top: 4px; }
-.cat-meter span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--series-1); }
-.cat-foot { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-xs); color: var(--muted); }
-.cat-foot b { color: var(--ink); }
 
 /* ───── Allerte ───── */
 .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
@@ -367,7 +349,7 @@ code.wrap { white-space: normal; overflow-wrap: anywhere; }
   .delta-ref { display: none; }
   .section-head h2 { font-size: 20px; }
   .section-icon { width: 42px; height: 42px; border-radius: 13px; }
-  .alert-grid, .cat-grid, .sym-grid { grid-template-columns: minmax(0, 1fr); }
+  .alert-grid, .sym-grid { grid-template-columns: minmax(0, 1fr); }
   .all-clear { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
   .panel { padding: 16px; }
   .login-art-copy .login-points { display: none; }
@@ -453,4 +435,48 @@ code.wrap { white-space: normal; overflow-wrap: anywhere; }
   .drawer-head, .drawer-body { padding-left: 16px; padding-right: 16px; }
   .drawer-dl { grid-template-columns: 1fr; }
   .core-list li { grid-template-columns: 120px minmax(0, 1fr); }
+}
+
+/* ───── Simbologie: gruppi e torte ───── */
+.sym-groups { display: grid; gap: 18px; }
+.sym-groups section { display: grid; gap: 10px; }
+.sym-group-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: var(--fs-sm); font-weight: 800; color: var(--navy); }
+.sym-group-title span { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.sym-card { grid-template-columns: auto minmax(0, 1fr) auto; }
+.sym-glyph { grid-row: auto; }
+.sym-share { display: grid; justify-items: center; gap: 2px; }
+.sym-share b { font-size: var(--fs-xs); font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+.mini-pie { display: block; }
+.mini-pie-track { fill: var(--mist); }
+.sym-card.is-gs1 .mini-pie-track { fill: #fff; }
+
+/* ───── Classifiche (categorie, brand) ───── */
+.rank { --rank-cols: 34px minmax(0, 2.4fr) minmax(120px, 1.6fr) repeat(3, minmax(84px, 1fr)); display: grid; }
+.rank-head, .rank-row { display: grid; grid-template-columns: var(--rank-cols); align-items: center; gap: 14px; }
+.rank-head { padding: 0 10px 9px; border-bottom: 1px solid var(--line); font-size: var(--fs-xs); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.rank-head span:nth-child(n + 3) { text-align: right; }
+.rank-list { display: grid; }
+.rank-row { padding: 12px 10px; border-bottom: 1px solid var(--line); }
+.rank-row:last-child { border-bottom: 0; }
+.rank-pos { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); font-size: var(--fs-xs); font-weight: 800; color: var(--navy); }
+.rank-row:nth-child(-n + 3) .rank-pos { background: var(--navy); color: #fff; }
+.rank-row:first-child .rank-pos { background: var(--orange); }
+.rank-name { display: grid; gap: 2px; min-width: 0; }
+.rank-name b { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); }
+.rank-name small { font-size: var(--fs-xs); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-value, .rank-stat { display: grid; justify-items: end; gap: 5px; }
+.rank-value b, .rank-stat b { font-size: var(--fs-sm); font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+.rank-stat small { display: none; }
+.rank-bar, .rank-meter { display: block; width: 100%; height: 6px; border-radius: 3px; background: var(--mist); }
+.rank-bar span, .rank-meter span { display: block; height: 100%; border-radius: 0 3px 3px 0; min-width: 2px; }
+.rank-bar span { background: var(--series-1); }
+.rank-meter span { background: var(--navy-2); opacity: 0.55; }
+
+@media (max-width: 860px) {
+  .rank-head { display: none; }
+  .rank-row { grid-template-columns: 30px minmax(0, 1fr); gap: 8px 12px; }
+  .rank-value { grid-column: 2; justify-items: stretch; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+  .rank-stat { grid-column: 2; grid-template-columns: 1fr auto; justify-items: stretch; align-items: center; gap: 2px 10px; }
+  .rank-stat small { display: block; font-size: var(--fs-xs); color: var(--muted); }
+  .rank-stat .rank-meter { grid-column: 1 / -1; }
 }
