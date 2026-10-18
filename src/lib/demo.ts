@@ -75,9 +75,18 @@ export function demoData(days: number): DashboardData {
       }
     }),
     qualita: [
-      { company_prefix: '8012345', titolare: 'Pastificio Esempio S.r.l.', letture: 1840, errori_cifra: 61, errori_sintassi: 4, non_standard: 0, errori: 65 },
-      { company_prefix: '8054321', titolare: 'Conserve Dimostrative S.p.A.', letture: 960, errori_cifra: 0, errori_sintassi: 22, non_standard: 9, errori: 31 },
-      { company_prefix: '8009876', titolare: 'Latteria Campione Soc. Coop.', letture: 1210, errori_cifra: 12, errori_sintassi: 0, non_standard: 3, errori: 15 },
+      { company_prefix: '8012345', titolare: 'Pastificio Esempio S.r.l.', letture: 1840, errori_cifra: 61, errori_sintassi: 4, non_standard: 0, errori: 65, motivi: [
+        { tipo: 'cifra', simbologia: 'EAN-13', errore: null, letture: 61, esempio: '08012345000015' },
+        { tipo: 'sintassi', simbologia: 'GS1 DataMatrix', errore: 'AI (17): The date contains an illegal month of the year.', letture: 4, esempio: '08012345000012' },
+      ] },
+      { company_prefix: '8054321', titolare: 'Conserve Dimostrative S.p.A.', letture: 960, errori_cifra: 0, errori_sintassi: 22, non_standard: 9, errori: 31, motivi: [
+        { tipo: 'sintassi', simbologia: 'GS1-128', errore: 'Required AIs for AI (10) are not satisfied: 01,02,8006,8026', letture: 22, esempio: null },
+        { tipo: 'non_standard', simbologia: 'QR Code', errore: null, letture: 9, esempio: '08054321000128' },
+      ] },
+      { company_prefix: '8009876', titolare: 'Latteria Campione Soc. Coop.', letture: 1210, errori_cifra: 12, errori_sintassi: 0, non_standard: 3, errori: 15, motivi: [
+        { tipo: 'cifra', simbologia: 'EAN-13', errore: null, letture: 12, esempio: '08009876000236' },
+        { tipo: 'non_standard', simbologia: 'Data Matrix', errore: null, letture: 3, esempio: '08009876000239' },
+      ] },
     ],
     errori_sintassi: [
       { errore: 'AI (17): The date contains an illegal day of the month.', letture: 14 },

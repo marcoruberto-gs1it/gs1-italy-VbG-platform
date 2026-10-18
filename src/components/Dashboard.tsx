@@ -11,6 +11,8 @@ import type { DashboardData, Kpi } from '../lib/types'
 import { BarList, ComplianceBar, type MapMetric, DailyChart, DataTable, Empty, ItalyMap, RankingList, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
 import { RawData } from './RawData'
+import { ErrorList } from './ErrorList'
+import { translateSyntax } from '../lib/errors'
 import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
 
 const PERIODS = [
@@ -327,22 +329,28 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                   <Panel title="Conformità agli standard GS1">
                     <ComplianceBar data={data.conformita} />
                   </Panel>
-                  <Panel title="Errori di sintassi più frequenti">
+                  <Panel title="Errori di sintassi più frequenti" subtitle="Segnalati dalla verifica GS1 dei dati, con la spiegazione in italiano.">
                     <DataTable rows={data.errori_sintassi} empty="Nessun errore di sintassi nel periodo." columns={[
-                      { label: 'Errore', render: (x) => <code className="wrap">{x.errore}</code> },
+                      { label: 'Errore', render: (x) => <>{translateSyntax(x.errore) ?? 'Dati non conformi alle regole GS1.'}<code className="cell-sub wrap">{x.errore}</code></> },
                       { label: 'Letture', render: (x) => num(x.letture), numeric: true },
                     ]} />
                   </Panel>
                 </div>
-                <Panel title="Aziende con errori nei codici" subtitle="Prefissi aziendali con errori di stampa o di codifica.">
-                  <DataTable rows={data.qualita} empty="Nessun errore nel periodo." columns={[
-                    { label: 'Titolare', render: (q) => <><b>{q.titolare ?? '–'}</b><small className="cell-sub">prefisso {q.company_prefix}</small></> },
-                    { label: 'Cifra di controllo', render: (q) => num(q.errori_cifra), numeric: true },
-                    { label: 'Sintassi', render: (q) => num(q.errori_sintassi), numeric: true },
-                    { label: 'Non standard', render: (q) => num(q.non_standard), numeric: true },
-                    { label: 'Letture', render: (q) => num(q.letture), numeric: true },
-                    { label: 'Errori', render: (q) => <StatusPill tone={q.errori / q.letture > 0.03 ? 'critical' : 'warning'}>{pct(q.errori, q.letture)}</StatusPill>, numeric: true },
-                  ]} />
+                <Panel
+                  title="Aziende con errori nei codici"
+                  subtitle="Per ogni azienda, il motivo di ciascun errore e come correggerlo."
+                  table={
+                    <DataTable rows={data.qualita} empty="Nessun errore nel periodo." columns={[
+                      { label: 'Titolare', render: (q) => <><b>{q.titolare ?? '–'}</b><small className="cell-sub">prefisso {q.company_prefix}</small></> },
+                      { label: 'Cifra di controllo', render: (q) => num(q.errori_cifra), numeric: true },
+                      { label: 'Sintassi', render: (q) => num(q.errori_sintassi), numeric: true },
+                      { label: 'Non standard', render: (q) => num(q.non_standard), numeric: true },
+                      { label: 'Letture', render: (q) => num(q.letture), numeric: true },
+                      { label: 'Errori', render: (q) => pct(q.errori, q.letture), numeric: true },
+                    ]} />
+                  }
+                >
+                  <ErrorList rows={data.qualita} />
                 </Panel>
               </section>
 

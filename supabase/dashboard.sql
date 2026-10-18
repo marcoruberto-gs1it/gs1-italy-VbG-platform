@@ -133,7 +133,21 @@ begin
                count(*) filter (where check_digit_ok = false)                 as errori_cifra,
                count(*) filter (where syntax_ok = false)                      as errori_sintassi,
                count(*) filter (where compliance = 'partial')                 as non_standard,
-               count(*) filter (where compliance in ('error', 'partial'))     as errori
+               count(*) filter (where compliance in ('error', 'partial'))     as errori,
+               -- Motivi degli errori: tipo, simbologia, messaggio della GS1 Barcode Syntax Engine, un esempio.
+               (select coalesce(jsonb_agg(m order by m.letture desc), '[]'::jsonb) from (
+                  select case when x.check_digit_ok = false then 'cifra'
+                              when x.syntax_ok = false then 'sintassi'
+                              else 'non_standard' end      as tipo,
+                         x.symbology                        as simbologia,
+                         x.syntax_error                     as errore,
+                         count(*)                           as letture,
+                         max(x.primary_key)                 as esempio
+                  from e as x
+                  where x.company_prefix = e.company_prefix and x.source <> 'manual'
+                    and x.compliance in ('error', 'partial')
+                  group by 1, 2, 3 order by 4 desc limit 6
+               ) m)                                                           as motivi
         from e where source <> 'manual' and company_prefix is not null
         group by company_prefix
         having count(*) filter (where compliance in ('error', 'partial')) > 0

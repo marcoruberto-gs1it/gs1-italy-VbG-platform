@@ -20,7 +20,7 @@ export type DashboardData = {
   simbologie: { simbologia: string; is_2d: boolean | null; letture: number }[]
   conformita: Partial<Record<'gs1' | 'error' | 'partial' | 'manual' | 'none', number>>
   categorie: { gpc_brick: string; categoria: string | null; segmento: string | null; letture: number; gtin_distinti: number; media_dati: number | null; schede_complete: number; letture_2d: number }[]
-  qualita: { company_prefix: string; titolare: string | null; letture: number; errori_cifra: number; errori_sintassi: number; non_standard: number; errori: number }[]
+  qualita: { company_prefix: string; titolare: string | null; letture: number; errori_cifra: number; errori_sintassi: number; non_standard: number; errori: number; motivi?: ErrorReason[] }[]
   errori_sintassi: { errore: string; letture: number }[]
   /** Classifica dei marchi (assente nelle versioni del database precedenti alla colonna brand_name). */
   brand?: { brand: string; titolare: string | null; letture: number; prodotti: number; media_dati: number | null; schede_complete: number; letture_2d: number }[]
@@ -28,6 +28,8 @@ export type DashboardData = {
   non_assegnati: { inizio_codice: string; letture: number; codici: number; ultima: string }[]
   domini: { dominio: string; letture: number; verificati: number; sospetti: number }[]
 }
+
+export type ErrorReason = { tipo: 'cifra' | 'sintassi' | 'non_standard'; simbologia: string | null; errore: string | null; letture: number; esempio: string | null }
 
 /** Una scansione così come è salvata in scan_events (nessun dato personale). */
 export type ScanEvent = {
