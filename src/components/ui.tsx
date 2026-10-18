@@ -1,7 +1,7 @@
 /* UI kit: componenti di base della piattaforma. */
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { ArrowDownRight, ArrowUpRight, Check, ChevronDown, CircleCheck, Minus, OctagonAlert, Table2, TriangleAlert, ChartColumn } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Check, ChevronDown, CircleCheck, Info, Minus, OctagonAlert, Table2, TriangleAlert, ChartColumn } from 'lucide-react'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 
 /* Riquadro icona: icona Lucide su fondo tenue, in quattro toni del marchio. */
@@ -193,5 +193,44 @@ export function Select<T extends string>({ value, options, onChange, label, icon
         </ul>
       )}
     </div>
+  )
+}
+
+/* Icona informazioni che apre una spiegazione in un fumetto (click, tastiera, Esc per chiudere). */
+export function InfoPopover({ label, align = 'right', children }: { label: string; align?: 'left' | 'right'; children: ReactNode }) {
+  const [open, setOpen] = useState(false)
+  const root = useRef<HTMLSpanElement>(null)
+  const id = useId()
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => !root.current?.contains(e.target as Node) && setOpen(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  useGSAP(
+    () => {
+      if (open && motionOk()) gsap.from('.info-pop', { y: -6, opacity: 0, scale: 0.97, duration: 0.2, ease: 'power2.out' })
+    },
+    { scope: root, dependencies: [open] },
+  )
+
+  return (
+    <span className={`info align-${align}`} ref={root}>
+      <button type="button" className={`info-btn ${open ? 'is-open' : ''}`} aria-expanded={open} aria-controls={id} aria-label={label} title={label} onClick={() => setOpen((v) => !v)}>
+        <Info size={17} strokeWidth={2.2} />
+      </button>
+      {open && (
+        <span className="info-pop" id={id} role="dialog" aria-label={label}>
+          {children}
+        </span>
+      )}
+    </span>
   )
 }

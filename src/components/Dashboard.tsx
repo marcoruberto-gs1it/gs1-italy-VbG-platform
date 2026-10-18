@@ -13,7 +13,7 @@ import { RippleArt, ShieldArt } from './illustrations'
 import { RawData } from './RawData'
 import { ErrorList } from './ErrorList'
 import { translateSyntax } from '../lib/errors'
-import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
+import { Counter, Delta, InfoPopover, Panel, SectionHeader, Select, StatusPill } from './ui'
 
 const PERIODS = [
   { days: 7, label: '7 giorni', long: 'negli ultimi 7 giorni' },
@@ -329,16 +329,26 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                   <Panel title="Conformità agli standard GS1">
                     <ComplianceBar data={data.conformita} />
                   </Panel>
-                  <Panel title="Errori di sintassi più frequenti" subtitle="Segnalati dalla verifica GS1 dei dati, con la spiegazione in italiano.">
+                  <Panel title="Errori di sintassi più frequenti" subtitle="Clicca l’icona per la spiegazione di ogni errore.">
                     <DataTable rows={data.errori_sintassi} empty="Nessun errore di sintassi nel periodo." columns={[
-                      { label: 'Errore', render: (x) => <>{translateSyntax(x.errore) ?? 'Dati non conformi alle regole GS1.'}<code className="cell-sub wrap">{x.errore}</code></> },
+                      { label: 'Errore', render: (x) => (
+                        <span className="err-cell">
+                          <span>{translateSyntax(x.errore) ?? 'Dati non conformi alle regole GS1.'}</span>
+                          <InfoPopover label="Perché è un errore" align="left">
+                            <b className="info-title">Dati non conformi alle regole GS1</b>
+                            <span className="info-text">La verifica GS1 dei dati (GS1 Barcode Syntax Engine) ha trovato un valore che non rispetta le regole degli Application Identifier (AI): {translateSyntax(x.errore) ?? 'vedi il messaggio originale'}</span>
+                            <code className="err-original">{x.errore}</code>
+                            <span className="info-text"><b>Come correggere:</b> correggere i dati nel software che genera il codice, secondo le regole dell’AI indicato.</span>
+                          </InfoPopover>
+                        </span>
+                      ) },
                       { label: 'Letture', render: (x) => num(x.letture), numeric: true },
                     ]} />
                   </Panel>
                 </div>
                 <Panel
                   title="Aziende con errori nei codici"
-                  subtitle="Per ogni azienda, il motivo di ciascun errore e come correggerlo."
+                  subtitle="Per ogni errore, clicca l’icona per sapere il motivo e come correggerlo."
                   table={
                     <DataTable rows={data.qualita} empty="Nessun errore nel periodo." columns={[
                       { label: 'Titolare', render: (q) => <><b>{q.titolare ?? '–'}</b><small className="cell-sub">prefisso {q.company_prefix}</small></> },

@@ -1,5 +1,5 @@
 import { Empty } from './charts'
-import { StatusPill } from './ui'
+import { InfoPopover, StatusPill } from './ui'
 import { explain, reasonsFromCounts } from '../lib/errors'
 import { gtinDisplay, num, pct } from '../lib/format'
 import type { DashboardData, ErrorReason } from '../lib/types'
@@ -31,12 +31,15 @@ export function ErrorList({ rows }: { rows: DashboardData['qualita'] }) {
                     <div className="err-reason-top">
                       <StatusPill tone={TONE[r.tipo]}>{TAG[r.tipo]}</StatusPill>
                       <span className="err-count">{num(r.letture)} {r.letture === 1 ? 'scansione' : 'scansioni'}</span>
+                      <InfoPopover label={`Perché è un errore: ${e.title}`}>
+                        <b className="info-title">{e.title}</b>
+                        <span className="info-text">{e.detail}</span>
+                        {e.original && <code className="err-original">{e.original}</code>}
+                        <span className="info-text"><b>Come correggere:</b> {e.fix}</span>
+                        {r.esempio && <span className="info-muted">Esempio: <code>{gtinDisplay(r.esempio)}</code></span>}
+                      </InfoPopover>
                     </div>
                     <p className="err-title">{e.title}{r.simbologia && <span> · {r.simbologia}</span>}</p>
-                    <p className="err-detail">{e.detail}</p>
-                    {e.original && <code className="err-original">{e.original}</code>}
-                    <p className="err-fix"><b>Come correggere:</b> {e.fix}</p>
-                    {r.esempio && <p className="err-example">Esempio: <code>{gtinDisplay(r.esempio)}</code></p>}
                   </li>
                 )
               })}
