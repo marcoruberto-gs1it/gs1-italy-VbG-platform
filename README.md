@@ -24,7 +24,7 @@ npm run dev
 
 1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app).
 2. **Authentication → Sign In / Providers**: disattiva *Allow new users to sign up*.
-3. **Authentication → URL Configuration**: imposta *Site URL* e *Redirect URLs* con l'indirizzo della dashboard (e `http://localhost:5173` per lo sviluppo).
+3. **Authentication → URL Configuration**: imposta *Site URL* e *Redirect URLs* con `https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/` (e `http://localhost:5173` per lo sviluppo). Con l'accesso a password della demo non sono usati, servono per i futuri accessi via email.
 4. **Authentication → Users → Add user**: crea gli utenti (email e password, con *Auto Confirm User*), poi abilitali:
    ```sql
    insert into public.dashboard_users (email, role) values ('nome.cognome@gs1it.org', 'admin');
@@ -32,8 +32,7 @@ npm run dev
 
 ## Pubblicazione
 
-- **GitHub Pages**: a ogni push su `main` il workflow `.github/workflows/pages.yml` pubblica su https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/
-- **Cloudflare Workers** (file statici): `npm run deploy` → https://gs1-vbg-platform.marco-ruberto.workers.dev
+La dashboard è pubblicata solo su **GitHub Pages**: a ogni push su `main` il workflow `.github/workflows/pages.yml` la compila e la pubblica su https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/
 
 ## Grafici
 

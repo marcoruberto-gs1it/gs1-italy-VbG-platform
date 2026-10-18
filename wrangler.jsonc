@@ -1,7 +1,0 @@
-{
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "gs1-vbg-platform",
-  "compatibility_date": "2026-09-30",
-  // Solo file statici: i dati arrivano da Supabase, protetti dal login e dalla lista degli utenti abilitati.
-  "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }
-}
