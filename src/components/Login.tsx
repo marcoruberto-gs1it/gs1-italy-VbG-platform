@@ -1,29 +1,36 @@
 import { useState } from 'react'
-import { ArrowRight, MailCheck } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { configured, supabase } from '../lib/supabase'
 
+/*
+ * Accesso della demo: utente e password (Supabase Auth).
+ * Un nome senza "@" (es. "demo") corrisponde a un indirizzo interno su un dominio riservato,
+ * che non riceve posta. Gli utenti li crea solo un amministratore: la registrazione libera è chiusa.
+ */
+const INTERNAL_DOMAIN = 'vbg-platform.example'
+const toEmail = (user: string) => (user.includes('@') ? user : `${user}@${INTERNAL_DOMAIN}`).trim().toLowerCase()
+
 export function Login() {
-  const [email, setEmail] = useState('')
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [user, setUser] = useState('')
+  const [password, setPassword] = useState('')
+  const [visible, setVisible] = useState(false)
+  const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    setState('sending')
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      // Solo gli utenti creati da un amministratore possono accedere: nessuna registrazione libera.
-      options: { shouldCreateUser: false, emailRedirectTo: window.location.origin + window.location.pathname },
-    })
+    setBusy(true)
+    setMessage('')
+    const { error } = await supabase.auth.signInWithPassword({ email: toEmail(user), password })
+    setBusy(false)
     if (error) {
-      setState('error')
-      setMessage(/signups not allowed|not found|otp_disabled/i.test(error.message)
-        ? 'Questo indirizzo non è abilitato alla piattaforma. Chiedi l’accesso al referente GS1 Italy.'
-        : `Invio non riuscito: ${error.message}`)
-      return
+      setMessage(/invalid login credentials/i.test(error.message)
+        ? 'Utente o password non corretti.'
+        : /rate limit|too many/i.test(error.message)
+          ? 'Troppi tentativi: riprova tra qualche minuto.'
+          : `Accesso non riuscito: ${error.message}`)
     }
-    setState('sent')
   }
 
   return (
@@ -35,20 +42,21 @@ export function Login() {
 
         {!configured ? (
           <p className="notice">La piattaforma non è ancora collegata a Supabase: manca la chiave pubblica del progetto.</p>
-        ) : state === 'sent' ? (
-          <div className="sent">
-            <MailCheck size={28} />
-            <p>Ti abbiamo inviato un link di accesso a <b>{email}</b>. Aprilo da questo dispositivo.</p>
-            <button className="ghost-btn" type="button" onClick={() => setState('idle')}>Usa un altro indirizzo</button>
-          </div>
         ) : (
           <form onSubmit={(e) => void submit(e)}>
-            <label htmlFor="email">Email aziendale</label>
-            <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome.cognome@gs1it.org" />
-            <button className="primary-btn" type="submit" disabled={state === 'sending'}>
-              {state === 'sending' ? 'Invio in corso…' : 'Invia link di accesso'} <ArrowRight size={18} />
+            <label htmlFor="user">Utente</label>
+            <input id="user" required autoComplete="username" autoCapitalize="none" spellCheck={false} value={user} onChange={(e) => setUser(e.target.value)} placeholder="demo" />
+            <label htmlFor="password">Password</label>
+            <div className="password-field">
+              <input id="password" type={visible ? 'text' : 'password'} required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <button type="button" onClick={() => setVisible((v) => !v)} aria-label={visible ? 'Nascondi la password' : 'Mostra la password'}>
+                {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <button className="primary-btn" type="submit" disabled={busy}>
+              {busy ? 'Accesso in corso…' : 'Accedi'} <ArrowRight size={18} />
             </button>
-            {state === 'error' && <p className="form-error" role="alert">{message}</p>}
+            {message && <p className="form-error" role="alert">{message}</p>}
           </form>
         )}
         <a className="demo-link" href="?demo">Guarda la dashboard con dati dimostrativi</a>
