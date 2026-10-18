@@ -1,0 +1,27 @@
+<!-- Supabase → Authentication → Emails → Templates → "Magic link".
+     Oggetto consigliato: Il tuo link di accesso a VbG Platform -->
+<div style="margin:0;padding:32px 16px;background:#eef2f8;font-family:Arial,Helvetica,sans-serif;color:#0f2147">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden">
+    <div style="background:#002c6c;padding:22px 28px;border-bottom:4px solid #f26334">
+      <span style="color:#ffffff;font-size:20px;font-weight:bold">GS1 Italy</span>
+      <span style="color:#c9d5ea;font-size:14px">&nbsp;·&nbsp;VbG Platform</span>
+    </div>
+    <div style="padding:28px">
+      <h1 style="margin:0 0 12px;font-size:20px;color:#002c6c">Accedi alla dashboard</h1>
+      <p style="margin:0 0 22px;font-size:15px;line-height:1.5">
+        Hai chiesto di accedere agli analytics di VbG Platform con l'indirizzo <b>{{ .Email }}</b>.
+        Il link vale una sola volta e scade dopo poco tempo.
+      </p>
+      <a href="{{ .ConfirmationURL }}"
+         style="display:inline-block;padding:14px 24px;border-radius:10px;background:#f26334;color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none">
+        Accedi a VbG Platform
+      </a>
+      <p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#6b7a90">
+        Se non hai richiesto tu l'accesso, ignora questa email: senza il link nessuno può entrare.
+      </p>
+    </div>
+    <div style="padding:16px 28px;background:#f6f8fb;font-size:12px;color:#6b7a90">
+      GS1 Italy · Via P. Paleocapa 7, 20121 Milano · gs1it.org
+    </div>
+  </div>
+</div>
