@@ -89,8 +89,7 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
       )}
 
       <div className="ov-grid">
-        <h2 className="ov-group-title g-use">Uso e qualità <span>{prev ? `variazioni rispetto ai ${period.label} precedenti` : 'nessun periodo precedente da confrontare'}</span></h2>
-        <h2 className="ov-group-title g-risk">Rischi da verificare</h2>
+        <h2 className="ov-group-title g-use">Numeri chiave <span>{prev ? `variazioni rispetto ai ${period.label} precedenti` : 'nessun periodo precedente da confrontare'}</span></h2>
 
         <KpiCard
           label="Scansioni"

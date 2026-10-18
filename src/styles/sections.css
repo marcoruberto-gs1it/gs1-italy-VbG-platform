@@ -26,8 +26,7 @@
 .ov-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px 14px; }
 .ov-group-title { align-self: end; margin: 2px 2px 0; font-size: var(--fs-xs); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .ov-group-title span { margin-left: 8px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-.ov-group-title.g-use { grid-column: span 4; }
-.ov-group-title.g-risk { grid-column: span 2; color: var(--critical-ink); }
+.ov-group-title.g-use { grid-column: 1 / -1; }
 
 .kpi {
   display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 4px; min-width: 0;
@@ -150,7 +149,6 @@
 /* ───── Adattamento ───── */
 @media (max-width: 1360px) {
   .ov-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .ov-group-title.g-risk { grid-column: span 4; margin-top: 10px; order: 1; }
   .kpi.is-risk { grid-column: span 2; order: 1; }
 }
 
@@ -180,7 +178,6 @@
   .ov-unit { font-size: var(--fs-md); }
   .audience-icon { display: none; }
   .ov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .ov-group-title.g-use, .ov-group-title.g-risk { grid-column: 1 / -1; }
   .kpi.is-risk { grid-column: auto; }
   .kpi { padding: 14px 12px 12px; border-radius: var(--r-md); }
   .kpi-caption { white-space: normal; }
