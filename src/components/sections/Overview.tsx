@@ -26,8 +26,12 @@ function KpiCard({ label, value, full, delta, visual, caption, risk = false, ale
   return (
     <article className={`kpi ${risk ? 'is-risk' : ''} ${alert ? 'is-alert' : ''}`}>
       <p className="kpi-label">{label}</p>
-      <p className="kpi-value" title={full}>{value}</p>
-      <div className="kpi-delta">{delta}</div>
+      <div className="kpi-main">
+        <div className="kpi-main-row">
+          <p className="kpi-value" title={full}>{value}</p>
+          <div className="kpi-delta">{delta}</div>
+        </div>
+      </div>
       <div className="kpi-visual">{visual}</div>
       <p className="kpi-caption">{caption}</p>
     </article>
@@ -68,11 +72,10 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
     <section id="panoramica" className="section overview">
       <header className="ov-head reveal">
         <div className="ov-title">
-          <p className="eyebrow">Panoramica · {period.label} · {country ? countryName(country) : 'mondo'}</p>
-          <h1>
-            <span className="ov-number" title={`${num(k.letture)} scansioni`}><Counter value={k.letture} format={numShort} /></span>
-            <span className="ov-unit">scansioni {period.long}</span>
-          </h1>
+          <h1>Panoramica</h1>
+          <p className="ov-lead">
+            {period.long[0].toUpperCase() + period.long.slice(1)} · {country ? countryName(country) : 'tutto il mondo'}
+          </p>
           <ul className="ov-meta" aria-label="In sintesi">
             <li><Package size={15} aria-hidden="true" /> {numShort(k.prodotti_distinti)} prodotti diversi</li>
             {!country && countries > 0 && <li><a href="#territorio"><MapPinned size={15} aria-hidden="true" /> {num(countries)} {countries === 1 ? 'paese' : 'paesi'}</a></li>}
@@ -97,7 +100,7 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
           full={num(k.letture)}
           delta={prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : noPrev}
           visual={<Sparkline values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label="Andamento giornaliero delle scansioni" />}
-          caption="andamento giornaliero"
+          caption="al giorno"
         />
         <KpiCard
           label="Quota codici 2D"

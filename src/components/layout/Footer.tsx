@@ -30,7 +30,7 @@ export function Footer() {
                 <summary>Dati e privacy della piattaforma</summary>
                 <p>
                   La piattaforma mostra le scansioni fatte con l’app VbG Scan, senza dati personali: niente indirizzo IP né
-                  identificativi, posizione approssimativa (paese, regione, città) dedotta dalla connessione, dei link solo il dominio. Le città si vedono solo con almeno 5 scansioni. L’accesso è riservato agli utenti
+                  identificativi, posizione approssimativa (paese, regione, città) dedotta dalla connessione, dei link solo il dominio. L’accesso è riservato agli utenti
                   autorizzati da GS1 Italy.
                 </p>
               </details>

@@ -12,11 +12,16 @@ export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
         <img src={logo} alt="GS1 Italy" width={52} height={36} />
         <span><b>VbG</b> Platform</span>
       </div>
+      <p className="side-version">versione {__APP_VERSION__}</p>
       <nav aria-label="Sezioni">
+        <p className="side-group">Analisi</p>
         {sections.map(({ id, label, icon: Icon }) => (
-          <a key={id} href={`#${id}`} className={`side-item ${active === id ? 'is-active' : ''}`} aria-current={active === id ? 'location' : undefined}>
-            <Icon size={19} strokeWidth={2.1} /> <span>{label}</span>
-          </a>
+          <div key={id} className="side-entry">
+            {id === 'dati' && <p className="side-group">Dati</p>}
+            <a href={`#${id}`} className={`side-item ${active === id ? 'is-active' : ''}`} aria-current={active === id ? 'location' : undefined}>
+              <Icon size={19} strokeWidth={1.9} /> <span>{label}</span>
+            </a>
+          </div>
         ))}
       </nav>
       <div className="side-foot side-item">

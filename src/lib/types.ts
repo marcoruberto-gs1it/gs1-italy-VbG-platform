@@ -24,7 +24,7 @@ export type DashboardData = {
   paesi?: { country: string; letture: number; letture_2d: number; conformi: number }[]
   /** Aziende con scansioni di codici la cui licenza GS1 risulta scaduta o non attiva. */
   licenze?: { company_prefix: string | null; titolare: string | null; letture: number; prodotti: number; stato_licenza: string | null; stato_scheda: string | null; ultima: string; paesi: string[] | null }[]
-  /** Città approssimative con almeno 5 scansioni (assente nei database non aggiornati). */
+  /** Città approssimative (assente nei database non aggiornati). */
   citta?: { country: string; region_code: string | null; region: string | null; city: string; letture: number; letture_2d: number; conformi: number }[]
   regioni: { country: string | null; region_code: string | null; region: string | null; letture: number; letture_2d: number; conformi: number }[]
   simbologie: { simbologia: string; is_2d: boolean | null; letture: number }[]

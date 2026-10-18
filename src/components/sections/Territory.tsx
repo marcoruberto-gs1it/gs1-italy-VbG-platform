@@ -38,7 +38,7 @@ export function Territory({ data, country, onCountry }: Props) {
       <DataTable
         rows={cities}
         rowKey={(c) => `${c.country}-${c.city}`}
-        empty="Nessuna città con almeno 5 scansioni nel periodo."
+        empty="Nessuna città nel periodo."
         columns={[
           { label: 'Città', render: (c) => cityName(c.city) },
           { label: 'Regione', render: (c) => regionName(c.country, c.region_code, c.region) },
@@ -106,10 +106,10 @@ export function Territory({ data, country, onCountry }: Props) {
                 selectLabel={(r) => `Vedi ${r.label}: regioni e città`}
               />
             ) : (
-              <Empty text={tab === 'citta' ? 'Nessuna città con almeno 5 scansioni nel periodo.' : 'Nessuna regione nel periodo.'} />
+              <Empty text={tab === 'citta' ? 'Nessuna città nel periodo.' : 'Nessuna regione nel periodo.'} />
             )}
             {isWorld && tab === 'aree' && rows.length > 0 && <p className="map-source"><ChevronRight size={12} /> Clicca un paese per vederne regioni e città.</p>}
-            {tab === 'citta' && rows.length > 0 && <p className="map-source">Solo città con almeno 5 scansioni, per riservatezza.</p>}
+            {tab === 'citta' && rows.length > 0 && <p className="map-source">Città approssimativa, dedotta dalla connessione: con le reti mobili spesso è quella del gestore.</p>}
           </div>
         </div>
         <p className="map-source">{country === 'IT' ? 'Confini regionali: ISTAT, CC BY 4.0.' : 'Confini: Natural Earth (dominio pubblico).'} Posizione dedotta dalla connessione, non dal GPS.</p>

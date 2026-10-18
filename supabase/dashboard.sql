@@ -123,7 +123,8 @@ begin
       ) l
     ),
     'citta', (
-      -- Città approssimativa (Cloudflare). Per riservatezza solo città con almeno 5 scansioni.
+      -- Città approssimativa (Cloudflare). Dashboard interna: tutte le città (come nei dati grezzi);
+      -- per una diffusione pubblica raggruppare le città con meno di 5 scansioni.
       select coalesce(jsonb_agg(t order by t.letture desc), '[]'::jsonb) from (
         select country, max(region_code) as region_code, max(region) as region, city,
                count(*)                                  as letture,
@@ -131,7 +132,6 @@ begin
                count(*) filter (where compliance = 'gs1') as conformi
         from e where city is not null
         group by country, city
-        having count(*) >= 5
         order by count(*) desc limit 30
       ) t
     ),

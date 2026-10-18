@@ -11,13 +11,13 @@
 .login-art .ripple-art { justify-self: center; max-width: 420px; }
 .login-art-copy { display: grid; gap: 14px; max-width: 520px; }
 .login-logo { height: 58px; width: auto; padding: 8px 12px; border-radius: 14px; background: #fff; }
-.login-art h1 { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.login-art h1 { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
 .login-points { display: grid; gap: 10px; margin-top: 6px; }
 .login-points li { display: flex; align-items: center; gap: 12px; font-size: var(--fs-md); color: rgba(255, 255, 255, 0.86); }
 .login-points svg { flex: none; color: #ffb08f; }
 .login-form { display: grid; place-items: center; padding: 32px 20px; }
 .login-form-card { width: min(100%, 400px); display: grid; gap: 14px; }
-.login-form-card h2 { font-size: var(--fs-xl); font-weight: 800; color: var(--navy); }
+.login-form-card h2 { font-size: var(--fs-xl); font-weight: 700; color: var(--navy); }
 .login-lead { color: var(--ink-2); line-height: 1.5; font-size: var(--fs-sm); }
 .login-form-card form { display: grid; gap: 8px; margin-top: 6px; }
 .login-form-card label { margin-top: 6px; font-size: var(--fs-xs); font-weight: 700; color: var(--navy); }
@@ -33,7 +33,7 @@
 
 .center-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
 .card-message { width: min(100%, 440px); display: grid; justify-items: center; gap: 14px; text-align: center; padding: 34px 28px; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow); }
-.card-message h1 { font-size: var(--fs-xl); font-weight: 800; color: var(--navy); }
+.card-message h1 { font-size: var(--fs-xl); font-weight: 700; color: var(--navy); }
 .card-message p { color: var(--ink-2); line-height: 1.55; font-size: var(--fs-sm); }
 .message-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; background: var(--critical-bg); color: var(--critical-ink); }
 

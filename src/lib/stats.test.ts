@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mapClass, mapLegend, niceScale, pieSlice, prevShare, share } from './stats'
+import { mapClass, mapLegend, niceScale, pieSlice, prevShare, share, smoothPath } from './stats'
 
 describe('quote', () => {
   it('share e prevShare gestiscono il totale zero', () => {
@@ -45,5 +45,20 @@ describe('pieSlice', () => {
   it('usa l’arco grande oltre metà', () => {
     expect(pieSlice(0.25, 20, 22)).toContain(' 0 0 1 ')
     expect(pieSlice(0.75, 20, 22)).toContain(' 0 1 1 ')
+  })
+})
+
+describe('smoothPath', () => {
+  it('passa per il primo e l’ultimo punto con curve', () => {
+    const d = smoothPath([[0, 10], [50, 0], [100, 20]])
+    expect(d.startsWith('M0.00 10.00')).toBe(true)
+    expect(d.endsWith('100.00 20.00')).toBe(true)
+    expect(d.match(/C/g)).toHaveLength(2)
+  })
+  it('le maniglie non superano i valori dei due punti (niente picchi finti)', () => {
+    const d = smoothPath([[0, 30], [10, 0], [20, 30], [30, 30]])
+    const ys = [...d.matchAll(/C[\d.]+ ([\d.]+) [\d.]+ ([\d.]+)/g)].flatMap((m) => [Number(m[1]), Number(m[2])])
+    expect(Math.min(...ys)).toBeGreaterThanOrEqual(0)
+    expect(Math.max(...ys)).toBeLessThanOrEqual(30)
   })
 })

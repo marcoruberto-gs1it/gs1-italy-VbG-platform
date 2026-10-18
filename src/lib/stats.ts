@@ -34,6 +34,28 @@ export function pieSlice(value: number, r: number, c: number) {
   return `M${c} ${c} L${c} ${c - r} A${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${x} ${y} Z`
 }
 
+/**
+ * Curva morbida che passa per tutti i punti (spline di Catmull-Rom convertita in curve di Bézier),
+ * con le maniglie limitate in verticale per non superare i valori reali.
+ */
+export function smoothPath(points: [number, number][]) {
+  if (!points.length) return ''
+  const f = (n: number) => n.toFixed(2)
+  let d = `M${f(points[0][0])} ${f(points[0][1])}`
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] ?? points[i]
+    const p1 = points[i]
+    const p2 = points[i + 1]
+    const p3 = points[i + 2] ?? p2
+    const lo = Math.min(p1[1], p2[1])
+    const hi = Math.max(p1[1], p2[1])
+    const c1y = Math.min(hi, Math.max(lo, p1[1] + (p2[1] - p0[1]) / 6))
+    const c2y = Math.min(hi, Math.max(lo, p2[1] - (p3[1] - p1[1]) / 6))
+    d += ` C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(c1y)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(c2y)} ${f(p2[0])} ${f(p2[1])}`
+  }
+  return d
+}
+
 /* ───── Mappa: classi di colore ───── */
 
 export const MAP_CLASSES = 6

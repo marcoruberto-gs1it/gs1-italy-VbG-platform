@@ -1,11 +1,13 @@
 import { Globe2, LogIn, LogOut, RefreshCw } from 'lucide-react'
 import logo from '../../assets/gs1-italy-logo.png'
 import { AUDIENCE_ICONS, AUDIENCES, type AudienceId } from '../../lib/audiences'
-import { PERIODS } from '../../lib/config'
+import { PERIODS, sectionById, type SectionId } from '../../lib/config'
 import { countryName, flag } from '../../lib/format'
 import { Select } from '../ui'
 
 type Props = {
+  /** Sezione che si sta guardando (percorso in alto a sinistra). */
+  active: SectionId
   /** Paesi con scansioni nel periodo, dal più frequente. */
   countries: string[]
   days: number
@@ -35,7 +37,7 @@ function areaOptions(countries: string[], selected: string) {
  * Barra in alto: le scelte che valgono per tutta la pagina, in un solo posto — periodo, area
  * (mondo o un paese) e vista. Su telefono e tablet anche marchio e account.
  */
-export function Topbar({ countries, days, country, audience, loading, demo, onDays, onCountry, onAudience, onReload, onSignOut }: Props) {
+export function Topbar({ active, countries, days, country, audience, loading, demo, onDays, onCountry, onAudience, onReload, onSignOut }: Props) {
   return (
     <header className="topbar">
       <div className="topbar-brand">
@@ -46,6 +48,7 @@ export function Topbar({ countries, days, country, audience, loading, demo, onDa
           <button className="btn ghost small" type="button" onClick={onSignOut}><LogOut size={15} /> Esci</button>
         )}
       </div>
+      <p className="crumbs" aria-label="Percorso"><span>Dashboard</span> / <b>{sectionById(active).label}</b></p>
       <div className="filters" role="toolbar" aria-label="Filtri della pagina">
         <div className="segmented periods" role="radiogroup" aria-label="Periodo">
           {PERIODS.map((p) => (

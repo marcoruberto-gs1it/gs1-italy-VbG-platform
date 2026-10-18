@@ -75,7 +75,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
       <div className="layout" ref={root}>
         <Sidebar sections={sections} active={active} demo={demo} email={email} onSignOut={onSignOut} />
         <div className="main">
-          <Topbar countries={data?.paesi?.map((c) => c.country) ?? []} days={days} country={country} audience={audience} loading={loading} demo={demo} onDays={onDays} onCountry={onCountry} onAudience={setAudience} onReload={onReload} onSignOut={onSignOut} />
+          <Topbar active={active} countries={data?.paesi?.map((c) => c.country) ?? []} days={days} country={country} audience={audience} loading={loading} demo={demo} onDays={onDays} onCountry={onCountry} onAudience={setAudience} onReload={onReload} onSignOut={onSignOut} />
           <MobileNav sections={sections} active={active} />
           <main className="content">
             {error && <p className="notice is-error" role="alert"><TriangleAlert size={18} /> {error}</p>}
