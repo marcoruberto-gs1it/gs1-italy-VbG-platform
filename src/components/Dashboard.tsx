@@ -44,6 +44,8 @@ type Props = {
 }
 
 const share = (part: number, total: number) => (total ? part / total : 0)
+/** Quota del periodo precedente solo se c'era una base su cui calcolarla (altrimenti nessun confronto). */
+const prevShare = (part: number | undefined, total: number | undefined) => (part != null && total ? part / total : null)
 const pctNum = (n: number) => `${(Math.round(n * 10) / 10).toLocaleString('it-IT')}%`
 
 /** Sezione attiva nella barra laterale, in base a ciò che è sullo schermo. */
@@ -99,6 +101,8 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
     { scope: root, dependencies: [Boolean(data)], revertOnUpdate: true },
   )
 
+  // Senza scansioni nel periodo precedente un confronto sarebbe fuorviante: non lo mostriamo.
+  const prev = previous && previous.letture > 0 ? previous : null
   const regionsIt = data?.regioni.filter((r) => r.country === 'IT' && r.region_code).length ?? 0
 
   return (
@@ -188,31 +192,31 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                     <IconTile icon={ScanBarcode} tone="navy" />
                     <p className="kpi-label">Scansioni</p>
                     <p className="kpi-value"><Counter value={k.letture} format={num} /></p>
-                    <Delta now={k.letture} before={previous?.letture} good="neutral" />
+                    {prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : <span className="delta is-neutral">Periodo precedente senza dati</span>}
                   </article>
                   <article className="kpi">
                     <IconTile icon={QrCode} tone="orange" />
                     <p className="kpi-label">Quota codici 2D</p>
                     <p className="kpi-value"><Counter value={share(k.letture_2d, k.letture_simbolo) * 100} format={pctNum} /></p>
-                    <Delta now={share(k.letture_2d, k.letture_simbolo)} before={previous ? share(previous.letture_2d, previous.letture_simbolo) : null} mode="points" good="up" />
+                    <Delta now={share(k.letture_2d, k.letture_simbolo)} before={prevShare(prev?.letture_2d, prev?.letture_simbolo)} mode="points" good="up" />
                   </article>
                   <article className="kpi">
                     <IconTile icon={BadgeCheck} tone="sky" />
                     <p className="kpi-label">Conformi agli standard GS1</p>
                     <p className="kpi-value"><Counter value={share(k.conformi, k.letture_simbolo) * 100} format={pctNum} /></p>
-                    <Delta now={share(k.conformi, k.letture_simbolo)} before={previous ? share(previous.conformi, previous.letture_simbolo) : null} mode="points" good="up" />
+                    <Delta now={share(k.conformi, k.letture_simbolo)} before={prevShare(prev?.conformi, prev?.letture_simbolo)} mode="points" good="up" />
                   </article>
                   <article className="kpi">
                     <IconTile icon={ShieldCheck} tone="sky" />
                     <p className="kpi-label">Schede VbG complete (7/7)</p>
                     <p className="kpi-value"><Counter value={share(k.schede_complete, k.schede_valutate) * 100} format={pctNum} /></p>
-                    <Delta now={share(k.schede_complete, k.schede_valutate)} before={previous ? share(previous.schede_complete, previous.schede_valutate) : null} mode="points" good="up" />
+                    <Delta now={share(k.schede_complete, k.schede_valutate)} before={prevShare(prev?.schede_complete, prev?.schede_valutate)} mode="points" good="up" />
                   </article>
                   <article className={`kpi ${k.allerte_link ? 'is-alert' : ''}`}>
                     <IconTile icon={ShieldAlert} tone="peach" />
                     <p className="kpi-label">Allerte di brand protection</p>
                     <p className="kpi-value"><Counter value={k.allerte_link} format={num} /></p>
-                    <Delta now={k.allerte_link} before={previous?.allerte_link} good="down" />
+                    <Delta now={k.allerte_link} before={prev?.allerte_link} good="down" />
                   </article>
                 </div>
               </section>
