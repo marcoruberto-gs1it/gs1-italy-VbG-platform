@@ -2,6 +2,7 @@ import { LogOut, RefreshCw } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { dateTime, day, gtinDisplay, num, pct, regionName } from '../lib/format'
 import type { DashboardData } from '../lib/types'
+import { fillDays } from '../lib/days'
 import { BarList, ComplianceBar, DailyChart, DataTable, Panel, StatTile } from './charts'
 
 export const PERIODS = [
@@ -76,7 +77,7 @@ export function Dashboard({ data, loading, error, days, country, demo, email, on
                 title="Scansioni al giorno"
                 subtitle="Barcode 1D e codici 2D letti con la fotocamera o da foto; esclusi gli inserimenti a mano."
                 table={
-                  <DataTable rows={data.giornaliero} columns={[
+                  <DataTable rows={data.giornaliero.filter((r) => r.letture_1d + r.letture_2d + r.manuali)} columns={[
                     { label: 'Giorno', render: (r) => day(r.giorno) },
                     { label: 'Barcode 1D', render: (r) => num(r.letture_1d), numeric: true },
                     { label: 'Codici 2D', render: (r) => num(r.letture_2d), numeric: true },
@@ -85,7 +86,7 @@ export function Dashboard({ data, loading, error, days, country, demo, email, on
                   ]} />
                 }
               >
-                <DailyChart data={data.giornaliero} />
+                <DailyChart data={fillDays(data.giornaliero, days)} />
               </Panel>
 
               <Panel title="Scansioni per regione" subtitle="Regione dedotta da Cloudflare dalla connessione; con le reti mobili può risultare la sede del gestore.">

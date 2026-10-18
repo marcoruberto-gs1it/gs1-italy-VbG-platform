@@ -59,11 +59,14 @@ function topRounded(x: number, y: number, w: number, h: number, r: number) {
   return `M${x},${y + h}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${y + h}Z`
 }
 
-function niceMax(v: number) {
-  if (v <= 0) return 4
-  const p = 10 ** Math.floor(Math.log10(v))
-  const n = v / p
-  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p
+/** Scala con tacche tonde (1, 2, 5 × 10ⁿ), circa quattro intervalli, solo numeri interi. */
+function niceScale(v: number) {
+  const raw = Math.max(1, v) / 4
+  const p = 10 ** Math.floor(Math.log10(raw))
+  const n = raw / p
+  const step = Math.max(1, (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p)
+  const max = Math.max(step, Math.ceil(v / step) * step)
+  return { max, ticks: Array.from({ length: Math.round(max / step) + 1 }, (_, i) => i * step) }
 }
 
 export function DailyChart({ data }: { data: DashboardData['giornaliero'] }) {
@@ -74,15 +77,14 @@ export function DailyChart({ data }: { data: DashboardData['giornaliero'] }) {
   const innerW = Math.max(10, width - pad.left - pad.right)
   const innerH = height - pad.top - pad.bottom
   const totals = data.map((d) => d.letture_1d + d.letture_2d)
-  const max = niceMax(Math.max(0, ...totals))
+  const { max, ticks } = niceScale(Math.max(0, ...totals))
   const step = innerW / Math.max(1, data.length)
   const barW = Math.max(2, Math.min(28, step - 3))
   const y = (v: number) => pad.top + innerH - (v / max) * innerH
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * max)
   const labelEvery = Math.ceil(data.length / Math.max(2, Math.floor(innerW / 70)))
   const active = hover != null ? data[hover] : null
 
-  if (!data.length) return <p className="empty">Nessuna scansione nel periodo.</p>
+  if (!totals.some(Boolean) && !data.some((d) => d.manuali)) return <p className="empty">Nessuna scansione nel periodo.</p>
 
   return (
     <div className="chart" ref={ref}>
