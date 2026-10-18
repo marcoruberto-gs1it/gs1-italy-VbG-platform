@@ -104,7 +104,7 @@ export function SectionHeader({ id, title, text }: { id: string; title: string; 
 /* Menu a tendina del UI kit (sostituisce il <select> nativo): lista accessibile da tastiera. */
 export type SelectOption<T extends string> = { value: T; label: string; hint?: string; icon?: LucideIcon }
 
-export function Select<T extends string>({ value, options, onChange, label, icon: TriggerIcon }: { value: T; options: SelectOption<T>[]; onChange: (value: T) => void; label: string; icon?: LucideIcon }) {
+export function Select<T extends string>({ value, options, onChange, label, icon: TriggerIcon, align = 'right' }: { value: T; options: SelectOption<T>[]; onChange: (value: T) => void; label: string; icon?: LucideIcon; align?: 'left' | 'right' }) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const root = useRef<HTMLDivElement>(null)
@@ -155,7 +155,7 @@ export function Select<T extends string>({ value, options, onChange, label, icon
 
   const CurrentIcon = current.icon ?? TriggerIcon
   return (
-    <div className={`select ${open ? 'is-open' : ''}`} ref={root}>
+    <div className={`select align-${align} ${open ? 'is-open' : ''}`} ref={root}>
       <button
         type="button"
         className="select-trigger"

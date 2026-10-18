@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BadgeCheck, ChevronRight, Globe2, LayoutDashboard, LogOut, Map as MapIcon, QrCode, RefreshCw,
-  ShieldAlert, Tags, Link2, TriangleAlert, MapPin,
+  ShieldAlert, Tags, Link2, TriangleAlert, MapPin, Table2,
 } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { fillDays } from '../lib/days'
 import { dateTime, day, gtinDisplay, num, pct, regionName } from '../lib/format'
-import { gsap, motionOk, ScrollTrigger, useGSAP } from '../lib/motion'
+import { gsap, motionOk, useGSAP } from '../lib/motion'
 import type { DashboardData, Kpi } from '../lib/types'
 import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
+import { RawData } from './RawData'
 import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
 
 const PERIODS = [
@@ -26,6 +27,7 @@ const SECTIONS = [
   { id: 'qualita', label: 'Qualità dei codici', icon: BadgeCheck },
   { id: 'categorie', label: 'Categorie', icon: Tags },
   { id: 'protezione', label: 'Brand protection', icon: ShieldAlert },
+  { id: 'dati', label: 'Dati grezzi', icon: Table2 },
 ] as const
 
 type Props = {
@@ -113,11 +115,21 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
         .from('.kpi', { y: 22, opacity: 0, duration: 0.55, stagger: 0.07 }, 0.45)
       gsap.to('.ga-wave', { attr: { r: 128 }, strokeOpacity: 0, duration: 3.2, ease: 'sine.out', stagger: { each: 0.8, repeat: -1 } })
       gsap.fromTo('.ga-scanline', { y: -16 }, { y: 16, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-      ScrollTrigger.batch('.reveal', {
-        start: 'top 90%',
-        once: true,
-        onEnter: (batch) => gsap.fromTo(batch, { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', stagger: 0.08, overwrite: true }),
-      })
+      // Comparsa allo scorrimento: anima solo ciò che entra davvero sullo schermo. Con un salto lungo
+      // (link del menu, ricarica a metà pagina) non si accoda tutto ciò che è stato saltato.
+      const reveal = gsap.utils.toArray<HTMLElement>('.reveal')
+      gsap.set(reveal, { opacity: 0, y: 26 })
+      const io = new IntersectionObserver(
+        (entries) => {
+          const shown = entries.filter((e) => e.isIntersecting).map((e) => e.target)
+          if (!shown.length) return
+          shown.forEach((el) => io.unobserve(el))
+          gsap.to(shown, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', stagger: 0.08 })
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      )
+      reveal.forEach((el) => io.observe(el))
+      return () => io.disconnect()
     },
     // revertOnUpdate: quando arrivano i dati si riparte da zero, senza ereditare stati a metà animazione.
     { scope: root, dependencies: [Boolean(data)], revertOnUpdate: true },
@@ -392,6 +404,12 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                     ]} />
                   </Panel>
                 </div>
+              </section>
+
+              {/* ───── Dati grezzi ───── */}
+              <section className="section">
+                <SectionHeader id="dati" title="Dati grezzi" text="Le singole scansioni del periodo, filtrabili. Aprire un dettaglio interroga Verified by GS1 senza registrare una nuova scansione." />
+                <RawData days={days} country={country} demo={demo} symbologies={data.simbologie.map((s) => s.simbologia)} />
               </section>
 
               <footer className="page-foot">

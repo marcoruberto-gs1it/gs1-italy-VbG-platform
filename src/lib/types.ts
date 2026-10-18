@@ -26,3 +26,53 @@ export type DashboardData = {
   non_assegnati: { inizio_codice: string; letture: number; codici: number; ultima: string }[]
   domini: { dominio: string; letture: number; verificati: number; sospetti: number }[]
 }
+
+/** Una scansione così come è salvata in scan_events (nessun dato personale). */
+export type ScanEvent = {
+  id: number
+  created_at: string
+  country: string | null
+  region_code: string | null
+  region: string | null
+  is_eu: boolean | null
+  source: 'camera' | 'image' | 'manual'
+  device: 'mobile' | 'desktop' | null
+  app_version: string | null
+  symbology: string | null
+  is_2d: boolean | null
+  content_kind: 'gs1' | 'url' | 'text' | null
+  compliance: 'gs1' | 'error' | 'partial' | 'manual' | 'none' | null
+  check_digit_ok: boolean | null
+  syntax_ok: boolean | null
+  syntax_error: string | null
+  primary_ai: string | null
+  primary_key: string | null
+  ai_list: string[] | null
+  issuer_mo: string | null
+  vbg_state: 'verified' | 'licensed' | 'invalid' | 'error' | null
+  vbg_complete: boolean | null
+  vbg_core_count: number | null
+  vbg_error_code: string | null
+  company_prefix: string | null
+  licensee_name: string | null
+  licensee_gln: string | null
+  licensing_mo: string | null
+  gpc_brick: string | null
+  gpc_brick_name: string | null
+  gpc_segment: string | null
+  link_domain: string | null
+  link_level: 'trusted' | 'unknown' | 'danger' | 'pending' | null
+  link_imitates: string | null
+  link_threats: string[] | null
+}
+
+export type EventFilters = {
+  q: string
+  symbology: string
+  compliance: string
+  vbg_state: string
+  link_level: string
+  source: string
+}
+
+export type EventsPage = { total: number; rows: ScanEvent[] }

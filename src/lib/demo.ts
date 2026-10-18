@@ -100,3 +100,91 @@ export function demoData(days: number): DashboardData {
     ],
   }
 }
+
+/* ───── Dati grezzi dimostrativi: righe di scan_events plausibili, filtrate come fa il database ───── */
+
+import type { EventFilters, EventsPage, ScanEvent } from './types'
+
+const DEMO_PRODUCTS = [
+  { key: '08076809513388', prefix: '8076809', owner: 'Marchio Esempio S.p.A.', brick: '10000043', cat: 'Pasta Secca' },
+  { key: '08012345000017', prefix: '8012345', owner: 'Pastificio Esempio S.r.l.', brick: '10000043', cat: 'Pasta Secca' },
+  { key: '08054321000124', prefix: '8054321', owner: 'Conserve Dimostrative S.p.A.', brick: '10000057', cat: 'Salse/Sughi - Da Cucina (Ambiente)' },
+  { key: '08009876000231', prefix: '8009876', owner: 'Latteria Campione Soc. Coop.', brick: '10000117', cat: 'Formaggi - Duri/Semiduri' },
+  { key: '08000500310427', prefix: '8000500', owner: 'Dolciaria Esempio S.p.A.', brick: '10000248', cat: 'Biscotti/Cracker Dolci' },
+  { key: '08002270000145', prefix: '8002270', owner: 'Fonti Dimostrative S.r.l.', brick: '10000227', cat: 'Acqua Minerale' },
+]
+const DEMO_SYMBOLOGIES: [string, boolean | null, ScanEvent['source']][] = [
+  ['EAN-13', false, 'camera'], ['EAN-13', false, 'camera'], ['EAN-13', false, 'image'], ['QR Code Standard GS1', true, 'camera'],
+  ['GS1 DataMatrix', true, 'camera'], ['GS1-128', false, 'camera'], ['EAN-8', false, 'camera'], ['GS1 DataBar', false, 'camera'],
+  ['Codice con link', true, 'camera'], ['Inserito a mano', null, 'manual'],
+]
+const DEMO_REGIONS: [string, string][] = [['25', 'Lombardy'], ['62', 'Lazio'], ['72', 'Campania'], ['34', 'Veneto'], ['45', 'Emilia-Romagna'], ['21', 'Piedmont'], ['82', 'Sicily']]
+
+let demoRows: ScanEvent[] | null = null
+
+function buildDemoRows(): ScanEvent[] {
+  const r = rng(4242)
+  const pick = <T,>(list: T[]) => list[Math.floor(r() * list.length)]
+  return Array.from({ length: 420 }, (_, i) => {
+    const [symbology, is2d, source] = pick(DEMO_SYMBOLOGIES)
+    const product = pick(DEMO_PRODUCTS)
+    const [region_code, region] = pick(DEMO_REGIONS)
+    const roll = r()
+    const link = symbology === 'Codice con link' || (symbology === 'QR Code Standard GS1' && r() < 0.4)
+    const compliance: ScanEvent['compliance'] =
+      source === 'manual' ? 'manual' : symbology === 'Codice con link' ? 'none' : roll < 0.035 ? 'error' : roll < 0.06 ? 'partial' : 'gs1'
+    const isGs1 = compliance !== 'none'
+    const vbgRoll = r()
+    const vbg: ScanEvent['vbg_state'] = !isGs1 ? null : compliance === 'error' && vbgRoll < 0.5 ? 'invalid' : vbgRoll < 0.72 ? 'verified' : vbgRoll < 0.95 ? 'licensed' : 'invalid'
+    const core = vbg === 'verified' ? 4 + Math.floor(r() * 4) : null
+    const suspicious = link && r() < 0.12
+    const minutes = Math.floor(i * 95 + r() * 80)
+    return {
+      id: 100000 - i,
+      created_at: new Date(Date.now() - minutes * 60_000).toISOString(),
+      country: 'IT', region_code, region, is_eu: true,
+      source, device: r() < 0.86 ? 'mobile' : 'desktop', app_version: '1.4.0',
+      symbology, is_2d: is2d,
+      content_kind: symbology === 'Codice con link' ? 'url' : 'gs1',
+      compliance,
+      check_digit_ok: isGs1 ? compliance !== 'error' || r() < 0.4 : null,
+      syntax_ok: isGs1 ? compliance === 'gs1' || compliance === 'manual' : null,
+      syntax_error: compliance === 'error' ? 'AI (17): data non valida (mese 13)' : compliance === 'partial' ? 'Dati GS1 senza FNC1 iniziale' : null,
+      primary_ai: isGs1 ? '01' : null,
+      primary_key: isGs1 ? (vbg === 'invalid' ? '08099999' + String(100000 + i).slice(-6) : product.key) : null,
+      ai_list: !isGs1 ? null : is2d ? ['01', '10', '17'] : ['01'],
+      issuer_mo: isGs1 ? 'GS1 Italy' : null,
+      vbg_state: vbg,
+      vbg_complete: core == null ? null : core === 7,
+      vbg_core_count: core,
+      vbg_error_code: vbg === 'invalid' ? 'E039' : null,
+      company_prefix: vbg && vbg !== 'invalid' ? product.prefix : null,
+      licensee_name: vbg && vbg !== 'invalid' ? product.owner : null,
+      licensee_gln: vbg && vbg !== 'invalid' ? `${product.prefix}000003` : null,
+      licensing_mo: vbg && vbg !== 'invalid' ? 'GS1 Italy' : null,
+      gpc_brick: vbg === 'verified' ? product.brick : null,
+      gpc_brick_name: vbg === 'verified' ? product.cat : null,
+      gpc_segment: vbg === 'verified' ? 'Alimentari/Bevande' : null,
+      link_domain: link ? (suspicious ? 'marchio-esernpio.com' : r() < 0.6 ? 'id.gs1.it' : 'marchio-esempio.com') : null,
+      link_level: link ? (suspicious ? 'danger' : 'trusted') : null,
+      link_imitates: suspicious ? 'marchio-esempio.com' : null,
+      link_threats: suspicious && r() < 0.5 ? ['SOCIAL_ENGINEERING'] : null,
+    }
+  })
+}
+
+export function demoEvents(days: number, filters: EventFilters, limit: number, offset: number): EventsPage {
+  demoRows ??= buildDemoRows()
+  const from = Date.now() - days * 86_400_000
+  const q = filters.q.trim().toLowerCase()
+  const matches = (e: ScanEvent) =>
+    new Date(e.created_at).getTime() >= from &&
+    (!filters.symbology || e.symbology === filters.symbology) &&
+    (!filters.compliance || e.compliance === filters.compliance) &&
+    (!filters.vbg_state || (filters.vbg_state === 'none' ? e.vbg_state == null : e.vbg_state === filters.vbg_state)) &&
+    (!filters.link_level || (filters.link_level === 'none' ? e.link_domain == null : e.link_level === filters.link_level)) &&
+    (!filters.source || e.source === filters.source) &&
+    (!q || [e.primary_key, e.licensee_name, e.gpc_brick_name, e.link_domain].some((v) => v?.toLowerCase().includes(q)) || Boolean(e.company_prefix?.startsWith(q)))
+  const rows = demoRows.filter(matches)
+  return { total: rows.length, rows: rows.slice(offset, offset + limit) }
+}

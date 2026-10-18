@@ -7,7 +7,8 @@ Dashboard degli analytics raccolti dall'app di scansione [gs1-italy-VbG-app](htt
 - **Demo**: login con utente e password (Supabase Auth), già precompilati nella schermata di accesso (`demo` / `gs1italy`, in `src/components/Login.tsx`): sono pubblici, da togliere prima della produzione. L'utente `demo` corrisponde all'indirizzo interno `demo@vbg-platform.example`, su un dominio riservato che non riceve posta. Per la produzione è previsto l'accesso via email o SSO aziendale (modello email in `supabase/email-magic-link.html`).
 - Non esiste la registrazione libera: gli utenti li crea un amministratore.
 - Vede i dati solo chi è nella tabella `dashboard_users`.
-- La dashboard non legge mai le singole scansioni: riceve solo aggregati dalla funzione `dashboard_data`, che verifica l'autorizzazione prima di calcolarli (`supabase/dashboard.sql`).
+- I grafici ricevono solo aggregati dalla funzione `dashboard_data`; la sezione *Dati grezzi* legge le singole scansioni (senza dati personali) dalla funzione `dashboard_events`. Entrambe verificano l'autorizzazione prima di restituire qualcosa (`supabase/dashboard.sql`, `supabase/raw-data.sql`).
+- Aprire il dettaglio di una scansione consulta Verified by GS1 tramite il proxy del Worker, che non registra nulla: le statistiche nascono solo dalle scansioni fatte con l'app.
 - Nel sito c'è solo la chiave *publishable* di Supabase, pensata per il browser. La chiave segreta resta nel Worker dell'app.
 
 ## Avvio
@@ -22,7 +23,7 @@ npm run dev
 
 ## Configurazione Supabase (una tantum)
 
-1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app).
+1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app) e poi `supabase/raw-data.sql`.
 2. **Authentication → Sign In / Providers**: disattiva *Allow new users to sign up*.
 3. **Authentication → URL Configuration**: imposta *Site URL* e *Redirect URLs* con `https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/` (e `http://localhost:5173` per lo sviluppo). Con l'accesso a password della demo non sono usati, servono per i futuri accessi via email.
 4. **Authentication → Users → Add user**: crea gli utenti (email e password, con *Auto Confirm User*), poi abilitali:
