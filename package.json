@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/montserrat": "^5.3.0",
+    "@fontsource/spline-sans-mono": "^5.3.0",
+    "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.117.2",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.58.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

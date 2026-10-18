@@ -6,7 +6,7 @@ import { Dashboard } from './components/Dashboard'
 import { Login } from './components/Login'
 import { demoData } from './lib/demo'
 import { supabase } from './lib/supabase'
-import type { DashboardData } from './lib/types'
+import type { DashboardData, Kpi } from './lib/types'
 
 const demo = new URLSearchParams(window.location.search).has('demo')
 
@@ -16,6 +16,7 @@ export default function App() {
   const [days, setDays] = useState(30)
   const [country, setCountry] = useState('')
   const [data, setData] = useState<DashboardData | null>(null)
+  const [previous, setPrevious] = useState<Kpi | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [forbidden, setForbidden] = useState(false)
@@ -32,7 +33,11 @@ export default function App() {
 
   const load = useCallback(async () => {
     if (demo) {
-      setData(demoData(Math.min(days, 90)))
+      const current = demoData(Math.min(days, 90))
+      setData(current)
+      // Periodo precedente dimostrativo: un po' meno scansioni e meno 2D.
+      const k = current.kpi
+      setPrevious({ ...k, letture: Math.round(k.letture * 0.84), letture_simbolo: Math.round(k.letture_simbolo * 0.84), letture_2d: Math.round(k.letture_2d * 0.7), conformi: Math.round(k.conformi * 0.83), schede_complete: Math.round(k.schede_complete * 0.8), allerte_link: k.allerte_link + 6 })
       return
     }
     if (!session) return
@@ -40,11 +45,12 @@ export default function App() {
     setError(null)
     const to = new Date()
     const from = new Date(to.getTime() - days * 86_400_000)
-    const { data: result, error: rpcError } = await supabase.rpc('dashboard_data', {
-      p_from: from.toISOString(),
-      p_to: to.toISOString(),
-      p_country: country || null,
-    })
+    const before = new Date(from.getTime() - days * 86_400_000)
+    // Periodo corrente e periodo precedente di pari durata (per i confronti), in parallelo.
+    const [{ data: result, error: rpcError }, prev] = await Promise.all([
+      supabase.rpc('dashboard_data', { p_from: from.toISOString(), p_to: to.toISOString(), p_country: country || null }),
+      supabase.rpc('dashboard_data', { p_from: before.toISOString(), p_to: from.toISOString(), p_country: country || null }),
+    ])
     setLoading(false)
     if (rpcError) {
       if (rpcError.code === '42501') setForbidden(true)
@@ -53,6 +59,7 @@ export default function App() {
     }
     setForbidden(false)
     setData(result as DashboardData)
+    setPrevious(prev.error ? null : (prev.data as DashboardData).kpi)
   }, [session, days, country])
 
   useEffect(() => {
@@ -69,12 +76,12 @@ export default function App() {
   if (!demo && !session) return <Login />
   if (forbidden) {
     return (
-      <main className="login">
-        <div className="login-card">
-          <ShieldX size={36} className="forbidden-icon" />
+      <main className="center-screen">
+        <div className="card-message">
+          <span className="message-icon"><ShieldX size={30} /></span>
           <h1>Account non abilitato</h1>
-          <p className="login-lead">L’indirizzo <b>{session?.user.email}</b> ha effettuato l’accesso, ma non è tra gli utenti autorizzati a vedere gli analytics. Chiedi l’abilitazione al referente GS1 Italy.</p>
-          <button className="ghost-btn" type="button" onClick={() => void signOut()}>Esci</button>
+          <p>L’indirizzo <b>{session?.user.email}</b> ha effettuato l’accesso, ma non è tra gli utenti autorizzati a vedere gli analytics. Chiedi l’abilitazione al referente GS1 Italy.</p>
+          <button className="btn ghost" type="button" onClick={() => void signOut()}>Esci</button>
         </div>
       </main>
     )
@@ -82,6 +89,7 @@ export default function App() {
   return (
     <Dashboard
       data={data}
+      previous={previous}
       loading={loading}
       error={error}
       days={days}

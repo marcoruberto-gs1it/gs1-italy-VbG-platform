@@ -34,6 +34,14 @@ npm run dev
 
 La dashboard è pubblicata solo su **GitHub Pages**: a ogni push su `main` il workflow `.github/workflows/pages.yml` la compila e la pubblica su https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/
 
+## Design
+
+- **UI kit** coerente con l'app di scansione: token in `src/index.css` (colori GS1, tipografia Montserrat inclusa nel sito senza Google Fonts, raggi, ombre, movimento), componenti in `src/components/ui.tsx` (IconTile, Counter, Delta, StatusPill, Panel, SectionHeader).
+- **Illustrazioni e glifi** SVG in `src/components/illustrations.tsx` (onde GS1, simbologie, scudo).
+- **Animazioni GSAP** (`src/lib/motion.ts`): ingresso della pagina, numeri che contano, barre e mappa che si animano entrando nello schermo (ScrollTrigger), onde GS1 in loop. Disattivate se il sistema chiede di ridurre il movimento.
+- **Mappa d'Italia** per regione: confini da [openpolis/geojson-italy](https://github.com/openpolis/geojson-italy) (ISTAT, CC-BY 4.0), semplificati in `src/lib/italy-regions.json`.
+- **Confronti** con il periodo precedente di pari durata su tutti gli indicatori.
+
 ## Grafici
 
 Grafici in SVG/HTML senza librerie esterne. Palette validata per il daltonismo: blu GS1 `#1d4f9a` e arancio GS1 `#f26334`. Gli stati di conformità hanno sempre icona ed etichetta, e ogni grafico ha la vista tabella.
