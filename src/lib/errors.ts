@@ -3,7 +3,7 @@
  * I messaggi della GS1 Barcode Syntax Engine arrivano in inglese: i più comuni vengono tradotti
  * (stesse regole dell'app di scansione), gli altri restano visibili come testo originale.
  */
-import type { ErrorReason } from './types'
+import type { DashboardData, ErrorReason } from './types'
 
 const phrases: [RegExp, string][] = [
   [/The date contains an illegal month of the year\.?/i, 'il mese della data non esiste'],
@@ -92,4 +92,12 @@ export function reasonsFromCounts(q: { errori_cifra: number; errori_sintassi: nu
   if (q.errori_sintassi) out.push({ tipo: 'sintassi', simbologia: null, errore: null, letture: q.errori_sintassi, esempio: null })
   if (q.non_standard) out.push({ tipo: 'non_standard', simbologia: null, errore: null, letture: q.non_standard, esempio: null })
   return out
+}
+
+type Company = DashboardData['qualita'][number]
+export type ErrorRow = { company: Company; reason: ErrorReason }
+
+/** Una riga per ogni motivo di errore di ogni azienda (dal database, o ricavata dai conteggi). */
+export function errorRows(companies: Company[]): ErrorRow[] {
+  return companies.flatMap((company) => (company.motivi?.length ? company.motivi : reasonsFromCounts(company)).map((reason) => ({ company, reason })))
 }

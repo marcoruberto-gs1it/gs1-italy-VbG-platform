@@ -1,10 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './styles/tokens.css'
+import './styles/kit.css'
+import './styles/layout.css'
+import './styles/charts.css'
+import './styles/sections.css'
+import './styles/login.css'
 import App from './App.tsx'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary title="La dashboard non si è caricata.">
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )

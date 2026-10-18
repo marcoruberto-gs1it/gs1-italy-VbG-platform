@@ -1,0 +1,126 @@
+/* ============================================================================
+   VbG Platform · grafici
+   Barre giornaliere, anello, simbologie, classifiche, mappa, conformità.
+   ============================================================================ */
+
+/* ───── Barre giornaliere ───── */
+.chart { position: relative; }
+.chart svg { display: block; overflow: visible; }
+.chart .grid, .chart line.grid { stroke: var(--grid); stroke-width: 1; }
+.chart .axis { stroke: var(--axis); stroke-width: 1; }
+.tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--font); }
+.chart g.is-dim .daily-bar { opacity: 0.32; }
+.daily-bar { transform-box: fill-box; transition: opacity 160ms ease; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 8px; font-size: var(--fs-sm); color: var(--ink-2); font-weight: 600; }
+.legend li { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* ───── Anello ───── */
+.ring { position: relative; display: grid; justify-items: center; gap: 14px; padding: 6px 0; }
+.ring svg { width: min(100%, 220px); }
+.ring-track { fill: none; stroke: var(--mist); stroke-width: 18; }
+.ring-value { fill: none; stroke: var(--series-2); stroke-width: 18; stroke-linecap: round; }
+.ring-center { position: absolute; top: 6px; width: min(100%, 220px); aspect-ratio: 1; display: grid; place-content: center; text-align: center; }
+.ring-center strong { font-size: var(--fs-2xl); font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+.ring-center span { font-size: var(--fs-sm); color: var(--muted); font-weight: 600; }
+.ring-caption { font-size: var(--fs-sm); color: var(--ink-2); text-align: center; line-height: 1.5; max-width: 280px; }
+
+/* ───── Simbologie: gruppi, schede, torte ───── */
+.sym-groups { display: grid; gap: 18px; }
+.sym-groups section { display: grid; gap: 10px; }
+.sym-group-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: var(--fs-sm); font-weight: 800; color: var(--navy); }
+.sym-group-title span { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.sym-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.sym-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 14px 16px; border-radius: var(--r-md); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.sym-card.is-gs1 { background: var(--sky); box-shadow: inset 0 0 0 1.5px var(--navy-2); }
+.sym-glyph { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 14px; background: #fff; box-shadow: var(--shadow-sm); }
+.sym-text { display: grid; gap: 2px; min-width: 0; }
+.sym-text strong { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); line-height: 1.3; }
+.sym-text small { font-size: var(--fs-xs); color: var(--muted); }
+.sym-card.is-gs1 .sym-text small { color: var(--navy-2); font-weight: 600; }
+.sym-share { display: grid; justify-items: center; gap: 2px; }
+.sym-share b { font-size: var(--fs-xs); font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+.mini-pie { display: block; }
+.mini-pie-track { fill: var(--mist); }
+.sym-card.is-gs1 .mini-pie-track { fill: #fff; }
+
+/* ───── Classifica a barre ───── */
+.barlist { display: grid; gap: 12px; }
+.barlist li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; }
+.barlist-rank { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: var(--surface-2); font-size: var(--fs-xs); font-weight: 800; color: var(--navy); }
+.barlist li:first-child .barlist-rank { background: var(--orange); color: #fff; }
+.barlist-text { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-sm); }
+.barlist-label { flex: 1; min-width: 0; color: var(--ink); font-weight: 600; }
+.barlist-label small, .barlist-value small { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
+.barlist-value { flex: none; max-width: 55%; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--navy); }
+.barlist-track { display: block; height: 8px; margin-top: 6px; border-radius: 4px; background: var(--mist); }
+.barlist-bar { display: block; height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
+
+/* ───── Classifica a righe (categorie, brand) ───── */
+.rank { --rank-cols: 34px minmax(0, 2.4fr) minmax(120px, 1.6fr) repeat(3, minmax(84px, 1fr)); display: grid; }
+.rank-head, .rank-row { display: grid; grid-template-columns: var(--rank-cols); align-items: center; gap: 14px; }
+.rank-head { padding: 0 10px 9px; border-bottom: 1px solid var(--line); font-size: var(--fs-xs); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.rank-head span:nth-child(n + 3) { text-align: right; }
+.rank-list { display: grid; }
+.rank-row { padding: 12px 10px; border-bottom: 1px solid var(--line); }
+.rank-row:last-child { border-bottom: 0; }
+.rank-pos { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); font-size: var(--fs-xs); font-weight: 800; color: var(--navy); }
+.rank-row:nth-child(-n + 3) .rank-pos { background: var(--navy); color: #fff; }
+.rank-row:first-child .rank-pos { background: var(--orange); }
+.rank-name { display: grid; gap: 2px; min-width: 0; }
+.rank-name b { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); }
+.rank-name small { font-size: var(--fs-xs); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-value, .rank-stat { display: grid; justify-items: end; gap: 5px; }
+.rank-value b, .rank-stat b { font-size: var(--fs-sm); font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+.rank-stat small { display: none; }
+.rank-bar, .rank-meter { display: block; width: 100%; height: 6px; border-radius: 3px; background: var(--mist); }
+.rank-bar span, .rank-meter span { display: block; height: 100%; border-radius: 0 3px 3px 0; min-width: 2px; }
+.rank-bar span { background: var(--series-1); }
+.rank-meter span { background: var(--navy-2); opacity: 0.55; }
+
+/* ───── Mappa ───── */
+.map-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr); gap: 28px; align-items: start; }
+.map { position: relative; display: grid; gap: 12px; }
+.map-toolbar { display: flex; justify-content: flex-start; }
+.map-canvas { position: relative; }
+.map-canvas svg { display: block; width: 100%; max-height: 560px; overflow: visible; }
+.map-region { stroke: #ffffff; stroke-width: 1.2; transition: fill 450ms var(--ease-out), filter 160ms ease, stroke-width 160ms ease; cursor: pointer; outline: none; transform-box: fill-box; }
+.map-region:hover, .map-region.is-hover, .map-region:focus-visible { stroke: var(--orange); stroke-width: 2.4; filter: drop-shadow(0 6px 10px rgba(0, 44, 108, 0.25)); }
+.map-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--fs-xs); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.map-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.map-legend i { width: 16px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0, 44, 108, 0.08); }
+.map-note, .map-source { font-size: var(--fs-xs); color: var(--muted); }
+.map-side { display: grid; gap: 14px; }
+.map-side h4 { font-size: var(--fs-sm); font-weight: 800; color: var(--navy); }
+
+/* ───── Conformità ───── */
+.compliance { display: grid; gap: 18px; }
+.stack { display: flex; gap: 3px; height: 26px; border-radius: 8px; overflow: hidden; }
+.stack span { min-width: 4px; }
+.status-legend { display: grid; gap: 10px; }
+.status-legend li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto 60px; align-items: center; gap: 10px; font-size: var(--fs-sm); }
+.status-legend b { font-variant-numeric: tabular-nums; color: var(--navy); }
+.status-legend small { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1080px) {
+  .map-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .map-canvas svg { max-height: 460px; }
+}
+
+@media (max-width: 860px) {
+  .rank-head { display: none; }
+  .rank-row { grid-template-columns: 30px minmax(0, 1fr); gap: 8px 12px; padding: 12px 2px; }
+  .rank-value { grid-column: 2; justify-items: stretch; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+  .rank-stat { grid-column: 2; grid-template-columns: 1fr auto; justify-items: stretch; align-items: center; gap: 2px 10px; }
+  .rank-stat small { display: block; font-size: var(--fs-xs); color: var(--muted); }
+  .rank-stat .rank-meter { grid-column: 1 / -1; }
+}
+
+@media (max-width: 720px) {
+  .sym-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .sym-card { padding: 10px 12px; gap: 4px 12px; }
+  .sym-glyph { width: 46px; height: 46px; border-radius: 12px; }
+  .status-legend li { grid-template-columns: 20px minmax(0, 1fr) auto 44px; gap: 8px; font-size: var(--fs-xs); }
+  .ring svg, .ring-center { width: min(100%, 180px); }
+  .ring-center strong { font-size: var(--fs-xl); }
+}

@@ -2,12 +2,25 @@
  * Dati dimostrativi generati nel browser (modalità ?demo): servono a vedere la dashboard
  * prima che ci siano abbastanza scansioni reali. Non vengono mai salvati nel database.
  */
-import type { DashboardData } from './types'
+import type { DashboardData, EventFilters, EventsPage, Kpi, ScanEvent } from './types'
 
 function rng(seed: number) {
   return () => {
     seed = (seed * 1664525 + 1013904223) % 4294967296
     return seed / 4294967296
+  }
+}
+
+/** Periodo precedente dimostrativo: un po' meno scansioni, meno codici 2D, più allerte. */
+export function demoPrevious(k: Kpi): Kpi {
+  return {
+    ...k,
+    letture: Math.round(k.letture * 0.84),
+    letture_simbolo: Math.round(k.letture_simbolo * 0.84),
+    letture_2d: Math.round(k.letture_2d * 0.7),
+    conformi: Math.round(k.conformi * 0.83),
+    schede_complete: Math.round(k.schede_complete * 0.8),
+    allerte_link: k.allerte_link + 6,
   }
 }
 
@@ -125,7 +138,6 @@ export function demoData(days: number): DashboardData {
 
 /* ───── Dati grezzi dimostrativi: righe di scan_events plausibili, filtrate come fa il database ───── */
 
-import type { EventFilters, EventsPage, ScanEvent } from './types'
 
 const DEMO_PRODUCTS = [
   { key: '08076802085738', prefix: '8076809', owner: 'Marchio Esempio S.p.A.', brick: '10000043', cat: 'Pasta Secca' },

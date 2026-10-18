@@ -46,3 +46,23 @@ La dashboard è pubblicata solo su **GitHub Pages**: a ogni push su `main` il wo
 ## Grafici
 
 Grafici in SVG/HTML senza librerie esterne. Palette validata per il daltonismo: blu GS1 `#1d4f9a` e arancio GS1 `#f26334`. Gli stati di conformità hanno sempre icona ed etichetta, e ogni grafico ha la vista tabella.
+
+## Struttura del codice
+
+```
+src/
+  App.tsx                 accesso e stato dei filtri
+  main.tsx                stili e paracadute per gli errori
+  components/
+    Dashboard.tsx         struttura della pagina (ogni sezione isolata da un ErrorBoundary)
+    layout/               barra laterale, barra in alto, menu delle sezioni per telefono
+    sections/             una sezione per file; raw/ = dati grezzi e scheda di dettaglio
+    charts/               grafici e tabelle riutilizzabili
+    ui/                   UI kit: Panel, Select, InfoPopover, StatusPill, Delta, Counter
+  hooks/                  dati, sezione attiva, chiusura di menu e fumetti, animazioni
+  lib/                    logica pura (formati, statistiche, errori, simbologie, demo) con test
+  styles/                 tokens.css (colori, misure, livelli z-index), kit, layout, grafici, sezioni, accesso
+```
+
+Comandi: `npm run dev`, `npm test` (Vitest), `npm run lint`, `npm run build`.
+La pubblicazione su GitHub Pages esegue lint e test prima della build: se uno fallisce, il sito non viene aggiornato.

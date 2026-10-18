@@ -1,7 +1,6 @@
 const nf = new Intl.NumberFormat('it-IT')
 export const num = (n: number | null | undefined) => (n == null ? '–' : nf.format(n))
 export const pct = (part: number, total: number) => (total ? `${(Math.round((part / total) * 1000) / 10).toLocaleString('it-IT')}%` : '–')
-export const share = (part: number, total: number) => (total ? part / total : 0)
 
 const dayFmt = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' })
 const longFmt = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })

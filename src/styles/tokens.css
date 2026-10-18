@@ -1,7 +1,7 @@
 /* ============================================================================
    VbG Platform · UI kit: token di base
    Stessa identità dell'app di scansione (blu e arancio GS1, card morbide).
-   Tutti i componenti usano solo questi token.
+   Tutti i componenti usano solo questi token (vedi gli altri file in styles/).
    ============================================================================ */
 @import '@fontsource/montserrat/latin-500.css';
 @import '@fontsource/montserrat/latin-600.css';
@@ -82,6 +82,16 @@
   /* Movimento */
   --ease-out: cubic-bezier(0.2, 0.9, 0.25, 1);
 
+  /* Livelli (z-index): un solo posto dove sono definiti, dal basso verso l'alto */
+  --z-raised: 5;        /* tooltip dei grafici */
+  --z-sticky: 10;       /* barra in alto, menu delle sezioni */
+  --z-dropdown: 30;     /* menu a tendina */
+  --z-overlay: 1000;    /* scheda di dettaglio e sfondo */
+  --z-popover: 1100;    /* fumetti informativi: sempre sopra tutto */
+
+  /* Altezza della barra fissa in alto, per le ancore del menu */
+  --anchor-offset: 90px;
+
   color-scheme: light;
   font-family: var(--font);
   font-size: var(--fs-md);
@@ -91,8 +101,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
-body { margin: 0; background: var(--bg); }
+html { scroll-behavior: smooth; scroll-padding-top: var(--anchor-offset); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); overflow-x: hidden; }
 h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 button, input, select { font: inherit; color: inherit; }
@@ -100,9 +110,14 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 a { color: inherit; }
 img { display: block; }
 code { font-family: var(--mono); font-size: 0.9em; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :focus-visible { outline: 2.5px solid var(--orange); outline-offset: 2px; border-radius: 6px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}
+
+@media (max-width: 1080px) {
+  :root { --anchor-offset: 64px; --gap: 14px; }
 }
