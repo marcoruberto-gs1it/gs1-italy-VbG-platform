@@ -1,49 +1,37 @@
 import { useState } from 'react'
-import { Globe2 } from 'lucide-react'
+import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { cityName, countryName, flag, num, pct, regionName } from '../../lib/format'
 import { cityRanking, countryRanking, regionRanking } from '../../lib/regions'
 import type { MapMetric } from '../../lib/stats'
 import type { DashboardData } from '../../lib/types'
 import { BarList, DataTable, Empty, ItalyMap, MetricSwitch, WorldMap } from '../charts'
-import { Panel, SectionHeader, Select } from '../ui'
+import { Panel, SectionHeader } from '../ui'
 
-const WORLD = 'world'
 type Tab = 'aree' | 'citta'
 
 const percent = (v: number) => `${(Math.round(v * 1000) / 10).toLocaleString('it-IT')}%`
 
+type Props = { data: DashboardData; country: string; onCountry: (country: string) => void }
+
 /**
- * Dove si scansiona, in un unico riquadro: si sceglie l'area (mondo o un paese), la misura
- * (scansioni o quota 2D) e, accanto alla mappa, la classifica di paesi/regioni o città.
+ * Dove si scansiona. L'area è quella scelta nella barra in alto (unica per tutta la pagina):
+ * mondo → mappa del mondo e classifica dei paesi, dove ogni paese porta al suo dettaglio;
+ * un paese → mappa del paese (regioni per l'Italia) e classifica di regioni o città.
  */
-export function Territory({ data, country }: { data: DashboardData; country: string }) {
-  const countries = data.paesi ?? []
-  const [chosen, setChosen] = useState<string>(WORLD)
+export function Territory({ data, country, onCountry }: Props) {
   const [metric, setMetric] = useState<MapMetric>('letture')
   const [tab, setTab] = useState<Tab>('aree')
-  // Con un paese scelto nel filtro in alto, l'area è quel paese (gli altri dati non sono caricati).
-  const area = country || chosen
-  const isWorld = area === WORLD
-
-  const regions = data.regioni.filter((r) => r.country === area)
-  const cities = (data.citta ?? []).filter((c) => isWorld || c.country === area)
+  const countries = data.paesi ?? []
+  const isWorld = !country
+  const regions = data.regioni.filter((r) => r.country === country)
+  const cities = (data.citta ?? []).filter((c) => isWorld || c.country === country)
   const total = countries.reduce((a, c) => a + c.letture, 0)
   const italy = countries.find((c) => c.country === 'IT')?.letture ?? 0
 
-  const areaOptions = [
-    ...(country ? [] : [{ value: WORLD, label: 'Mondo', hint: 'Tutti i paesi', icon: Globe2 }]),
-    ...[...new Set([...(country ? [country] : ['IT']), ...(country ? [] : countries.map((c) => c.country))])].map((code) => ({
-      value: code,
-      label: `${flag(code)} ${countryName(code)}`.trim(),
-      hint: code === 'IT' ? 'Regioni e città' : undefined,
-    })),
-  ]
-
   const rows = tab === 'citta' ? cityRanking(cities, metric) : isWorld ? countryRanking(countries, metric) : regionRanking(regions, metric, 8, false)
-  const areaLabel = isWorld ? 'Paesi' : 'Regioni'
   const subtitle = isWorld
-    ? `${num(countries.length)} ${countries.length === 1 ? 'paese' : 'paesi'} nel periodo; dall’estero il ${pct(total - italy, total)} delle scansioni.`
-    : `${countryName(area)}: regioni e città dedotte dalla connessione (con le reti mobili spesso è la sede del gestore).`
+    ? `${num(countries.length)} ${countries.length === 1 ? 'paese' : 'paesi'} nel periodo; dall’estero il ${pct(total - italy, total)} delle scansioni. Scegli un paese per vederne regioni e città.`
+    : 'Regioni e città dedotte dalla connessione: con le reti mobili spesso indicano la sede del gestore.'
 
   const table =
     tab === 'citta' ? (
@@ -85,35 +73,46 @@ export function Territory({ data, country }: { data: DashboardData; country: str
   return (
     <section className="section">
       <SectionHeader id="territorio" title="Dove si scansiona" />
-      <Panel title="Mappa" subtitle={subtitle} className="map-panel" table={table}>
+      <Panel title={isWorld ? 'Mondo' : `${flag(country)} ${countryName(country)}`.trim()} subtitle={subtitle} className="map-panel" table={table}>
         <div className="territory-tools">
-          <Select align="left" label="Area" value={area} onChange={setChosen} options={areaOptions} />
+          {!isWorld && (
+            <button className="chip-btn" type="button" onClick={() => onCountry('')}>
+              <ArrowLeft size={14} /> Mondo
+            </button>
+          )}
           <MetricSwitch metric={metric} onMetric={setMetric} />
-          {country && <span className="territory-note">Area fissata dal filtro paese in alto.</span>}
         </div>
-        <div className={`map-layout ${isWorld || area !== 'IT' ? 'is-world' : ''}`}>
-          {area === 'IT' ? (
+        <div className={`map-layout ${country === 'IT' ? '' : 'is-world'}`}>
+          {country === 'IT' ? (
             <ItalyMap data={data.regioni} metric={metric} onMetric={setMetric} toolbar={false} />
           ) : (
-            <WorldMap data={countries} metric={metric} onMetric={setMetric} focus={isWorld ? undefined : area} toolbar={false} />
+            <WorldMap data={countries} metric={metric} onMetric={setMetric} focus={country || undefined} toolbar={false} />
           )}
           <div className="map-side">
             <div className="segmented small territory-tabs" role="tablist" aria-label="Classifica">
               {(['aree', 'citta'] as const).map((t) => (
                 <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? 'is-active' : ''} onClick={() => setTab(t)}>
-                  {t === 'aree' ? areaLabel : 'Città'}
+                  {t === 'aree' ? (isWorld ? 'Paesi' : 'Regioni') : 'Città'}
                 </button>
               ))}
             </div>
             {rows.length ? (
-              metric === 'letture' ? <BarList rows={rows} /> : <BarList rows={rows} color="var(--series-2)" max={1} format={percent} />
+              <BarList
+                rows={rows}
+                color={metric === 'letture' ? undefined : 'var(--series-2)'}
+                max={metric === 'letture' ? undefined : 1}
+                format={metric === 'letture' ? undefined : percent}
+                onSelect={isWorld && tab === 'aree' ? onCountry : undefined}
+                selectLabel={(r) => `Vedi ${r.label}: regioni e città`}
+              />
             ) : (
-              <Empty text={tab === 'citta' ? 'Nessuna città con almeno 5 scansioni nel periodo.' : 'Nessuna regione per quest’area nel periodo.'} />
+              <Empty text={tab === 'citta' ? 'Nessuna città con almeno 5 scansioni nel periodo.' : 'Nessuna regione nel periodo.'} />
             )}
+            {isWorld && tab === 'aree' && rows.length > 0 && <p className="map-source"><ChevronRight size={12} /> Clicca un paese per vederne regioni e città.</p>}
             {tab === 'citta' && rows.length > 0 && <p className="map-source">Solo città con almeno 5 scansioni, per riservatezza.</p>}
           </div>
         </div>
-        <p className="map-source">{area === 'IT' ? 'Confini regionali: ISTAT, CC BY 4.0.' : 'Confini: Natural Earth (dominio pubblico).'} Posizione dedotta dalla connessione, non dal GPS.</p>
+        <p className="map-source">{country === 'IT' ? 'Confini regionali: ISTAT, CC BY 4.0.' : 'Confini: Natural Earth (dominio pubblico).'} Posizione dedotta dalla connessione, non dal GPS.</p>
       </Panel>
     </section>
   )

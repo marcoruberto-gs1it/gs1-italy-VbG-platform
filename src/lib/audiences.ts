@@ -1,12 +1,12 @@
 /*
- * Viste della piattaforma per pubblico: GS1 Italy, produttori, distributori, stampa.
- * I dati sono gli stessi; cambiano l'ordine delle sezioni e la spiegazione di perché ciascuna conta.
+ * Viste della piattaforma per pubblico: produttori, distributori, stampa. GS1 Italy usa la vista
+ * completa. I dati sono gli stessi; cambiano l'ordine delle sezioni e la spiegazione di perché ciascuna conta.
  */
+import { Factory, LayoutGrid, Newspaper, Store } from 'lucide-react'
 import type { SectionId } from './config'
 
 export const AUDIENCES = [
-  { id: 'tutti', label: 'Tutti i dati', lead: 'Tutte le sezioni, nell’ordine standard.' },
-  { id: 'gs1', label: 'GS1 Italy', lead: 'Avanzamento verso i codici 2D (Sunrise 2027), qualità dei codici delle aziende, segnali di contraffazione.' },
+  { id: 'tutti', label: 'Completa', lead: 'Tutte le sezioni, nell’ordine standard.' },
   { id: 'produttori', label: 'Produttori', lead: 'Come vengono letti i tuoi codici, quali errori correggere, se qualcuno usa i tuoi codici in modo abusivo.' },
   { id: 'distributori', label: 'Distributori', lead: 'Qualità dei codici e delle schede dei fornitori, prontezza delle casse per i codici 2D.' },
   { id: 'stampa', label: 'Stampa', lead: 'Come si usano i codici GS1: passaggio ai codici 2D, territori, categorie e marchi più scansionati.' },
@@ -14,12 +14,13 @@ export const AUDIENCES = [
 
 export type AudienceId = (typeof AUDIENCES)[number]['id']
 
+export const AUDIENCE_ICONS = { tutti: LayoutGrid, produttori: Factory, distributori: Store, stampa: Newspaper } as const
+
 export const isAudience = (v: string | null): v is AudienceId => AUDIENCES.some((a) => a.id === v)
 
 /** Ordine delle sezioni per ogni vista: prima quello che serve di più a quel pubblico. */
 export const SECTION_ORDER: Record<AudienceId, SectionId[]> = {
   tutti: ['panoramica', 'adozione', 'territorio', 'qualita', 'categorie', 'brand', 'protezione', 'dati'],
-  gs1: ['panoramica', 'adozione', 'qualita', 'protezione', 'territorio', 'categorie', 'brand', 'dati'],
   produttori: ['panoramica', 'qualita', 'protezione', 'brand', 'categorie', 'adozione', 'territorio', 'dati'],
   distributori: ['panoramica', 'qualita', 'categorie', 'brand', 'protezione', 'adozione', 'territorio', 'dati'],
   stampa: ['panoramica', 'adozione', 'territorio', 'categorie', 'brand', 'protezione', 'qualita', 'dati'],
@@ -36,7 +37,6 @@ export const SECTION_COPY: Record<SectionId, Copy> = {
   adozione: {
     what: 'Quante scansioni riguardano codici 2D (QR Code Standard GS1, GS1 DataMatrix) rispetto ai barcode tradizionali.',
     why: 'Entro il 2027 le casse dovranno leggere anche i codici 2D (progetto Sunrise 2027): qui si misura a che punto è il passaggio.',
-    gs1: 'Misura l’avanzamento verso Sunrise 2027 e mostra dove spingere l’adozione.',
     produttori: 'Mostra quanto i consumatori incontrano già codici 2D: un segnale per pianificare il passaggio delle proprie etichette.',
     distributori: 'Indica quanto presto servono casse e lettori pronti per i codici 2D.',
     stampa: 'È il barometro del passaggio dal barcode al QR Code Standard GS1.',
@@ -50,7 +50,6 @@ export const SECTION_COPY: Record<SectionId, Copy> = {
   qualita: {
     what: 'Quanti codici letti rispettano gli standard GS1 e quali errori ricorrono, azienda per azienda.',
     why: 'Un codice sbagliato blocca la cassa e non porta alle informazioni del prodotto: trovarlo presto evita costi e ritiri.',
-    gs1: 'Indica a quali aziende proporre la verifica dei codici e la formazione.',
     produttori: 'Fa scoprire errori di stampa o di codifica nei tuoi codici prima che li trovino clienti e distributori.',
     distributori: 'Evidenzia i fornitori con codici problematici, che rallentano casse e logistica.',
   },

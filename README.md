@@ -64,7 +64,7 @@ src/
   styles/                 tokens.css (colori, misure, livelli z-index), kit, layout, grafici, sezioni, accesso
 ```
 
-Viste per pubblico (`?vista=gs1|produttori|distributori|stampa`): stessi dati, ordine delle sezioni e spiegazioni pensati per chi li legge (`src/lib/audiences.ts`).
+Barra in alto: periodo, area (mondo o un paese, unica per tutta la pagina) e vista. Viste per pubblico (`?vista=produttori|distributori|stampa`; GS1 Italy usa la vista completa): stessi dati, ordine delle sezioni e spiegazioni pensati per chi li legge (`src/lib/audiences.ts`).
 
 Demo: `?demo` mostra dati generati nel browser; `?demo&scala=1000` moltiplica i conteggi per vedere l'interfaccia con numeri molto grandi.
 

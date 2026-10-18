@@ -11,7 +11,7 @@ export function usePageMotion(root: RefObject<HTMLElement | null>, key: string) 
       if (!motionOk()) return
       gsap.timeline({ defaults: { ease: 'power3.out' } })
         .from('.side-item', { x: -14, opacity: 0, duration: 0.45, stagger: 0.05, clearProps: 'transform,opacity' })
-        .from('.ov-title > *, .ov-view', { y: 14, opacity: 0, duration: 0.5, stagger: 0.07, clearProps: 'transform,opacity' }, 0.1)
+        .from('.ov-title > *', { y: 14, opacity: 0, duration: 0.5, stagger: 0.07, clearProps: 'transform,opacity' }, 0.1)
         .from('.kpi', { y: 22, opacity: 0, duration: 0.55, stagger: 0.07, clearProps: 'transform,opacity' }, 0.3)
         .from('.kpi-visual', { opacity: 0, y: 8, duration: 0.5, stagger: 0.07, clearProps: 'transform,opacity' }, 0.6)
 

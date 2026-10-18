@@ -1,17 +1,14 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { BadgeCheck, Factory, Globe2, LayoutGrid, MapPinned, Newspaper, Package, Search, Store } from 'lucide-react'
+import { MapPinned, Package, Search } from 'lucide-react'
 import { useAudience } from '../../hooks/useAudience'
-import { AUDIENCES, type AudienceId } from '../../lib/audiences'
+import { AUDIENCE_ICONS, AUDIENCES } from '../../lib/audiences'
 import type { Period } from '../../lib/config'
 import { fillDays } from '../../lib/days'
-import { countryName, flag, num, numShort, pct } from '../../lib/format'
+import { countryName, num, numShort, pct } from '../../lib/format'
 import { pctNum, prevShare, share } from '../../lib/stats'
 import type { DashboardData, Kpi } from '../../lib/types'
 import { Meter, MiniStack, Sparkline } from '../charts'
-import { Counter, Delta, Select } from '../ui'
-
-const AUDIENCE_ICONS = { tutti: LayoutGrid, gs1: BadgeCheck, produttori: Factory, distributori: Store, stampa: Newspaper } as const
-const AUDIENCE_OPTIONS = AUDIENCES.map((a) => ({ value: a.id, label: a.label, hint: a.lead, icon: AUDIENCE_ICONS[a.id] }))
+import { Counter, Delta } from '../ui'
 
 type Props = {
   data: DashboardData
@@ -19,7 +16,6 @@ type Props = {
   period: Period
   days: number
   country: string
-  onAudience: (a: AudienceId) => void
   onFindPrefix: (prefix: string) => void
 }
 
@@ -55,8 +51,8 @@ function PrefixFinder({ onFind }: { onFind: (prefix: string) => void }) {
   )
 }
 
-/** Panoramica: intestazione compatta, vista per pubblico e i sei numeri chiave in due gruppi. */
-export function Overview({ data, previous, period, days, country, onAudience, onFindPrefix }: Props) {
+/** Panoramica: intestazione compatta e i sei numeri chiave in due gruppi (periodo, area e vista sono nella barra in alto). */
+export function Overview({ data, previous, period, days, country, onFindPrefix }: Props) {
   const audience = useAudience()
   const k = data.kpi
   // Senza scansioni nel periodo precedente un confronto sarebbe fuorviante: non lo mostriamo.
@@ -72,20 +68,15 @@ export function Overview({ data, previous, period, days, country, onAudience, on
     <section id="panoramica" className="section overview">
       <header className="ov-head reveal">
         <div className="ov-title">
-          <p className="eyebrow">Panoramica · {period.label}</p>
+          <p className="eyebrow">Panoramica · {period.label} · {country ? countryName(country) : 'mondo'}</p>
           <h1>
             <span className="ov-number" title={`${num(k.letture)} scansioni`}><Counter value={k.letture} format={numShort} /></span>
             <span className="ov-unit">scansioni {period.long}</span>
           </h1>
           <ul className="ov-meta" aria-label="In sintesi">
-            <li>{country ? <span aria-hidden="true">{flag(country)}</span> : <Globe2 size={15} aria-hidden="true" />} {country ? countryName(country) : 'Tutto il mondo'}</li>
             <li><Package size={15} aria-hidden="true" /> {numShort(k.prodotti_distinti)} prodotti diversi</li>
-            {!country && countries > 0 && <li><MapPinned size={15} aria-hidden="true" /> {num(countries)} {countries === 1 ? 'paese' : 'paesi'}</li>}
+            {!country && countries > 0 && <li><a href="#territorio"><MapPinned size={15} aria-hidden="true" /> {num(countries)} {countries === 1 ? 'paese' : 'paesi'}</a></li>}
           </ul>
-        </div>
-        <div className="ov-view">
-          <span className="ov-view-label" id="vista-label">Vista per</span>
-          <Select label="Vista per" value={audience} onChange={onAudience} options={AUDIENCE_OPTIONS} />
         </div>
       </header>
 

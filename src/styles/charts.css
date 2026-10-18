@@ -54,6 +54,10 @@
 .barlist-label small, .barlist-value small { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
 .barlist-value { flex: none; max-width: 55%; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--navy); }
 .barlist-track { display: block; height: 8px; margin-top: 6px; border-radius: 4px; background: var(--mist); }
+.barlist-body { display: block; min-width: 0; }
+.barlist-body.is-link { width: calc(100% + 16px); margin: -6px -8px; padding: 6px 8px; border-radius: 10px; text-align: left; transition: background 150ms ease; }
+.barlist-body.is-link:hover { background: var(--surface-2); }
+.barlist-body.is-link .barlist-label { color: var(--navy); }
 .barlist-bar { display: block; height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
 
 /* ───── Classifica a righe (categorie, brand) ───── */
@@ -133,16 +137,11 @@
 
 /* ───── Territorio: un solo riquadro con area, misura e classifica ───── */
 .territory-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.territory-tools .select-trigger { min-width: 200px; background: var(--surface-2); }
-.territory-note { font-size: var(--fs-xs); color: var(--muted); }
 .territory-tabs { justify-self: start; }
 .map.is-world .map-region { vector-effect: non-scaling-stroke; }
 .map.is-zoomed .map-region { stroke-width: 1; }
 .map-region.is-focus { stroke: var(--navy); stroke-width: 2; }
 @media (max-width: 720px) {
-  .territory-tools { display: grid; grid-template-columns: minmax(0, 1fr); }
-  .territory-tools .select-trigger { min-width: 0; }
-  .territory-tools .segmented { justify-self: start; }
 }
 /* La mappa del mondo (soprattutto ingrandita su un paese) resta dentro il suo riquadro. */
 .map.is-world .map-canvas { overflow: hidden; border-radius: var(--r-sm); background: color-mix(in srgb, var(--sky) 35%, transparent); }
