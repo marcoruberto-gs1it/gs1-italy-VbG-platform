@@ -7,6 +7,20 @@ import { mapClass, mapLegend, type MapMetric } from '../../lib/stats'
 const SEQ = ['var(--seq-1)', 'var(--seq-2)', 'var(--seq-3)', 'var(--seq-4)', 'var(--seq-5)', 'var(--seq-6)']
 
 export type Shape = { code: string; name: string; d: string }
+
+/** Selettore della misura (scansioni o quota di codici 2D), condiviso da mappe e classifiche. */
+export function MetricSwitch({ metric, onMetric }: { metric: MapMetric; onMetric: (m: MapMetric) => void }) {
+  return (
+    <div className="segmented small" role="radiogroup" aria-label="Misura">
+      {(['letture', 'quota'] as const).map((m) => (
+        <button key={m} type="button" role="radio" aria-checked={metric === m} className={metric === m ? 'is-active' : ''} onClick={() => onMetric(m)}>
+          {m === 'letture' ? 'Scansioni' : 'Quota 2D'}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export type AreaStats = { letture: number; letture_2d: number; conformi: number }
 
 type Props = {
@@ -19,10 +33,16 @@ type Props = {
   label: string
   nameOf?: (shape: Shape) => string
   className?: string
+  /** Inquadratura (es. un solo paese ingrandito); di base tutta la mappa. */
+  viewBox?: string
+  /** Area messa in risalto (bordo arancio). */
+  focus?: string
+  /** Selettore Scansioni / Quota 2D dentro la mappa (false se è già nell'intestazione). */
+  toolbar?: boolean
 }
 
 /** Mappa coropletica (Italia per regione o mondo per paese) su scala sequenziale a una tinta, con tooltip. */
-export function Choropleth({ shapes, width, height, stats, metric, onMetric, label, nameOf = (s) => s.name, className = '' }: Props) {
+export function Choropleth({ shapes, width, height, stats, metric, onMetric, label, nameOf = (s) => s.name, className = '', viewBox, focus, toolbar = true }: Props) {
   const [ref, boxWidth] = useWidth<HTMLDivElement>()
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null)
 
@@ -48,24 +68,20 @@ export function Choropleth({ shapes, width, height, stats, metric, onMetric, lab
 
   return (
     <div className={`map ${className}`} ref={ref}>
-      <div className="map-toolbar">
-        <div className="segmented small" role="radiogroup" aria-label="Misura sulla mappa">
-          {(['letture', 'quota'] as const).map((m) => (
-            <button key={m} type="button" role="radio" aria-checked={metric === m} className={metric === m ? 'is-active' : ''} onClick={() => onMetric(m)}>
-              {m === 'letture' ? 'Scansioni' : 'Quota 2D'}
-            </button>
-          ))}
+      {toolbar && (
+        <div className="map-toolbar">
+          <MetricSwitch metric={metric} onMetric={onMetric} />
         </div>
-      </div>
+      )}
       <div className="map-canvas">
-        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label}: ${metric === 'letture' ? 'scansioni' : 'quota di codici 2D'}`} onMouseLeave={() => setHover(null)}>
+        <svg viewBox={viewBox ?? `0 0 ${width} ${height}`} role="img" aria-label={`${label}: ${metric === 'letture' ? 'scansioni' : 'quota di codici 2D'}`} onMouseLeave={() => setHover(null)}>
           {shapes.map((s) => {
             const v = valueOf(s.code)
             return (
               <path
                 key={s.code}
                 d={s.d}
-                className={`map-region ${hover?.code === s.code ? 'is-hover' : ''}`}
+                className={`map-region ${hover?.code === s.code ? 'is-hover' : ''} ${focus === s.code ? 'is-focus' : ''}`}
                 style={{ fill: v == null ? 'var(--seq-empty)' : SEQ[mapClass(metric, v, max)] }}
                 tabIndex={v == null ? -1 : 0}
                 aria-label={`${nameOf(s)}: ${v == null ? 'nessuna scansione' : fmt(v)}`}

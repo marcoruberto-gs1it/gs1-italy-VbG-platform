@@ -1,10 +1,22 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
+
+const APP_VERSION = process.env.GITHUB_SHA?.slice(0, 7) ?? `build-${new Date().toISOString().slice(0, 10)}`
+
+/** Pubblica version.json: la dashboard aperta lo confronta con la propria versione per proporre l'aggiornamento. */
+const versionFile = (): Plugin => ({
+  name: 'version-file',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: APP_VERSION }) })
+  },
+})
 
 export default defineConfig({
   // Su GitHub Pages la dashboard vive in /<nome-repo>/: il workflow imposta BASE_PATH.
   base: process.env.BASE_PATH ?? '/',
-  plugins: [react()],
+  define: { __APP_VERSION__: JSON.stringify(APP_VERSION) },
+  plugins: [react(), versionFile()],
   build: {
     rollupOptions: {
       output: {

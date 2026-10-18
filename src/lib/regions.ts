@@ -20,9 +20,10 @@ function rank<T extends Area>(rows: T[], metric: MapMetric, limit: number, key: 
   }))
 }
 
-/** Classifica delle regioni (di un paese o di tutti), per la misura scelta. */
-export function regionRanking(regions: DashboardData['regioni'], metric: MapMetric, limit = 8): RankedRow[] {
-  return rank(regions, metric, limit, (r) => `${r.country}-${r.region_code}`, (r) => regionName(r.country, r.region_code, r.region))
+/** Classifica delle regioni, per la misura scelta; `withCountry: false` quando si guarda già un solo paese. */
+export function regionRanking(regions: DashboardData['regioni'], metric: MapMetric, limit = 8, withCountry = true): RankedRow[] {
+  const label = (r: DashboardData['regioni'][number]) => (withCountry || r.country === 'IT' ? regionName(r.country, r.region_code, r.region) : r.region ?? r.region_code ?? 'Regione sconosciuta')
+  return rank(regions, metric, limit, (r) => `${r.country}-${r.region_code}`, label)
 }
 
 /** Classifica delle città approssimative, con regione e bandiera del paese. */

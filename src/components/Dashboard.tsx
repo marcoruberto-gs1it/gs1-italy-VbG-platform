@@ -3,6 +3,7 @@ import { TriangleAlert } from 'lucide-react'
 import { useActiveSection, useKeepActiveVisible } from '../hooks/useActiveSection'
 import { AudienceContext, useAudienceState } from '../hooks/useAudience'
 import { usePageMotion } from '../hooks/usePageMotion'
+import { loadVersion, useUpdateAvailable } from '../hooks/useUpdate'
 import { SECTION_ORDER } from '../lib/audiences'
 import { periodFor, sectionById, type SectionId } from '../lib/config'
 import type { DashboardData, Kpi } from '../lib/types'
@@ -49,6 +50,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
   useKeepActiveVisible(active, '.mobile-nav')
   usePageMotion(root, `${Boolean(data)}|${audience}`)
   const period = periodFor(days)
+  const update = useUpdateAvailable()
 
   const findPrefix = useCallback((prefix: string) => {
     setRawSearch(prefix)
@@ -81,6 +83,12 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
             {data && order.map((id) => <ErrorBoundary key={id}>{render(id, data)}</ErrorBoundary>)}
           </main>
           <Footer />
+          {update && (
+            <div className="update-toast" role="status">
+              <span>È disponibile una nuova versione della dashboard</span>
+              <button className="btn primary small" type="button" onClick={() => loadVersion(update)}>Aggiorna</button>
+            </div>
+          )}
         </div>
       </div>
     </AudienceContext.Provider>
