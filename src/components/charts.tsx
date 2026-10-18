@@ -268,9 +268,9 @@ export function RankingList({ rows, valueLabel = 'Scansioni' }: { rows: RankRow[
 
 export type BarRow = { key: string; label: string; value: number; sub?: string; note?: string }
 
-export function BarList({ rows, color = 'var(--series-1)', format = num }: { rows: BarRow[]; color?: string; format?: (n: number) => string }) {
+export function BarList({ rows, color = 'var(--series-1)', format = num, max: fixedMax }: { rows: BarRow[]; color?: string; format?: (n: number) => string; max?: number }) {
   const ref = useRef<HTMLOListElement>(null)
-  const max = Math.max(...rows.map((r) => r.value), 1)
+  const max = fixedMax ?? Math.max(...rows.map((r) => r.value), 1)
   useReveal(ref, (tl) => {
     tl.from(ref.current!.querySelectorAll('.barlist-bar'), { scaleX: 0, transformOrigin: '0 50%', duration: 0.9, ease: 'power3.out', stagger: 0.05 })
   }, [rows.map((r) => r.value).join(',')])
@@ -295,12 +295,11 @@ export function BarList({ rows, color = 'var(--series-1)', format = num }: { row
 
 /* ───── Mappa d'Italia per regione (scala sequenziale, una tinta) ───── */
 
-type Metric = 'letture' | 'quota'
+export type MapMetric = 'letture' | 'quota'
 const SEQ = ['var(--seq-1)', 'var(--seq-2)', 'var(--seq-3)', 'var(--seq-4)', 'var(--seq-5)', 'var(--seq-6)']
 
-export function ItalyMap({ data }: { data: DashboardData['regioni'] }) {
+export function ItalyMap({ data, metric, onMetric: setMetric }: { data: DashboardData['regioni']; metric: MapMetric; onMetric: (m: MapMetric) => void }) {
   const [ref, mapWidth] = useWidth<HTMLDivElement>()
-  const [metric, setMetric] = useState<Metric>('letture')
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null)
   const byCode = useMemo(() => new Map(data.filter((r) => r.country === 'IT' && r.region_code).map((r) => [r.region_code as string, r])), [data])
   const abroad = data.filter((r) => r.country !== 'IT').reduce((a, r) => a + r.letture, 0)
@@ -311,11 +310,17 @@ export function ItalyMap({ data }: { data: DashboardData['regioni'] }) {
     return metric === 'letture' ? r.letture : r.letture ? r.letture_2d / r.letture : 0
   }
   const values = italy.regions.map((g) => valueOf(g.code)).filter((v): v is number => v != null)
-  const maxV = Math.max(metric === 'letture' ? 1 : 0.01, ...values)
-  // Sei classi a intervalli uguali sul massimo del periodo.
-  const bin = (v: number) => Math.min(SEQ.length - 1, Math.floor((v / maxV) * SEQ.length))
+  const maxV = Math.max(1, ...values)
+  // Scansioni: sei classi uguali fino al massimo del periodo. Quota 2D: scala fissa a passi di 10 punti
+  // (0–10% … oltre 50%), così il colore indica sempre la stessa percentuale, qualunque sia il periodo.
+  const bin = (v: number) =>
+    metric === 'quota' ? Math.min(SEQ.length - 1, Math.floor(v * 10 + 1e-9)) : Math.min(SEQ.length - 1, Math.floor((v / maxV) * SEQ.length))
   const fmt = (v: number) => (metric === 'letture' ? num(Math.round(v)) : `${Math.round(v * 100)}%`)
-  const legend = SEQ.map((color, i) => ({ color, from: (maxV * i) / SEQ.length, to: (maxV * (i + 1)) / SEQ.length }))
+  const legend = SEQ.map((color, i) =>
+    metric === 'quota'
+      ? { color, label: i === SEQ.length - 1 ? 'oltre 50%' : `${i * 10}–${(i + 1) * 10}%` }
+      : { color, label: `${fmt((maxV * i) / SEQ.length)}–${fmt((maxV * (i + 1)) / SEQ.length)}` },
+  )
 
   useReveal(ref, (tl) => {
     tl.from(ref.current!.querySelectorAll('.map-region'), { opacity: 0, scale: 0.94, transformOrigin: '50% 50%', duration: 0.55, ease: 'power2.out', stagger: { amount: 0.9, from: 'start' } })
@@ -370,7 +375,7 @@ export function ItalyMap({ data }: { data: DashboardData['regioni'] }) {
         )}
       </div>
       <ul className="map-legend" aria-label="Legenda">
-        {legend.map((l) => <li key={l.from}><i style={{ background: l.color }} />{fmt(l.from)}–{fmt(l.to)}</li>)}
+        {legend.map((l) => <li key={l.label}><i style={{ background: l.color }} />{l.label}</li>)}
         <li><i style={{ background: 'var(--seq-empty)' }} />nessun dato</li>
       </ul>
       {abroad > 0 && <p className="map-note">Altre {num(abroad)} scansioni da fuori Italia.</p>}

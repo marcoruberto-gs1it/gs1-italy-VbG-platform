@@ -8,7 +8,7 @@ import { fillDays } from '../lib/days'
 import { dateTime, day, gtinDisplay, num, pct, regionName } from '../lib/format'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 import type { DashboardData, Kpi } from '../lib/types'
-import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RankingList, RegionTable, RingGauge, SymbologyGrid } from './charts'
+import { BarList, ComplianceBar, type MapMetric, DailyChart, DataTable, Empty, ItalyMap, RankingList, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
 import { RawData } from './RawData'
 import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
@@ -100,6 +100,7 @@ function useKeepActiveVisible(active: string) {
 export function Dashboard({ data, previous, loading, error, days, country, demo, email, onDays, onCountry, onReload, onSignOut }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const active = useActiveSection(Boolean(data))
+  const [mapMetric, setMapMetric] = useState<MapMetric>('letture')
   useKeepActiveVisible(active)
   const k = data?.kpi
   const period = PERIODS.find((p) => p.days === days) ?? PERIODS[1]
@@ -286,15 +287,33 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                 <SectionHeader id="territorio" title="Dove si scansiona" text="Regione dedotta da Cloudflare dalla connessione: con le reti mobili può risultare la sede del gestore." />
                 <Panel title="Mappa delle regioni" className="map-panel" table={<RegionTable data={data.regioni} />}>
                   <div className="map-layout">
-                    <ItalyMap data={data.regioni} />
+                    <ItalyMap data={data.regioni} metric={mapMetric} onMetric={setMapMetric} />
                     <div className="map-side">
-                      <h4>Classifica regioni</h4>
-                      <BarList rows={data.regioni.slice(0, 8).map((r) => ({
-                        key: `${r.country}-${r.region_code}`,
-                        label: regionName(r.country, r.region_code, r.region),
-                        value: r.letture,
-                        note: `2D ${pct(r.letture_2d, r.letture)}`,
-                      }))} />
+                      <h4>{mapMetric === 'letture' ? 'Classifica per scansioni' : 'Classifica per quota 2D'}</h4>
+                      {mapMetric === 'letture' ? (
+                        <BarList rows={data.regioni.slice(0, 8).map((r) => ({
+                          key: `${r.country}-${r.region_code}`,
+                          label: regionName(r.country, r.region_code, r.region),
+                          value: r.letture,
+                          note: `2D ${pct(r.letture_2d, r.letture)}`,
+                        }))} />
+                      ) : (
+                        <BarList
+                          color="var(--series-2)"
+                          max={1}
+                          format={(v) => `${(Math.round(v * 1000) / 10).toLocaleString('it-IT')}%`}
+                          rows={[...data.regioni]
+                            .filter((r) => r.letture > 0)
+                            .sort((a, b) => b.letture_2d / b.letture - a.letture_2d / a.letture || b.letture - a.letture)
+                            .slice(0, 8)
+                            .map((r) => ({
+                              key: `${r.country}-${r.region_code}`,
+                              label: regionName(r.country, r.region_code, r.region),
+                              value: r.letture_2d / r.letture,
+                              note: `${num(r.letture_2d)} su ${num(r.letture)}`,
+                            }))}
+                        />
+                      )}
                     </div>
                   </div>
                   <p className="map-source">Confini regionali: ISTAT, CC BY 4.0</p>
