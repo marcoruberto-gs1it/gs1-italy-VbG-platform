@@ -106,12 +106,12 @@ export function demoData(days: number): DashboardData {
 import type { EventFilters, EventsPage, ScanEvent } from './types'
 
 const DEMO_PRODUCTS = [
-  { key: '08076809513388', prefix: '8076809', owner: 'Marchio Esempio S.p.A.', brick: '10000043', cat: 'Pasta Secca' },
-  { key: '08012345000017', prefix: '8012345', owner: 'Pastificio Esempio S.r.l.', brick: '10000043', cat: 'Pasta Secca' },
-  { key: '08054321000124', prefix: '8054321', owner: 'Conserve Dimostrative S.p.A.', brick: '10000057', cat: 'Salse/Sughi - Da Cucina (Ambiente)' },
-  { key: '08009876000231', prefix: '8009876', owner: 'Latteria Campione Soc. Coop.', brick: '10000117', cat: 'Formaggi - Duri/Semiduri' },
+  { key: '08076802085738', prefix: '8076809', owner: 'Marchio Esempio S.p.A.', brick: '10000043', cat: 'Pasta Secca' },
+  { key: '08012345000012', prefix: '8012345', owner: 'Pastificio Esempio S.r.l.', brick: '10000043', cat: 'Pasta Secca' },
+  { key: '08054321000128', prefix: '8054321', owner: 'Conserve Dimostrative S.p.A.', brick: '10000057', cat: 'Salse/Sughi - Da Cucina (Ambiente)' },
+  { key: '08009876000239', prefix: '8009876', owner: 'Latteria Campione Soc. Coop.', brick: '10000117', cat: 'Formaggi - Duri/Semiduri' },
   { key: '08000500310427', prefix: '8000500', owner: 'Dolciaria Esempio S.p.A.', brick: '10000248', cat: 'Biscotti/Cracker Dolci' },
-  { key: '08002270000145', prefix: '8002270', owner: 'Fonti Dimostrative S.r.l.', brick: '10000227', cat: 'Acqua Minerale' },
+  { key: '08002270000140', prefix: '8002270', owner: 'Fonti Dimostrative S.r.l.', brick: '10000227', cat: 'Acqua Minerale' },
 ]
 const DEMO_SYMBOLOGIES: [string, boolean | null, ScanEvent['source']][] = [
   ['EAN-13', false, 'camera'], ['EAN-13', false, 'camera'], ['EAN-13', false, 'image'], ['QR Code Standard GS1', true, 'camera'],
