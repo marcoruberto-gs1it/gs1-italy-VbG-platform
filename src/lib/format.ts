@@ -1,5 +1,19 @@
 const nf = new Intl.NumberFormat('it-IT')
 export const num = (n: number | null | undefined) => (n == null ? '–' : nf.format(n))
+const one = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 })
+/** Numero breve per gli spazi stretti: da 100.000 in su diventa "123,5 mila", "2,4 Mln", "1,1 Mld". */
+export function numShort(n: number | null | undefined) {
+  if (n == null) return '–'
+  const a = Math.abs(n)
+  if (a >= 1e9) return `${one.format(n / 1e9)} Mld`
+  if (a >= 1e6) return `${one.format(n / 1e6)} Mln`
+  if (a >= 1e5) return `${one.format(n / 1e3)} mila`
+  return nf.format(n)
+}
+
+/** Bandiera emoji di un codice paese ISO 3166-1 (dove il sistema la mostra). */
+export const flag = (code: string | null) =>
+  code && /^[A-Z]{2}$/.test(code) ? String.fromCodePoint(...[...code].map((c) => 0x1f1a5 + c.charCodeAt(0))) : ''
 export const pct = (part: number, total: number) => (total ? `${(Math.round((part / total) * 1000) / 10).toLocaleString('it-IT')}%` : '–')
 
 const dayFmt = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' })

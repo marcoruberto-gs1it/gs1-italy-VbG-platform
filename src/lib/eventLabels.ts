@@ -26,6 +26,11 @@ export const LINK_LABELS: LabelMap = {
   pending: ['In verifica', 'neutral'],
   none: ['Senza link', 'neutral'],
 }
+export const LICENCE_LABELS: LabelMap = {
+  inactive: ['Licenza non attiva', 'critical'],
+  active: ['Licenza attiva', 'good'],
+}
+
 export const SOURCE_LABELS: Record<ScanEvent['source'], string> = { camera: 'Fotocamera', image: 'Da foto', manual: 'Inserito a mano' }
 
 /** Etichetta e tono di un valore (null = "none"); i valori sconosciuti restano leggibili. */

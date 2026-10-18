@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
-import { COMPLIANCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, productLabel, type LabelMap } from '../../../lib/eventLabels'
+import { COMPLIANCE_LABELS, LICENCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, productLabel, type LabelMap } from '../../../lib/eventLabels'
+import { isLicenceInactive } from '../../../lib/licence'
 import { fetchEvents } from '../../../lib/events'
 import { dateTime, num, regionName } from '../../../lib/format'
 import type { EventFilters, EventsPage, ScanEvent } from '../../../lib/types'
-import { Panel, Select, type SelectOption } from '../../ui'
+import { Panel, Select, StatusPill, type SelectOption } from '../../ui'
 import { EventDetail } from './EventDetail'
 import { EventStatus } from './EventStatus'
 
 const PAGE_SIZE = 25
-const EMPTY: EventFilters = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '' }
+const EMPTY: EventFilters = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '' }
 
 const options = (all: string, map: LabelMap | Record<string, string>): SelectOption<string>[] => [
   { value: '', label: all },
@@ -81,6 +82,7 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
         <Select align="left" label="Esito GS1" value={filters.compliance} onChange={(v) => setFilter('compliance', v)} options={options('Ogni esito GS1', COMPLIANCE_LABELS)} />
         <Select align="left" label="Verified by GS1" value={filters.vbg_state} onChange={(v) => setFilter('vbg_state', v)} options={options('Ogni esito VbG', VBG_LABELS)} />
         <Select align="left" label="Link" value={filters.link_level} onChange={(v) => setFilter('link_level', v)} options={options('Con e senza link', LINK_LABELS)} />
+        <Select align="left" label="Licenza GS1" value={filters.licence} onChange={(v) => setFilter('licence', v)} options={options('Ogni licenza', LICENCE_LABELS)} />
         <Select align="left" label="Origine" value={filters.source} onChange={(v) => setFilter('source', v)} options={options('Ogni origine', SOURCE_LABELS)} />
         {active > 0 && (
           <button className="chip-btn" type="button" onClick={() => { setFilters(EMPTY); setSearch(''); setPage(0) }}>
@@ -108,7 +110,7 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
               </thead>
               <tbody>
                 {data?.rows.map((e) => (
-                  <tr key={e.id} onClick={() => setSelected(e)}>
+                  <tr key={e.id} className={isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) ? 'is-flagged' : undefined} onClick={() => setSelected(e)}>
                     <td className="raw-when">{dateTime(e.created_at)}</td>
                     <td className="raw-code">
                       <span className="raw-stack">
@@ -123,7 +125,12 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
                       </span>
                     </td>
                     <td><EventStatus map={COMPLIANCE_LABELS} value={e.compliance} /></td>
-                    <td><EventStatus map={VBG_LABELS} value={e.vbg_state} /></td>
+                    <td>
+                      <span className="raw-pills">
+                        <EventStatus map={VBG_LABELS} value={e.vbg_state} />
+                        {isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) && <StatusPill tone="critical">Licenza non attiva</StatusPill>}
+                      </span>
+                    </td>
                     <td className="raw-region">{regionName(e.country, e.region_code, e.region)}</td>
                     <td className="raw-open">
                       <button className="chip-btn" type="button" onClick={(ev) => { ev.stopPropagation(); setSelected(e) }} aria-label={`Dettaglio della scansione del ${dateTime(e.created_at)}`}>

@@ -7,7 +7,7 @@ export function Delta({ now, before, mode = 'relative', good = 'up' }: Props) {
   if (before == null) return null
   const diff = mode === 'points' ? (now - before) * 100 : before === 0 ? (now > 0 ? Infinity : 0) : ((now - before) / before) * 100
   if (!Number.isFinite(diff)) return <span className="delta is-neutral"><ArrowUpRight size={14} /> nuovo rispetto al periodo precedente</span>
-  const rounded = Math.round(diff * 10) / 10
+  const rounded = Math.round(diff * 10) / 10 || 0 // niente "-0%"
   const dir = rounded > 0 ? 'up' : rounded < 0 ? 'down' : 'flat'
   const tone = dir === 'flat' || good === 'neutral' ? 'is-neutral' : dir === good ? 'is-good' : 'is-bad'
   const Icon = dir === 'up' ? ArrowUpRight : dir === 'down' ? ArrowDownRight : Minus

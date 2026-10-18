@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { demoEvents } from './demo'
+import { demoData, demoEvents, scaleDemo } from './demo'
 
-const none = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '' }
+const none = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '' }
 
 describe('demoEvents', () => {
   it('pagina e conta le righe', () => {
@@ -25,5 +25,26 @@ describe('demoEvents', () => {
     }
     const keys = new Set(demoEvents(90, none, 500, 0).rows.filter((r) => r.vbg_state === 'verified').map((r) => r.primary_key!))
     expect([...keys].every(check)).toBe(true)
+  })
+})
+
+describe('demoEvents: licenze', () => {
+  it('il filtro licenza separa attive e non attive', () => {
+    const inactive = demoEvents(90, { ...none, licence: 'inactive' }, 500, 0)
+    expect(inactive.total).toBeGreaterThan(0)
+    expect(inactive.rows.every((r) => r.vbg_licence_status === 'INACTIVE')).toBe(true)
+    const active = demoEvents(90, { ...none, licence: 'active' }, 500, 0)
+    expect(active.rows.some((r) => r.vbg_licence_status === 'INACTIVE')).toBe(false)
+  })
+})
+
+describe('scaleDemo', () => {
+  it('moltiplica i conteggi ma non medie e numero di paesi', () => {
+    const d = demoData(7)
+    const big = scaleDemo(d, 1000)
+    expect(big.kpi.letture).toBe(d.kpi.letture * 1000)
+    expect(big.kpi.paesi).toBe(d.kpi.paesi)
+    expect(big.categorie[0].media_dati).toBe(d.categorie[0].media_dati)
+    expect(big.regioni[0].region_code).toBe(d.regioni[0].region_code)
   })
 })

@@ -1,9 +1,10 @@
 import { Link2 } from 'lucide-react'
-import { dateTime, gtinDisplay, num, pct, regionName } from '../../lib/format'
+import { countryName, dateTime, gtinDisplay, num, pct, regionName } from '../../lib/format'
+import { licenceLabel } from '../../lib/licence'
 import type { DashboardData } from '../../lib/types'
 import { DataTable } from '../charts'
 import { ShieldArt } from '../illustrations'
-import { Panel, SectionHeader, StatusPill } from '../ui'
+import { InfoPopover, Panel, SectionHeader, StatusPill } from '../ui'
 
 /** Brand protection: link verso domini non del titolare, numeri mai assegnati, domini letti. */
 export function Protection({ data }: { data: DashboardData }) {
@@ -41,6 +42,31 @@ export function Protection({ data }: { data: DashboardData }) {
           </div>
         </div>
       )}
+      <Panel
+        title="Licenze GS1 scadute o non attive"
+        subtitle="Prodotti scansionati il cui codice appartiene a una licenza GS1 che Verified by GS1 non riporta come attiva."
+      >
+        <DataTable
+          rows={data.licenze ?? []}
+          rowKey={(l) => l.company_prefix ?? l.titolare ?? ''}
+          empty="Nessuna licenza scaduta o non attiva tra i codici letti nel periodo."
+          columns={[
+            { label: 'Titolare', render: (l) => <><b>{l.titolare ?? 'Titolare non disponibile'}</b><small className="cell-sub">prefisso {l.company_prefix ?? '–'}</small></> },
+            { label: 'Stato', render: (l) => <StatusPill tone="critical">{licenceLabel(l.stato_licenza, l.stato_scheda)}</StatusPill> },
+            { label: 'Scansioni', render: (l) => num(l.letture), numeric: true },
+            { label: 'Prodotti', render: (l) => num(l.prodotti), numeric: true },
+            { label: 'Paesi', render: (l) => (l.paesi ?? []).map((c) => countryName(c)).join(', ') || '–' },
+            { label: 'Ultima', render: (l) => dateTime(l.ultima) },
+            { label: 'Perché conta', render: () => (
+              <InfoPopover label="Perché una licenza non attiva è un problema">
+                <b className="info-title">Licenza GS1 non attiva</b>
+                <span className="info-text">Il prefisso aziendale di questo codice non risulta più attivo: l’azienda potrebbe aver chiuso, non aver rinnovato la licenza, o il codice potrebbe essere usato senza diritto.</span>
+                <span className="info-text"><b>Cosa fare:</b> GS1 Italy può contattare il titolare per il rinnovo; i distributori possono verificare il fornitore prima di accettare la merce.</span>
+              </InfoPopover>
+            ) },
+          ]}
+        />
+      </Panel>
       <div className="grid g-two">
         <Panel title="Numeri mai assegnati da GS1" subtitle="Possibili codici abusivi o contraffatti (errore E039).">
           <DataTable

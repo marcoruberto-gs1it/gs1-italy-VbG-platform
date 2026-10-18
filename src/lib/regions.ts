@@ -1,23 +1,31 @@
-import { num, pct, regionName } from './format'
+import { countryName, flag, num, pct, regionName } from './format'
 import type { MapMetric } from './stats'
 import type { DashboardData } from './types'
 
-export type RankedRegion = { key: string; label: string; value: number; note: string }
+export type RankedRow = { key: string; label: string; value: number; note: string }
 
-type Region = DashboardData['regioni'][number]
+type Area = { letture: number; letture_2d: number }
+const share2d = (r: Area) => (r.letture ? r.letture_2d / r.letture : 0)
 
-const regionKey = (r: Region) => `${r.country}-${r.region_code}`
-const share2d = (r: Region) => (r.letture ? r.letture_2d / r.letture : 0)
-
-/** Righe della classifica accanto alla mappa, secondo la misura scelta. */
-export function regionRanking(regions: Region[], metric: MapMetric, limit = 8): RankedRegion[] {
-  if (metric === 'letture') {
-    return regions.slice(0, limit).map((r) => ({ key: regionKey(r), label: regionName(r.country, r.region_code, r.region), value: r.letture, note: `2D ${pct(r.letture_2d, r.letture)}` }))
-  }
-  return regions
-    .filter((r) => r.letture > 0)
-    .sort((a, b) => share2d(b) - share2d(a) || b.letture - a.letture)
-    .slice(0, limit)
-    .map((r) => ({ key: regionKey(r), label: regionName(r.country, r.region_code, r.region), value: share2d(r), note: `${num(r.letture_2d)} su ${num(r.letture)}` }))
+/** Ordina per scansioni o per quota 2D e prepara le righe di una classifica. */
+function rank<T extends Area>(rows: T[], metric: MapMetric, limit: number, key: (r: T) => string, label: (r: T) => string): RankedRow[] {
+  const sorted = metric === 'letture'
+    ? [...rows].sort((a, b) => b.letture - a.letture)
+    : rows.filter((r) => r.letture > 0).sort((a, b) => share2d(b) - share2d(a) || b.letture - a.letture)
+  return sorted.slice(0, limit).map((r) => ({
+    key: key(r),
+    label: label(r),
+    value: metric === 'letture' ? r.letture : share2d(r),
+    note: metric === 'letture' ? `2D ${pct(r.letture_2d, r.letture)}` : `${num(r.letture_2d)} su ${num(r.letture)}`,
+  }))
 }
 
+/** Classifica delle regioni (di un paese o di tutti), per la misura scelta. */
+export function regionRanking(regions: DashboardData['regioni'], metric: MapMetric, limit = 8): RankedRow[] {
+  return rank(regions, metric, limit, (r) => `${r.country}-${r.region_code}`, (r) => regionName(r.country, r.region_code, r.region))
+}
+
+/** Classifica dei paesi, con bandiera e nome in italiano. */
+export function countryRanking(countries: NonNullable<DashboardData['paesi']>, metric: MapMetric, limit = 10): RankedRow[] {
+  return rank(countries, metric, limit, (c) => c.country, (c) => `${flag(c.country)} ${countryName(c.country)}`.trim())
+}

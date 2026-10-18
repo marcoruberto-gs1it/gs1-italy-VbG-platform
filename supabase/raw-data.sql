@@ -14,6 +14,7 @@
 --   vbg_state   verified | licensed | invalid | error | none (= non verificato)
 --   link_level  trusted | unknown | danger | pending | none (= senza link)
 --   source      camera | image | manual
+--   licence     inactive (licenza scaduta o non attiva) | active
 -- ============================================================================
 
 create or replace function public.dashboard_events(
@@ -34,6 +35,7 @@ declare
   f_vbg   text := nullif(p_filters ->> 'vbg_state', '');
   f_link  text := nullif(p_filters ->> 'link_level', '');
   f_src   text := nullif(p_filters ->> 'source', '');
+  f_lic   text := nullif(p_filters ->> 'licence', '');
   result  jsonb;
 begin
   if not public.is_dashboard_user() then
@@ -49,6 +51,9 @@ begin
       and (f_vbg  is null or (f_vbg = 'none' and vbg_state is null) or vbg_state = f_vbg)
       and (f_link is null or (f_link = 'none' and link_domain is null) or link_level = f_link)
       and (f_src  is null or source = f_src)
+      and (f_lic  is null
+        or (f_lic = 'inactive' and public.licence_inactive(vbg_licence_status, vbg_record_status))
+        or (f_lic = 'active' and vbg_state in ('verified', 'licensed') and not public.licence_inactive(vbg_licence_status, vbg_record_status)))
       and (q is null
         or primary_key    ilike '%' || q || '%'
         or company_prefix ilike q || '%'

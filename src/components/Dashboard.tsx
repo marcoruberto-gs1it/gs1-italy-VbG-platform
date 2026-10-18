@@ -14,7 +14,6 @@ import { Topbar } from './layout/Topbar'
 import { Adoption } from './sections/Adoption'
 import { Brands } from './sections/Brands'
 import { Categories } from './sections/Categories'
-import { Observatory } from './sections/Observatory'
 import { Overview } from './sections/Overview'
 import { Protection } from './sections/Protection'
 import { Quality } from './sections/Quality'
@@ -60,12 +59,11 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
     switch (id) {
       case 'panoramica': return <Overview data={d} previous={previous} period={period} days={days} country={country} onAudience={setAudience} onFindPrefix={findPrefix} />
       case 'adozione': return <Adoption data={d} days={days} />
-      case 'territorio': return <Territory data={d} />
+      case 'territorio': return <Territory data={d} country={country} />
       case 'qualita': return <Quality data={d} />
       case 'categorie': return <Categories data={d} />
       case 'brand': return <Brands data={d} />
       case 'protezione': return <Protection data={d} />
-      case 'osservatorio': return <Observatory data={d} period={period} days={days} />
       case 'dati': return <RawSection days={days} country={country} demo={demo} search={rawSearch} symbologies={d.simbologie.map((s) => s.simbologia)} />
     }
   }
@@ -75,7 +73,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
       <div className="layout" ref={root}>
         <Sidebar sections={sections} active={active} demo={demo} email={email} onSignOut={onSignOut} />
         <div className="main">
-          <Topbar days={days} country={country} loading={loading} demo={demo} onDays={onDays} onCountry={onCountry} onReload={onReload} onSignOut={onSignOut} />
+          <Topbar countries={data?.paesi?.map((c) => c.country) ?? []} days={days} country={country} loading={loading} demo={demo} onDays={onDays} onCountry={onCountry} onReload={onReload} onSignOut={onSignOut} />
           <MobileNav sections={sections} active={active} />
           <main className="content">
             {error && <p className="notice is-error" role="alert"><TriangleAlert size={18} /> {error}</p>}

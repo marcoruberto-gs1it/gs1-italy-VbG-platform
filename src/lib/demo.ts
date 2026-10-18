@@ -2,6 +2,7 @@
  * Dati dimostrativi generati nel browser (modalità ?demo): servono a vedere la dashboard
  * prima che ci siano abbastanza scansioni reali. Non vengono mai salvati nel database.
  */
+import { isLicenceInactive } from './licence'
 import type { DashboardData, EventFilters, EventsPage, Kpi, ScanEvent } from './types'
 
 function rng(seed: number) {
@@ -48,7 +49,26 @@ export function demoData(days: number): DashboardData {
   const regioni = regioniPeso.map(([region_code, region, w]) => {
     const l = Math.round(letture * w * (0.85 + r() * 0.3))
     return { country: 'IT', region_code, region, letture: l, letture_2d: Math.round(l * (0.14 + r() * 0.12)), conformi: Math.round(l * (0.9 + r() * 0.07)) }
-  }).sort((a, b) => b.letture - a.letture)
+  })
+  // Scansioni dall'estero (turisti, importatori, e-commerce): una piccola parte del totale.
+  const abroad: [string, string, string, number][] = [
+    ['FR', 'IDF', 'Île-de-France', 0.018], ['DE', 'BY', 'Bavaria', 0.014], ['CH', 'ZH', 'Zurich', 0.011], ['ES', 'CT', 'Catalonia', 0.009],
+    ['GB', 'ENG', 'England', 0.008], ['US', 'NY', 'New York', 0.006], ['AT', '9', 'Vienna', 0.004], ['BR', 'SP', 'São Paulo', 0.002],
+  ]
+  for (const [country, region_code, region, w] of abroad) {
+    const l = Math.round(letture * w * (0.85 + r() * 0.3))
+    regioni.push({ country, region_code, region, letture: l, letture_2d: Math.round(l * (0.2 + r() * 0.15)), conformi: Math.round(l * (0.88 + r() * 0.08)) })
+  }
+  regioni.sort((a, b) => b.letture - a.letture)
+  const byCountry = new Map<string, { country: string; letture: number; letture_2d: number; conformi: number }>()
+  for (const g of regioni) {
+    const c = byCountry.get(g.country) ?? { country: g.country, letture: 0, letture_2d: 0, conformi: 0 }
+    c.letture += g.letture
+    c.letture_2d += g.letture_2d
+    c.conformi += g.conformi
+    byCountry.set(g.country, c)
+  }
+  const paesi = [...byCountry.values()].sort((a, b) => b.letture - a.letture)
   const conformi = Math.round(letture * 0.91)
   const conErrori = Math.round(letture * 0.035)
   const nonGs1 = Math.round(letture * 0.03)
@@ -57,9 +77,15 @@ export function demoData(days: number): DashboardData {
       letture, letture_simbolo: letture - manuali, letture_2d: totale2d, conformi, con_errori: conErrori, non_gs1: nonGs1,
       prodotti_distinti: Math.round(letture * 0.31), verificati: Math.round(letture * 0.72), schede_valutate: Math.round(letture * 0.8),
       schede_complete: Math.round(letture * 0.8 * 0.64), allerte_link: 23, link_sospetti: 4,
+      licenze_non_attive: Math.round(letture * 0.004), paesi: paesi.length,
     },
     giornaliero,
+    paesi,
     regioni,
+    licenze: [
+      { company_prefix: '8033333', titolare: 'Conserviera Dismessa S.r.l.', letture: Math.round(letture * 0.003), prodotti: 6, stato_licenza: 'INACTIVE', stato_scheda: 'OK', ultima: new Date(Date.now() - 3600e3 * 3).toISOString(), paesi: ['IT', 'DE'] },
+      { company_prefix: '8044444', titolare: 'Bevande Storiche S.n.c.', letture: Math.round(letture * 0.001), prodotti: 2, stato_licenza: null, stato_scheda: 'INACTIVE', ultima: new Date(Date.now() - 3600e3 * 40).toISOString(), paesi: ['IT'] },
+    ],
     simbologie: [
       { simbologia: 'EAN-13', is_2d: false, letture: Math.round(totale1d * 0.86) },
       { simbologia: 'QR Code Standard GS1', is_2d: true, letture: Math.round(totale2d * 0.58) },
@@ -139,20 +165,24 @@ export function demoData(days: number): DashboardData {
 /* ───── Dati grezzi dimostrativi: righe di scan_events plausibili, filtrate come fa il database ───── */
 
 
-const DEMO_PRODUCTS = [
+const DEMO_PRODUCTS: { key: string; prefix: string; owner: string; brick: string; cat: string; licence?: string; record?: string }[] = [
   { key: '08076802085738', prefix: '8076809', owner: 'Marchio Esempio S.p.A.', brick: '10000043', cat: 'Pasta Secca' },
   { key: '08012345000012', prefix: '8012345', owner: 'Pastificio Esempio S.r.l.', brick: '10000043', cat: 'Pasta Secca' },
   { key: '08054321000128', prefix: '8054321', owner: 'Conserve Dimostrative S.p.A.', brick: '10000057', cat: 'Salse/Sughi - Da Cucina (Ambiente)' },
   { key: '08009876000239', prefix: '8009876', owner: 'Latteria Campione Soc. Coop.', brick: '10000117', cat: 'Formaggi - Duri/Semiduri' },
   { key: '08000500310427', prefix: '8000500', owner: 'Dolciaria Esempio S.p.A.', brick: '10000248', cat: 'Biscotti/Cracker Dolci' },
   { key: '08002270000140', prefix: '8002270', owner: 'Fonti Dimostrative S.r.l.', brick: '10000227', cat: 'Acqua Minerale' },
+  { key: '08033333000012', prefix: '8033333', owner: 'Conserviera Dismessa S.r.l.', brick: '10000057', cat: 'Salse/Sughi - Da Cucina (Ambiente)', licence: 'INACTIVE' },
 ]
 const DEMO_SYMBOLOGIES: [string, boolean | null, ScanEvent['source']][] = [
   ['EAN-13', false, 'camera'], ['EAN-13', false, 'camera'], ['EAN-13', false, 'image'], ['QR Code Standard GS1', true, 'camera'],
   ['GS1 DataMatrix', true, 'camera'], ['GS1-128', false, 'camera'], ['EAN-8', false, 'camera'], ['GS1 DataBar', false, 'camera'],
   ['Codice con link', true, 'camera'], ['Inserito a mano', null, 'manual'],
 ]
-const DEMO_REGIONS: [string, string][] = [['25', 'Lombardy'], ['62', 'Lazio'], ['72', 'Campania'], ['34', 'Veneto'], ['45', 'Emilia-Romagna'], ['21', 'Piedmont'], ['82', 'Sicily']]
+const DEMO_REGIONS: [string, string, string][] = [
+  ['IT', '25', 'Lombardy'], ['IT', '62', 'Lazio'], ['IT', '72', 'Campania'], ['IT', '34', 'Veneto'], ['IT', '45', 'Emilia-Romagna'], ['IT', '21', 'Piedmont'], ['IT', '82', 'Sicily'],
+  ['IT', '25', 'Lombardy'], ['IT', '62', 'Lazio'], ['IT', '52', 'Tuscany'], ['FR', 'IDF', 'Île-de-France'], ['DE', 'BY', 'Bavaria'], ['CH', 'ZH', 'Zurich'],
+]
 
 let demoRows: ScanEvent[] | null = null
 
@@ -162,7 +192,7 @@ function buildDemoRows(): ScanEvent[] {
   return Array.from({ length: 420 }, (_, i) => {
     const [symbology, is2d, source] = pick(DEMO_SYMBOLOGIES)
     const product = pick(DEMO_PRODUCTS)
-    const [region_code, region] = pick(DEMO_REGIONS)
+    const [country, region_code, region] = pick(DEMO_REGIONS)
     const roll = r()
     const link = symbology === 'Codice con link' || (symbology === 'QR Code Standard GS1' && r() < 0.4)
     const compliance: ScanEvent['compliance'] =
@@ -176,7 +206,7 @@ function buildDemoRows(): ScanEvent[] {
     return {
       id: 100000 - i,
       created_at: new Date(Date.now() - minutes * 60_000).toISOString(),
-      country: 'IT', region_code, region, is_eu: true,
+      country, region_code, region, is_eu: country !== 'CH',
       source, device: r() < 0.86 ? 'mobile' : 'desktop', app_version: '1.4.0',
       symbology, is_2d: is2d,
       content_kind: symbology === 'Codice con link' ? 'url' : 'gs1',
@@ -192,6 +222,8 @@ function buildDemoRows(): ScanEvent[] {
       vbg_complete: core == null ? null : core === 7,
       vbg_core_count: core,
       vbg_error_code: vbg === 'invalid' ? 'E039' : null,
+      vbg_record_status: vbg && vbg !== 'invalid' ? (product.record ?? 'OK') : null,
+      vbg_licence_status: vbg && vbg !== 'invalid' ? (product.licence ?? null) : null,
       company_prefix: vbg && vbg !== 'invalid' ? product.prefix : null,
       licensee_name: vbg && vbg !== 'invalid' ? product.owner : null,
       licensee_gln: vbg && vbg !== 'invalid' ? `${product.prefix}000003` : null,
@@ -218,7 +250,24 @@ export function demoEvents(days: number, filters: EventFilters, limit: number, o
     (!filters.vbg_state || (filters.vbg_state === 'none' ? e.vbg_state == null : e.vbg_state === filters.vbg_state)) &&
     (!filters.link_level || (filters.link_level === 'none' ? e.link_domain == null : e.link_level === filters.link_level)) &&
     (!filters.source || e.source === filters.source) &&
+    (!filters.licence ||
+      (filters.licence === 'inactive' ? isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) : (e.vbg_state === 'verified' || e.vbg_state === 'licensed') && !isLicenceInactive(e.vbg_licence_status, e.vbg_record_status))) &&
     (!q || [e.primary_key, e.licensee_name, e.gpc_brick_name, e.link_domain].some((v) => v?.toLowerCase().includes(q)) || Boolean(e.company_prefix?.startsWith(q)))
   const rows = demoRows.filter(matches)
   return { total: rows.length, rows: rows.slice(offset, offset + limit) }
+}
+
+/** Medie e codici che non vanno moltiplicati quando si ingrandisce la demo. */
+const NOT_COUNTS = new Set(['media_dati', 'paesi'])
+
+/**
+ * Demo "ingrandita" (?demo&scala=1000): moltiplica tutti i conteggi, per vedere come si comporta
+ * l'interfaccia quando i numeri cresceranno.
+ */
+export function scaleDemo<T>(value: T, factor: number, key = ''): T {
+  if (factor === 1) return value
+  if (typeof value === 'number') return (NOT_COUNTS.has(key) ? value : Math.round(value * factor)) as T
+  if (Array.isArray(value)) return value.map((v) => scaleDemo(v, factor, key)) as T
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, scaleDemo(v, factor, k)])) as T
+  return value
 }

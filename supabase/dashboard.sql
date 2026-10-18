@@ -11,6 +11,18 @@
 
 -- Colonne di scan_events aggiunte dopo la prima versione ----------------------
 alter table public.scan_events add column if not exists brand_name text;
+alter table public.scan_events add column if not exists vbg_record_status text;
+alter table public.scan_events add column if not exists vbg_licence_status text;
+
+-- Licenza GS1 scaduta o non attiva: lo stato della licenza o della scheda, come lo riporta
+-- Verified by GS1, è diverso da "attivo". I valori assenti contano come attivi.
+create or replace function public.licence_inactive(p_licence text, p_record text)
+returns boolean
+language sql immutable set search_path = ''
+as $$
+  select coalesce(upper(p_licence) not in ('ACTIVE', 'VALID', 'OK'), false)
+      or coalesce(upper(p_record) not in ('OK', 'ACTIVE'), false)
+$$;
 
 -- Utenti abilitati -----------------------------------------------------------
 create table if not exists public.dashboard_users (
@@ -50,10 +62,13 @@ begin
     raise exception 'Utente non abilitato alla dashboard' using errcode = '42501';
   end if;
 
-  with e as (
+  with w as (
+    -- Tutto il mondo nel periodo (per la ripartizione per paese e il menu dei paesi).
     select * from public.scan_events
     where created_at >= p_from and created_at < p_to
-      and (p_country is null or country = p_country)
+  ),
+  e as (
+    select * from w where p_country is null or country = p_country
   )
   select jsonb_build_object(
     'kpi', (
@@ -69,7 +84,9 @@ begin
         'schede_valutate',    count(*) filter (where vbg_core_count is not null),
         'schede_complete',    count(*) filter (where vbg_core_count = 7),
         'allerte_link',       count(*) filter (where vbg_state = 'verified' and link_level in ('unknown', 'danger')),
-        'link_sospetti',      count(*) filter (where link_level = 'danger')
+        'link_sospetti',      count(*) filter (where link_level = 'danger'),
+        'licenze_non_attive', count(*) filter (where public.licence_inactive(vbg_licence_status, vbg_record_status)),
+        'paesi',              count(distinct country)
       ) from e
     ),
     'giornaliero', (
@@ -80,6 +97,29 @@ begin
                count(*) filter (where source = 'manual')       as manuali
         from e group by 1
       ) d
+    ),
+    'paesi', (
+      select coalesce(jsonb_agg(c order by c.letture desc), '[]'::jsonb) from (
+        select country, count(*) as letture,
+               count(*) filter (where is_2d)              as letture_2d,
+               count(*) filter (where compliance = 'gs1') as conformi
+        from w where country is not null
+        group by country order by count(*) desc limit 120
+      ) c
+    ),
+    'licenze', (
+      select coalesce(jsonb_agg(l order by l.letture desc), '[]'::jsonb) from (
+        select company_prefix, max(licensee_name) as titolare,
+               count(*)                         as letture,
+               count(distinct primary_key)      as prodotti,
+               max(vbg_licence_status)          as stato_licenza,
+               max(vbg_record_status)           as stato_scheda,
+               max(created_at)                  as ultima,
+               array_agg(distinct country) filter (where country is not null) as paesi
+        from e
+        where public.licence_inactive(vbg_licence_status, vbg_record_status)
+        group by company_prefix order by count(*) desc limit 50
+      ) l
     ),
     'regioni', (
       select coalesce(jsonb_agg(r order by r.letture desc), '[]'::jsonb) from (

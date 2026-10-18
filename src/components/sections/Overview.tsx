@@ -4,7 +4,7 @@ import { useAudience } from '../../hooks/useAudience'
 import { AUDIENCES, whyFor, type AudienceId } from '../../lib/audiences'
 import type { Period } from '../../lib/config'
 import { fillDays } from '../../lib/days'
-import { num, pct } from '../../lib/format'
+import { countryName, num, numShort, pct } from '../../lib/format'
 import { pctNum, prevShare, share } from '../../lib/stats'
 import type { DashboardData, Kpi } from '../../lib/types'
 import { MiniRing, MiniStack, Sparkline } from '../charts'
@@ -48,7 +48,9 @@ export function Overview({ data, previous, period, days, country, onAudience, on
   const k = data.kpi
   // Senza scansioni nel periodo precedente un confronto sarebbe fuorviante: non lo mostriamo.
   const prev = previous && previous.letture > 0 ? previous : null
-  const regions = data.regioni.filter((r) => r.country === 'IT' && r.region_code).length
+  const countries = k.paesi ?? data.paesi?.length ?? 0
+  const inactive = k.licenze_non_attive ?? 0
+  const licensed = k.verificati
   const daily = fillDays(data.giornaliero, Math.min(days, 90))
   const c = data.conformita
 
@@ -56,10 +58,10 @@ export function Overview({ data, previous, period, days, country, onAudience, on
     <section id="panoramica" className="section">
       <header className="overview-head reveal">
         <div className="overview-title">
-          <p className="eyebrow">Osservatorio Verified by GS1 · {period.label}{country ? ' · Italia' : ''}</p>
-          <h1><Counter value={k.letture} format={num} /> scansioni {period.long}</h1>
+          <p className="eyebrow">Verified by GS1 · {period.label} · {country ? countryName(country) : 'tutto il mondo'}</p>
+          <h1 title={`${num(k.letture)} scansioni`}><Counter value={k.letture} format={numShort} /> scansioni {period.long}</h1>
           <p className="overview-lead">
-            {num(k.prodotti_distinti)} prodotti diversi in {regions} {regions === 1 ? 'regione' : 'regioni'}. {whyFor('panoramica', audience)}
+            {numShort(k.prodotti_distinti)} prodotti diversi{!country && countries ? `, da ${num(countries)} ${countries === 1 ? 'paese' : 'paesi'}` : ''}. {whyFor('panoramica', audience)}
           </p>
         </div>
         <div className="overview-view">
@@ -78,7 +80,7 @@ export function Overview({ data, previous, period, days, country, onAudience, on
       <div className="kpis">
         <article className="kpi">
           <p className="kpi-label">Scansioni</p>
-          <p className="kpi-value"><Counter value={k.letture} format={num} /></p>
+          <p className="kpi-value" title={num(k.letture)}><Counter value={k.letture} format={numShort} /></p>
           {prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : <span className="delta is-neutral">Periodo precedente senza dati</span>}
           <div className="kpi-chart">
             <Sparkline values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label="Andamento giornaliero delle scansioni" />
@@ -91,7 +93,7 @@ export function Overview({ data, previous, period, days, country, onAudience, on
           <Delta now={share(k.letture_2d, k.letture_simbolo)} before={prevShare(prev?.letture_2d, prev?.letture_simbolo)} mode="points" good="up" />
           <div className="kpi-chart is-ring">
             <MiniRing value={share(k.letture_2d, k.letture_simbolo)} label={`Codici 2D: ${pct(k.letture_2d, k.letture_simbolo)}`} />
-            <small>{num(k.letture_2d)} codici 2D su {num(k.letture_simbolo)}</small>
+            <small>{numShort(k.letture_2d)} codici 2D su {numShort(k.letture_simbolo)}</small>
           </div>
         </article>
         <article className="kpi">
@@ -108,7 +110,7 @@ export function Overview({ data, previous, period, days, country, onAudience, on
                 { value: c.none ?? 0, color: 'var(--neutral-bar)', title: 'Non GS1' },
               ]}
             />
-            <small>{num((c.error ?? 0) + (c.partial ?? 0))} con errori o non standard</small>
+            <small>{numShort((c.error ?? 0) + (c.partial ?? 0))} con errori o non standard</small>
           </div>
         </article>
         <article className="kpi">
@@ -117,12 +119,12 @@ export function Overview({ data, previous, period, days, country, onAudience, on
           <Delta now={share(k.schede_complete, k.schede_valutate)} before={prevShare(prev?.schede_complete, prev?.schede_valutate)} mode="points" good="up" />
           <div className="kpi-chart is-ring">
             <MiniRing value={share(k.schede_complete, k.schede_valutate)} color="var(--series-1)" label={`Schede complete: ${pct(k.schede_complete, k.schede_valutate)}`} />
-            <small>{num(k.schede_complete)} schede con tutti i 7 dati</small>
+            <small>{numShort(k.schede_complete)} schede con tutti i 7 dati</small>
           </div>
         </article>
         <article className={`kpi ${k.allerte_link ? 'is-alert' : ''}`}>
           <p className="kpi-label">Allerte di brand protection</p>
-          <p className="kpi-value"><Counter value={k.allerte_link} format={num} /></p>
+          <p className="kpi-value" title={num(k.allerte_link)}><Counter value={k.allerte_link} format={numShort} /></p>
           <Delta now={k.allerte_link} before={prev?.allerte_link} good="down" />
           <div className="kpi-chart">
             <MiniStack
@@ -132,7 +134,22 @@ export function Overview({ data, previous, period, days, country, onAudience, on
                 { value: Math.max(0, k.allerte_link - k.link_sospetti), color: 'var(--warning)', title: 'Domini non riconosciuti' },
               ]}
             />
-            <small>{k.allerte_link ? <><a href="#protezione">{num(k.link_sospetti)} link sospetti</a> da verificare</> : 'nessun link verso siti estranei'}</small>
+            <small>{k.allerte_link ? <><a href="#protezione">{numShort(k.link_sospetti)} link sospetti</a> da verificare</> : 'nessun link verso siti estranei'}</small>
+          </div>
+        </article>
+        <article className={`kpi ${inactive ? 'is-alert' : ''}`}>
+          <p className="kpi-label">Licenza GS1 non attiva</p>
+          <p className="kpi-value" title={num(inactive)}><Counter value={inactive} format={numShort} /></p>
+          <Delta now={inactive} before={prev?.licenze_non_attive} good="down" />
+          <div className="kpi-chart">
+            <MiniStack
+              label="Scansioni di prodotti con licenza attiva e non attiva"
+              parts={[
+                { value: Math.max(0, licensed - inactive), color: 'var(--good)', title: 'Licenza attiva' },
+                { value: inactive, color: 'var(--critical)', title: 'Licenza scaduta o non attiva' },
+              ]}
+            />
+            <small>{inactive ? <><a href="#protezione">{pct(inactive, licensed)}</a> dei prodotti verificati</> : 'tutte le licenze lette sono attive'}</small>
           </div>
         </article>
       </div>

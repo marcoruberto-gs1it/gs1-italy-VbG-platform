@@ -23,7 +23,7 @@ npm run dev
 
 ## Configurazione Supabase (una tantum)
 
-1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app) e poi `supabase/raw-data.sql` (rieseguire `dashboard.sql` aggiunge anche la colonna del marchio usata dalla classifica dei brand).
+1. **SQL Editor**: esegui `supabase/dashboard.sql` (dopo lo schema dell'app) e poi `supabase/raw-data.sql`; rieseguili quando cambiano (rieseguire `dashboard.sql` aggiunge anche la colonna del marchio usata dalla classifica dei brand).
 2. **Authentication → Sign In / Providers**: disattiva *Allow new users to sign up*.
 3. **Authentication → URL Configuration**: imposta *Site URL* e *Redirect URLs* con `https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/` (e `http://localhost:5173` per lo sviluppo). Con l'accesso a password della demo non sono usati, servono per i futuri accessi via email.
 4. **Authentication → Users → Add user**: crea gli utenti (email e password, con *Auto Confirm User*), poi abilitali:
@@ -65,6 +65,8 @@ src/
 ```
 
 Viste per pubblico (`?vista=gs1|produttori|distributori|stampa`): stessi dati, ordine delle sezioni e spiegazioni pensati per chi li legge (`src/lib/audiences.ts`).
+
+Demo: `?demo` mostra dati generati nel browser; `?demo&scala=1000` moltiplica i conteggi per vedere l'interfaccia con numeri molto grandi.
 
 Comandi: `npm run dev`, `npm test` (Vitest), `npm run lint`, `npm run build`.
 La pubblicazione su GitHub Pages esegue lint e test prima della build: se uno fallisce, il sito non viene aggiornato.

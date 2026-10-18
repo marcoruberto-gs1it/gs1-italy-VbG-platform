@@ -11,11 +11,19 @@ export type Kpi = {
   schede_complete: number
   allerte_link: number
   link_sospetti: number
+  /** Scansioni con licenza GS1 scaduta o non attiva (assente nei database non aggiornati). */
+  licenze_non_attive?: number
+  /** Paesi da cui arrivano scansioni nel periodo. */
+  paesi?: number
 }
 
 export type DashboardData = {
   kpi: Kpi
   giornaliero: { giorno: string; letture_2d: number; letture_1d: number; manuali: number }[]
+  /** Tutto il mondo nel periodo, indipendentemente dal filtro paese. */
+  paesi?: { country: string; letture: number; letture_2d: number; conformi: number }[]
+  /** Aziende con scansioni di codici la cui licenza GS1 risulta scaduta o non attiva. */
+  licenze?: { company_prefix: string | null; titolare: string | null; letture: number; prodotti: number; stato_licenza: string | null; stato_scheda: string | null; ultima: string; paesi: string[] | null }[]
   regioni: { country: string | null; region_code: string | null; region: string | null; letture: number; letture_2d: number; conformi: number }[]
   simbologie: { simbologia: string; is_2d: boolean | null; letture: number }[]
   conformita: Partial<Record<'gs1' | 'error' | 'partial' | 'manual' | 'none', number>>
@@ -57,6 +65,8 @@ export type ScanEvent = {
   vbg_complete: boolean | null
   vbg_core_count: number | null
   vbg_error_code: string | null
+  vbg_record_status?: string | null
+  vbg_licence_status?: string | null
   company_prefix: string | null
   licensee_name: string | null
   licensee_gln: string | null
@@ -77,6 +87,7 @@ export type EventFilters = {
   vbg_state: string
   link_level: string
   source: string
+  licence: string
 }
 
 export type EventsPage = { total: number; rows: ScanEvent[] }

@@ -9,7 +9,7 @@ export const AUDIENCES = [
   { id: 'gs1', label: 'GS1 Italy', lead: 'Avanzamento verso i codici 2D (Sunrise 2027), qualità dei codici delle aziende, segnali di contraffazione.' },
   { id: 'produttori', label: 'Produttori', lead: 'Come vengono letti i tuoi codici, quali errori correggere, se qualcuno usa i tuoi codici in modo abusivo.' },
   { id: 'distributori', label: 'Distributori', lead: 'Qualità dei codici e delle schede dei fornitori, prontezza delle casse per i codici 2D.' },
-  { id: 'stampa', label: 'Stampa e osservatorio', lead: 'L’osservatorio sull’uso dei codici GS1 in Italia, con numeri da citare e dati scaricabili.' },
+  { id: 'stampa', label: 'Stampa', lead: 'Come si usano i codici GS1: passaggio ai codici 2D, territori, categorie e marchi più scansionati.' },
 ] as const
 
 export type AudienceId = (typeof AUDIENCES)[number]['id']
@@ -18,11 +18,11 @@ export const isAudience = (v: string | null): v is AudienceId => AUDIENCES.some(
 
 /** Ordine delle sezioni per ogni vista: prima quello che serve di più a quel pubblico. */
 export const SECTION_ORDER: Record<AudienceId, SectionId[]> = {
-  tutti: ['panoramica', 'adozione', 'territorio', 'qualita', 'categorie', 'brand', 'protezione', 'osservatorio', 'dati'],
-  gs1: ['panoramica', 'adozione', 'qualita', 'protezione', 'territorio', 'categorie', 'brand', 'osservatorio', 'dati'],
-  produttori: ['panoramica', 'qualita', 'protezione', 'brand', 'categorie', 'adozione', 'territorio', 'dati', 'osservatorio'],
-  distributori: ['panoramica', 'qualita', 'categorie', 'brand', 'protezione', 'adozione', 'territorio', 'dati', 'osservatorio'],
-  stampa: ['panoramica', 'osservatorio', 'adozione', 'territorio', 'categorie', 'brand', 'protezione', 'qualita', 'dati'],
+  tutti: ['panoramica', 'adozione', 'territorio', 'qualita', 'categorie', 'brand', 'protezione', 'dati'],
+  gs1: ['panoramica', 'adozione', 'qualita', 'protezione', 'territorio', 'categorie', 'brand', 'dati'],
+  produttori: ['panoramica', 'qualita', 'protezione', 'brand', 'categorie', 'adozione', 'territorio', 'dati'],
+  distributori: ['panoramica', 'qualita', 'categorie', 'brand', 'protezione', 'adozione', 'territorio', 'dati'],
+  stampa: ['panoramica', 'adozione', 'territorio', 'categorie', 'brand', 'protezione', 'qualita', 'dati'],
 }
 
 type Copy = { what: string; why: string } & Partial<Record<AudienceId, string>>
@@ -71,10 +71,6 @@ export const SECTION_COPY: Record<SectionId, Copy> = {
     why: 'Sono segnali di possibile contraffazione o truffa con QR Code (quishing): vanno verificati subito.',
     produttori: 'Avvisa se qualcuno usa i tuoi codici per portare i consumatori su siti che non sono tuoi.',
     distributori: 'Aiuta a riconoscere merce con codici falsi prima che arrivi sugli scaffali.',
-  },
-  osservatorio: {
-    what: 'Numeri pronti da citare, dati scaricabili e il metodo con cui sono raccolti.',
-    why: 'Rende i dati riutilizzabili in report, articoli e presentazioni, con fonte e limiti chiari.',
   },
   dati: {
     what: 'Ogni singola scansione del periodo, con filtri e dettaglio.',

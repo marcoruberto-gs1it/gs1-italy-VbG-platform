@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ImageOff, X } from 'lucide-react'
 import { COMPLIANCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, labelFor } from '../../../lib/eventLabels'
-import { dateTime, regionName } from '../../../lib/format'
+import { countryName, dateTime, regionName } from '../../../lib/format'
 import { gsap, motionOk, useGSAP } from '../../../lib/motion'
 import type { ScanEvent } from '../../../lib/types'
+import { isLicenceInactive, licenceLabel } from '../../../lib/licence'
 import { canLookup, lookup, type VbgRecord } from '../../../lib/vbg'
 import { StatusPill } from '../../ui'
 import { EventStatus } from './EventStatus'
@@ -64,6 +65,7 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
           <div className="drawer-pills">
             <EventStatus map={COMPLIANCE_LABELS} value={e.compliance} />
             <EventStatus map={VBG_LABELS} value={e.vbg_state} />
+            {isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) && <StatusPill tone="critical">Licenza non attiva</StatusPill>}
             {e.link_domain && <EventStatus map={LINK_LABELS} value={e.link_level} />}
           </div>
 
@@ -92,6 +94,7 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
               <Row label="GS1 Company Prefix">{e.company_prefix}</Row>
               <Row label="GLN del titolare">{e.licensee_gln}</Row>
               <Row label="Licenza rilasciata da">{e.licensing_mo}</Row>
+              {e.vbg_state && e.vbg_state !== 'invalid' && <Row label="Stato della licenza">{licenceLabel(e.vbg_licence_status, e.vbg_record_status)}</Row>}
               <Row label="Categoria GPC">{e.gpc_brick_name ? `${e.gpc_brick_name} (${e.gpc_brick})` : null}</Row>
               {e.vbg_error_code && <Row label="Codice di errore">{e.vbg_error_code}</Row>}
             </dl>
@@ -112,6 +115,7 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
           <section className="drawer-section">
             <h3>Contesto</h3>
             <dl className="drawer-dl">
+              <Row label="Paese">{countryName(e.country)}</Row>
               <Row label="Regione">{regionName(e.country, e.region_code, e.region)}</Row>
               <Row label="Dispositivo">{e.device === 'mobile' ? 'Telefono o tablet' : e.device === 'desktop' ? 'Computer' : null}</Row>
               <Row label="Versione dell’app">{e.app_version}</Row>

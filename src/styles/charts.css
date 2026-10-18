@@ -21,7 +21,7 @@
 .ring-track { fill: none; stroke: var(--mist); stroke-width: 18; }
 .ring-value { fill: none; stroke: var(--series-2); stroke-width: 18; stroke-linecap: round; }
 .ring-center { position: absolute; top: 6px; width: min(100%, 220px); aspect-ratio: 1; display: grid; place-content: center; text-align: center; }
-.ring-center strong { font-size: var(--fs-2xl); font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+.ring-center strong { white-space: nowrap; font-size: var(--fs-2xl); font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
 .ring-center span { font-size: var(--fs-sm); color: var(--muted); font-weight: 600; }
 .ring-caption { font-size: var(--fs-sm); color: var(--ink-2); text-align: center; line-height: 1.5; max-width: 280px; }
 
@@ -80,6 +80,10 @@
 
 /* ───── Mappa ───── */
 .map-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr); gap: 28px; align-items: start; }
+.map-layout.is-world { grid-template-columns: minmax(0, 1.6fr) minmax(240px, 0.7fr); }
+.map.is-world .map-canvas svg { max-height: 440px; }
+.map.is-world .map-region { stroke-width: 0.5; }
+.map.is-world .map-region:hover, .map.is-world .map-region.is-hover { stroke-width: 1.4; }
 .map { position: relative; display: grid; gap: 12px; }
 .map-toolbar { display: flex; justify-content: flex-start; }
 .map-canvas { position: relative; }
@@ -103,7 +107,7 @@
 .status-legend small { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 1080px) {
-  .map-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .map-layout, .map-layout.is-world { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .map-canvas svg { max-height: 460px; }
 }
 

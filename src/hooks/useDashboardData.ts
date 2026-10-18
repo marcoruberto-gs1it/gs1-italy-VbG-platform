@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { demoData, demoPrevious } from '../lib/demo'
+import { demoData, demoPrevious, scaleDemo } from '../lib/demo'
 import { supabase } from '../lib/supabase'
 import type { DashboardData, Kpi } from '../lib/types'
 
@@ -33,9 +33,13 @@ export function useDashboardData({ days, country, demo, signedIn }: Query): Dash
 
   const demoResult = useMemo(() => {
     if (!demo) return null
-    const data = demoData(Math.min(days, 90))
-    return { data, previous: demoPrevious(data.kpi) }
-  }, [demo, days])
+    const factor = Math.max(1, Number(new URLSearchParams(window.location.search).get('scala')) || 1)
+    const base = demoData(Math.min(days, 90))
+    const data = scaleDemo(base, factor)
+    // Il paese scelto filtra le regioni anche nella demo.
+    const filtered = country ? { ...data, regioni: data.regioni.filter((r) => r.country === country) } : data
+    return { data: filtered, previous: demoPrevious(data.kpi) }
+  }, [demo, days, country])
 
   useEffect(() => {
     if (demo || !signedIn) return

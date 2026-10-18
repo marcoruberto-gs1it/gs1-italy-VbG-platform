@@ -19,13 +19,17 @@
 .prefix-row input { flex: 1 1 180px; height: 42px; padding: 0 14px; border: 0; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-size: 16px; font-variant-numeric: tabular-nums; outline: none; }
 .prefix-row input:focus { box-shadow: inset 0 0 0 2px var(--orange); }
 
-.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
 .kpi {
   display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 6px; align-items: start; min-width: 0;
   padding: 18px 18px 16px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow);
 }
 .kpi-label { font-size: var(--fs-sm); font-weight: 600; line-height: 1.35; color: var(--ink-2); }
-.kpi-value { font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -0.02em; color: var(--navy); line-height: 1.05; font-variant-numeric: tabular-nums; }
+/* Il numero si rimpicciolisce con la larghezza della card e non va mai a capo: con valori grandi
+   (es. "123,5 mila", "2,4 Mln") resta dentro. Il contenitore è il paragrafo, non la card, per non
+   rompere l'allineamento a righe condivise (subgrid) tra le card. */
+.kpi-value { container-type: inline-size; min-width: 0; font-weight: 800; letter-spacing: -0.02em; color: var(--navy); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-value > span { display: block; font-size: clamp(20px, 17cqi, var(--fs-2xl)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi.is-alert .kpi-value { color: var(--critical-ink); }
 .kpi-chart { align-self: end; display: grid; gap: 6px; padding-top: 8px; }
 .kpi-chart.is-ring { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
@@ -37,17 +41,6 @@
 .mini-stack { display: flex; gap: 2px; height: 14px; border-radius: 5px; overflow: hidden; background: var(--mist); }
 .mini-stack span { min-width: 3px; }
 
-/* ───── Osservatorio ───── */
-.g-observatory { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
-.facts { display: grid; }
-.facts li { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.facts li:first-child { padding-top: 0; }
-.facts p { font-size: var(--fs-md); line-height: 1.5; color: var(--ink); }
-.facts-all { display: flex; align-items: center; gap: 10px; font-size: var(--fs-xs); color: var(--muted); }
-.chip-btn.is-done { background: var(--good-bg); color: var(--good-ink); }
-.downloads { display: flex; flex-wrap: wrap; gap: 8px; }
-.method { display: grid; gap: 10px; font-size: var(--fs-sm); line-height: 1.5; color: var(--ink-2); }
-.method b { color: var(--navy); }
 
 /* ───── Tabelle degli errori: una riga ciascuno, motivo nel fumetto ───── */
 .err-table-wrap { position: relative; margin: 0 -6px; }
@@ -141,13 +134,10 @@
 .live-note { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
 
 /* ───── Adattamento ───── */
-@media (max-width: 1280px) {
+@media (max-width: 1480px) {
   .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-@media (max-width: 1080px) {
-  .g-observatory { grid-template-columns: minmax(0, 1fr); }
-}
 
 /* Dati grezzi: una scheda per scansione già su tablet, senza scorrimento orizzontale. */
 @media (max-width: 900px) {
@@ -174,14 +164,9 @@
   .overview-view { flex: 1 1 100%; }
   .overview-view .select-menu { min-width: 0; }
   .audience-note { padding: 12px 14px; }
-  .facts p { font-size: var(--fs-sm); }
-  .facts li { flex-direction: column; gap: 8px; }
-  .downloads .btn { flex: 1 1 calc(50% - 4px); }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .kpi { padding: 14px; border-radius: var(--r-md); }
-  .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .kpi-label { font-size: var(--fs-xs); }
-  .kpi-value { font-size: 26px; }
   .delta-ref { display: none; }
 
   /* Errori: ogni riga diventa compatta su due righe (azienda + icona, tipo + motivo). */
@@ -216,3 +201,8 @@
   .live-image { width: 76px; height: 76px; }
   .core-list li { grid-template-columns: 116px minmax(0, 1fr); }
 }
+
+/* Scansioni con licenza GS1 non attiva: riga evidenziata */
+.raw-table tbody tr.is-flagged { box-shadow: inset 3px 0 0 var(--critical); background: color-mix(in srgb, var(--critical-bg) 55%, transparent); }
+.raw-table tbody tr.is-flagged:hover { background: var(--critical-bg); }
+.raw-pills { display: flex; flex-wrap: wrap; gap: 4px; }
