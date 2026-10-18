@@ -4,7 +4,7 @@ import italy from '../lib/italy-regions.json'
 import { day, longDay, num, pct, regionName } from '../lib/format'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 import type { DashboardData } from '../lib/types'
-import { glyphFor } from '../lib/symbology'
+import { glyphFor, isGs1Symbology } from '../lib/symbology'
 import { EmptyArt, SymbologyGlyph } from './illustrations'
 
 /* ───── Utilità ───── */
@@ -166,11 +166,11 @@ export function SymbologyGrid({ data }: { data: DashboardData['simbologie'] }) {
   return (
     <ul className="sym-grid" ref={ref}>
       {data.map((s) => (
-        <li key={s.simbologia} className="sym-card">
+        <li key={s.simbologia} className={`sym-card ${isGs1Symbology(s.simbologia) ? 'is-gs1' : ''}`}>
           <span className="sym-glyph"><SymbologyGlyph kind={glyphFor(s.simbologia)} size={40} /></span>
           <span className="sym-text">
             <strong>{s.simbologia}</strong>
-            <small>{s.is_2d == null ? 'inserimento manuale' : s.is_2d ? 'codice 2D' : 'barcode 1D'}</small>
+            <small>{s.is_2d == null ? 'senza simbolo' : s.is_2d ? 'codice 2D' : 'barcode 1D'}</small>
           </span>
           <span className="sym-value"><b>{num(s.letture)}</b><small>{pct(s.letture, total)}</small></span>
           <span className="sym-bar"><span style={{ width: `${(s.letture / max) * 100}%`, background: s.is_2d ? 'var(--series-2)' : 'var(--series-1)' }} /></span>

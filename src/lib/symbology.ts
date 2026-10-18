@@ -10,3 +10,9 @@ export function glyphFor(symbology: string): GlyphKind {
   if (/128|39|93|ITF|Codabar/i.test(symbology)) return 'gs1128'
   return 'ean'
 }
+
+/** La simbologia appartiene agli standard GS1? (Un QR Code o un link senza dati GS1 no.) */
+export function isGs1Symbology(symbology: string): boolean {
+  if (/a mano|Codice con/i.test(symbology)) return false
+  return /GS1|EAN|UPC|ITF-14/i.test(symbology)
+}

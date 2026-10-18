@@ -68,12 +68,11 @@ export function StatusPill({ tone, children }: { tone: 'good' | 'warning' | 'cri
 }
 
 /* Card di sezione con titolo, icona e (facoltativa) alternanza grafico/tabella. */
-export function Panel({ title, subtitle, icon, tone, children, table, className = '', action }: { title: string; subtitle?: string; icon?: LucideIcon; tone?: 'navy' | 'orange' | 'sky' | 'peach'; children: ReactNode; table?: ReactNode; className?: string; action?: ReactNode }) {
+export function Panel({ title, subtitle, children, table, className = '', action }: { title: string; subtitle?: string; children: ReactNode; table?: ReactNode; className?: string; action?: ReactNode }) {
   const [showTable, setShowTable] = useState(false)
   return (
     <section className={`panel reveal ${className}`}>
       <header className="panel-head">
-        {icon && <IconTile icon={icon} tone={tone} size="sm" />}
         <div className="panel-title">
           <h3>{title}</h3>
           {subtitle && <p>{subtitle}</p>}
@@ -91,12 +90,10 @@ export function Panel({ title, subtitle, icon, tone, children, table, className 
 }
 
 /* Intestazione di una sezione della pagina (ancora per la navigazione). */
-export function SectionHeader({ id, icon: Icon, eyebrow, title, text }: { id: string; icon: LucideIcon; eyebrow: string; title: string; text?: string }) {
+export function SectionHeader({ id, title, text }: { id: string; title: string; text?: string }) {
   return (
     <header className="section-head reveal" id={id}>
-      <span className="section-icon"><Icon size={22} strokeWidth={2.1} /></span>
       <div>
-        <p className="eyebrow">{eyebrow}</p>
         <h2>{title}</h2>
         {text && <p className="section-text">{text}</p>}
       </div>

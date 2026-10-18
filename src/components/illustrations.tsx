@@ -110,22 +110,6 @@ export function RippleArt() {
         <BarsGlyph x={136} y={112} w={48} h={36} count={11} seed={11} />
         <rect className="ga-scanline" x="128" y="128" width="64" height="3" rx="1.5" fill={ORANGE} />
       </g>
-      <g className="ga-float-a">
-        <rect x="236" y="34" width="54" height="54" rx="12" fill="#ffffff" />
-        <QrGlyph x={245} y={43} size={36} />
-      </g>
-      <g className="ga-float-b">
-        <rect x="30" y="54" width="46" height="46" rx="11" fill="#ffffff" />
-        <Modules x={38} y={62} size={30} cells={10} seed={9} />
-      </g>
-      <g className="ga-float-c">
-        <rect x="222" y="178" width="70" height="44" rx="11" fill={ORANGE} />
-        <BarsGlyph x={232} y={188} w={50} h={24} count={10} seed={21} color="#ffffff" />
-      </g>
-      <g className="ga-float-b">
-        <circle cx="64" cy="196" r="20" fill={ORANGE} />
-        <path d="M55 196.5l6 6 12-12" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
     </svg>
   )
 }
@@ -135,7 +119,7 @@ export function ShieldArt({ alert = false }: { alert?: boolean }) {
   return (
     <svg className="shield-art" viewBox="0 0 120 120" aria-hidden="true">
       <circle cx="60" cy="62" r="50" fill={alert ? '#fdecec' : '#e3ebf8'} />
-      <g className="ga-float-a">
+      <g>
         <path d="M60 18l32 11v24c0 23-14 38-32 46-18-8-32-23-32-46V29z" fill={alert ? '#b42318' : NAVY} />
         <path d="M60 25l25 9v19c0 18-10 30-25 37z" fill={alert ? '#d03b3b' : '#1d4f9a'} />
         {alert ? (
@@ -143,10 +127,6 @@ export function ShieldArt({ alert = false }: { alert?: boolean }) {
         ) : (
           <path d="M47 59l9 9 18-19" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
         )}
-      </g>
-      <g fill={ORANGE}>
-        <path className="ga-spark" d="M101 24l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z" />
-        <circle className="ga-spark" cx="18" cy="78" r="3.5" />
       </g>
     </svg>
   )

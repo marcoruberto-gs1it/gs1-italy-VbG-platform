@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  BadgeCheck, Building2, ChevronRight, Globe2, LayoutDashboard, LogOut, Map as MapIcon, QrCode, RefreshCw,
-  ScanBarcode, ShieldAlert, ShieldCheck, Tags, Link2, Sparkles, Hash, TriangleAlert, MapPin,
+  BadgeCheck, ChevronRight, Globe2, LayoutDashboard, LogOut, Map as MapIcon, QrCode, RefreshCw,
+  ShieldAlert, Tags, Link2, TriangleAlert, MapPin,
 } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { fillDays } from '../lib/days'
@@ -10,7 +10,7 @@ import { gsap, motionOk, ScrollTrigger, useGSAP } from '../lib/motion'
 import type { DashboardData, Kpi } from '../lib/types'
 import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
-import { Counter, Delta, IconTile, Panel, SectionHeader, Select, StatusPill } from './ui'
+import { Counter, Delta, Panel, SectionHeader, Select, StatusPill } from './ui'
 
 const PERIODS = [
   { days: 7, label: '7 giorni', long: 'negli ultimi 7 giorni' },
@@ -110,14 +110,9 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
         .from('.hero', { y: 24, opacity: 0, duration: 0.7 }, 0.1)
         .from('.hero-copy > *', { y: 16, opacity: 0, duration: 0.5, stagger: 0.08 }, 0.3)
         .from('.ga-core', { scale: 0.5, opacity: 0, transformOrigin: '50% 50%', duration: 0.8, ease: 'back.out(1.8)' }, 0.35)
-        .from('.ga-float-a, .ga-float-b, .ga-float-c', { scale: 0, opacity: 0, transformOrigin: '50% 50%', duration: 0.6, stagger: 0.1, ease: 'back.out(2)' }, 0.55)
         .from('.kpi', { y: 22, opacity: 0, duration: 0.55, stagger: 0.07 }, 0.45)
       gsap.to('.ga-wave', { attr: { r: 128 }, strokeOpacity: 0, duration: 3.2, ease: 'sine.out', stagger: { each: 0.8, repeat: -1 } })
       gsap.fromTo('.ga-scanline', { y: -16 }, { y: 16, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-      gsap.to('.ga-float-a', { y: -8, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-      gsap.to('.ga-float-b', { y: 7, duration: 3.1, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 0.4 })
-      gsap.to('.ga-float-c', { y: -6, rotation: -4, transformOrigin: '50% 50%', duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-      gsap.to('.ga-spark', { scale: 0.5, opacity: 0.4, transformOrigin: '50% 50%', duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.4 })
       ScrollTrigger.batch('.reveal', {
         start: 'top 90%',
         once: true,
@@ -148,7 +143,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
           ))}
         </nav>
         <div className="side-foot side-item">
-          {demo ? <span className="badge is-demo"><Sparkles size={13} /> Dati dimostrativi</span> : <span className="side-user" title={email}>{email}</span>}
+          {demo ? <span className="badge is-demo">Dati dimostrativi</span> : <span className="side-user" title={email}>{email}</span>}
           {demo ? (
             <a className="btn ghost" href="./">Accedi</a>
           ) : (
@@ -218,31 +213,26 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
 
                 <div className="kpis">
                   <article className="kpi">
-                    <IconTile icon={ScanBarcode} tone="navy" />
                     <p className="kpi-label">Scansioni</p>
                     <p className="kpi-value"><Counter value={k.letture} format={num} /></p>
                     {prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : <span className="delta is-neutral">Periodo precedente senza dati</span>}
                   </article>
                   <article className="kpi">
-                    <IconTile icon={QrCode} tone="orange" />
                     <p className="kpi-label">Quota codici 2D</p>
                     <p className="kpi-value"><Counter value={share(k.letture_2d, k.letture_simbolo) * 100} format={pctNum} /></p>
                     <Delta now={share(k.letture_2d, k.letture_simbolo)} before={prevShare(prev?.letture_2d, prev?.letture_simbolo)} mode="points" good="up" />
                   </article>
                   <article className="kpi">
-                    <IconTile icon={BadgeCheck} tone="sky" />
                     <p className="kpi-label">Conformi agli standard GS1</p>
                     <p className="kpi-value"><Counter value={share(k.conformi, k.letture_simbolo) * 100} format={pctNum} /></p>
                     <Delta now={share(k.conformi, k.letture_simbolo)} before={prevShare(prev?.conformi, prev?.letture_simbolo)} mode="points" good="up" />
                   </article>
                   <article className="kpi">
-                    <IconTile icon={ShieldCheck} tone="sky" />
                     <p className="kpi-label">Schede VbG complete (7/7)</p>
                     <p className="kpi-value"><Counter value={share(k.schede_complete, k.schede_valutate) * 100} format={pctNum} /></p>
                     <Delta now={share(k.schede_complete, k.schede_valutate)} before={prevShare(prev?.schede_complete, prev?.schede_valutate)} mode="points" good="up" />
                   </article>
                   <article className={`kpi ${k.allerte_link ? 'is-alert' : ''}`}>
-                    <IconTile icon={ShieldAlert} tone="peach" />
                     <p className="kpi-label">Allerte di brand protection</p>
                     <p className="kpi-value"><Counter value={k.allerte_link} format={num} /></p>
                     <Delta now={k.allerte_link} before={prev?.allerte_link} good="down" />
@@ -252,16 +242,14 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
 
               {/* ───── Adozione 2D ───── */}
               <section className="section">
-                <SectionHeader id="adozione" icon={QrCode} eyebrow="Barometro 2D" title="Adozione dei codici 2D" text="Quanto i codici 2D (QR Code Standard GS1, GS1 DataMatrix) stanno affiancando i barcode tradizionali." />
+                <SectionHeader id="adozione" title="Adozione dei codici 2D" text="Quanto i codici 2D (QR Code Standard GS1, GS1 DataMatrix) stanno affiancando i barcode tradizionali." />
                 <div className="grid g-adoption">
-                  <Panel title="Quota sul totale" icon={QrCode} tone="orange">
+                  <Panel title="Quota sul totale">
                     <RingGauge value={k.letture_2d} total={k.letture_simbolo} label="codici 2D" caption={`${num(k.letture_2d)} codici 2D su ${num(k.letture_simbolo)} codici letti con fotocamera o da foto.`} />
                   </Panel>
                   <Panel
                     title="Scansioni al giorno"
                     subtitle="Barcode 1D e codici 2D letti; esclusi gli inserimenti a mano."
-                    icon={ScanBarcode}
-                    tone="navy"
                     table={
                       <DataTable rows={data.giornaliero.filter((r) => r.letture_1d + r.letture_2d + r.manuali)} columns={[
                         { label: 'Giorno', render: (r) => day(r.giorno) },
@@ -275,15 +263,15 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                     <DailyChart data={fillDays(data.giornaliero, days)} />
                   </Panel>
                 </div>
-                <Panel title="Simbologie lette" subtitle="Ogni simbologia con il suo disegno, le letture e la quota sul totale." icon={Hash} tone="sky">
+                <Panel title="Simbologie lette" subtitle="In blu le simbologie degli standard GS1.">
                   <SymbologyGrid data={data.simbologie} />
                 </Panel>
               </section>
 
               {/* ───── Territorio ───── */}
               <section className="section">
-                <SectionHeader id="territorio" icon={MapIcon} eyebrow="Diffusione" title="Dove si scansiona" text="Regione dedotta da Cloudflare dalla connessione: con le reti mobili può risultare la sede del gestore." />
-                <Panel title="Mappa delle regioni" icon={MapIcon} tone="navy" className="map-panel" table={<RegionTable data={data.regioni} />}>
+                <SectionHeader id="territorio" title="Dove si scansiona" text="Regione dedotta da Cloudflare dalla connessione: con le reti mobili può risultare la sede del gestore." />
+                <Panel title="Mappa delle regioni" className="map-panel" table={<RegionTable data={data.regioni} />}>
                   <div className="map-layout">
                     <ItalyMap data={data.regioni} />
                     <div className="map-side">
@@ -296,24 +284,25 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                       }))} />
                     </div>
                   </div>
+                  <p className="map-source">Confini regionali: ISTAT, CC BY 4.0</p>
                 </Panel>
               </section>
 
               {/* ───── Qualità ───── */}
               <section className="section">
-                <SectionHeader id="qualita" icon={BadgeCheck} eyebrow="Ritorno di qualità" title="Qualità dei codici" text="Conformità agli standard GS1 verificata con la GS1 Barcode Syntax Engine." />
+                <SectionHeader id="qualita" title="Qualità dei codici" text="Quanti codici letti rispettano gli standard GS1 e quali errori ricorrono." />
                 <div className="grid g-two">
-                  <Panel title="Conformità agli standard GS1" icon={BadgeCheck} tone="sky">
+                  <Panel title="Conformità agli standard GS1">
                     <ComplianceBar data={data.conformita} />
                   </Panel>
-                  <Panel title="Errori di sintassi più frequenti" subtitle="Messaggi della GS1 Barcode Syntax Engine." icon={TriangleAlert} tone="peach">
+                  <Panel title="Errori di sintassi più frequenti">
                     <DataTable rows={data.errori_sintassi} empty="Nessun errore di sintassi nel periodo." columns={[
                       { label: 'Errore', render: (x) => <code className="wrap">{x.errore}</code> },
                       { label: 'Letture', render: (x) => num(x.letture), numeric: true },
                     ]} />
                   </Panel>
                 </div>
-                <Panel title="Aziende con errori nei codici" subtitle="Prefissi con errori di stampa o di codifica nei codici letti: utile per formazione e verifica dei barcode." icon={Building2} tone="navy">
+                <Panel title="Aziende con errori nei codici" subtitle="Prefissi aziendali con errori di stampa o di codifica.">
                   <DataTable rows={data.qualita} empty="Nessun errore nel periodo." columns={[
                     { label: 'Titolare', render: (q) => <><b>{q.titolare ?? '–'}</b><small className="cell-sub">prefisso {q.company_prefix}</small></> },
                     { label: 'Cifra di controllo', render: (q) => num(q.errori_cifra), numeric: true },
@@ -327,7 +316,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
 
               {/* ───── Categorie ───── */}
               <section className="section">
-                <SectionHeader id="categorie" icon={Tags} eyebrow="Benchmark" title="Categorie di prodotto (GPC)" text="Le categorie più lette, con la completezza delle schede Verified by GS1." />
+                <SectionHeader id="categorie" title="Categorie di prodotto (GPC)" text="Le categorie più lette, con la completezza delle schede Verified by GS1." />
                 {data.categorie.length ? (
                   <ul className="cat-grid">
                     {data.categorie.map((c, i) => {
@@ -347,13 +336,13 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                     })}
                   </ul>
                 ) : (
-                  <Panel title="Categorie" icon={Tags}><Empty /></Panel>
+                  <Panel title="Categorie"><Empty /></Panel>
                 )}
               </section>
 
               {/* ───── Brand protection ───── */}
               <section className="section">
-                <SectionHeader id="protezione" icon={ShieldAlert} eyebrow="Tutela dei marchi" title="Brand protection" text="Codici autentici, verificati su Verified by GS1, che puntano a domini non registrati dal titolare." />
+                <SectionHeader id="protezione" title="Brand protection" text="Codici autentici, verificati su Verified by GS1, che puntano a domini non registrati dal titolare." />
                 {data.allerte.length ? (
                   <ul className="alert-grid">
                     {data.allerte.map((a) => (
@@ -386,7 +375,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                   </div>
                 )}
                 <div className="grid g-two">
-                  <Panel title="Numeri mai assegnati da GS1" subtitle="Possibili codici abusivi o contraffatti (errore E039)." icon={Hash} tone="peach">
+                  <Panel title="Numeri mai assegnati da GS1" subtitle="Possibili codici abusivi o contraffatti (errore E039).">
                     <DataTable rows={data.non_assegnati} empty="Nessun numero non assegnato nel periodo." columns={[
                       { label: 'Inizio del codice', render: (n) => <code>{n.inizio_codice}…</code> },
                       { label: 'Codici', render: (n) => num(n.codici), numeric: true },
@@ -394,7 +383,7 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                       { label: 'Ultima', render: (n) => dateTime(n.ultima) },
                     ]} />
                   </Panel>
-                  <Panel title="Domini nei link" icon={Link2} tone="navy">
+                  <Panel title="Domini nei link">
                     <DataTable rows={data.domini} empty="Nessun link nel periodo." columns={[
                       { label: 'Dominio', render: (d) => <code>{d.dominio}</code> },
                       { label: 'Letture', render: (d) => num(d.letture), numeric: true },
@@ -407,7 +396,6 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
 
               <footer className="page-foot">
                 <span>GS1 Italy · VbG Platform</span>
-                <span>Confini regionali: openpolis/geojson-italy (ISTAT), CC-BY 4.0</span>
               </footer>
             </>
           )}
