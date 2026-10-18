@@ -1,7 +1,7 @@
 /* UI kit: componenti di base della piattaforma. */
-import { useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { ArrowDownRight, ArrowUpRight, CircleCheck, Minus, OctagonAlert, Table2, TriangleAlert, ChartColumn } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Check, ChevronDown, CircleCheck, Minus, OctagonAlert, Table2, TriangleAlert, ChartColumn } from 'lucide-react'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 
 /* Riquadro icona: icona Lucide su fondo tenue, in quattro toni del marchio. */
@@ -101,5 +101,100 @@ export function SectionHeader({ id, icon: Icon, eyebrow, title, text }: { id: st
         {text && <p className="section-text">{text}</p>}
       </div>
     </header>
+  )
+}
+
+/* Menu a tendina del UI kit (sostituisce il <select> nativo): lista accessibile da tastiera. */
+export type SelectOption<T extends string> = { value: T; label: string; hint?: string; icon?: LucideIcon }
+
+export function Select<T extends string>({ value, options, onChange, label, icon: TriggerIcon }: { value: T; options: SelectOption<T>[]; onChange: (value: T) => void; label: string; icon?: LucideIcon }) {
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(0)
+  const root = useRef<HTMLDivElement>(null)
+  const listId = useId()
+  const current = options.find((o) => o.value === value) ?? options[0]
+
+  useEffect(() => {
+    if (!open) return
+    const close = (e: MouseEvent) => {
+      if (!root.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [open])
+
+  useGSAP(
+    () => {
+      if (!open || !motionOk()) return
+      gsap.from('.select-menu', { y: -6, opacity: 0, scale: 0.98, transformOrigin: '100% 0', duration: 0.22, ease: 'power2.out' })
+      gsap.from('.select-option', { y: -4, opacity: 0, duration: 0.2, stagger: 0.03, delay: 0.05 })
+    },
+    { scope: root, dependencies: [open] },
+  )
+
+  function openMenu() {
+    setActive(Math.max(0, options.findIndex((o) => o.value === value)))
+    setOpen(true)
+  }
+
+  function choose(index: number) {
+    onChange(options[index].value)
+    setOpen(false)
+  }
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!open) {
+      if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
+        e.preventDefault()
+        openMenu()
+      }
+      return
+    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive((i) => (i + 1) % options.length) }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((i) => (i - 1 + options.length) % options.length) }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(active) }
+    else if (e.key === 'Escape' || e.key === 'Tab') setOpen(false)
+  }
+
+  const CurrentIcon = current.icon ?? TriggerIcon
+  return (
+    <div className={`select ${open ? 'is-open' : ''}`} ref={root}>
+      <button
+        type="button"
+        className="select-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listId}
+        aria-label={`${label}: ${current.label}`}
+        onClick={() => (open ? setOpen(false) : openMenu())}
+        onKeyDown={onKeyDown}
+      >
+        {CurrentIcon && <CurrentIcon size={17} aria-hidden="true" />}
+        <span>{current.label}</span>
+        <ChevronDown size={16} className="select-chevron" aria-hidden="true" />
+      </button>
+      {open && (
+        <ul className="select-menu" role="listbox" id={listId} aria-label={label} aria-activedescendant={`${listId}-${active}`}>
+          {options.map((o, i) => {
+            const Icon = o.icon
+            return (
+              <li
+                key={o.value}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={o.value === value}
+                className={`select-option ${i === active ? 'is-active' : ''} ${o.value === value ? 'is-selected' : ''}`}
+                onMouseEnter={() => setActive(i)}
+                onMouseDown={(e) => { e.preventDefault(); choose(i) }}
+              >
+                {Icon && <span className="select-option-icon"><Icon size={16} /></span>}
+                <span className="select-option-text"><b>{o.label}</b>{o.hint && <small>{o.hint}</small>}</span>
+                {o.value === value && <Check size={16} className="select-check" aria-hidden="true" />}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
   )
 }

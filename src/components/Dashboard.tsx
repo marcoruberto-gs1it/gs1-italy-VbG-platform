@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BadgeCheck, Building2, ChevronRight, Globe2, LayoutDashboard, LogOut, Map as MapIcon, QrCode, RefreshCw,
-  ScanBarcode, ShieldAlert, ShieldCheck, Tags, Link2, Sparkles, Hash, TriangleAlert,
+  ScanBarcode, ShieldAlert, ShieldCheck, Tags, Link2, Sparkles, Hash, TriangleAlert, MapPin,
 } from 'lucide-react'
 import logo from '../assets/gs1-italy-logo.png'
 import { fillDays } from '../lib/days'
@@ -10,7 +10,7 @@ import { gsap, motionOk, ScrollTrigger, useGSAP } from '../lib/motion'
 import type { DashboardData, Kpi } from '../lib/types'
 import { BarList, ComplianceBar, DailyChart, DataTable, Empty, ItalyMap, RegionTable, RingGauge, SymbologyGrid } from './charts'
 import { RippleArt, ShieldArt } from './illustrations'
-import { Counter, Delta, IconTile, Panel, SectionHeader, StatusPill } from './ui'
+import { Counter, Delta, IconTile, Panel, SectionHeader, Select, StatusPill } from './ui'
 
 const PERIODS = [
   { days: 7, label: '7 giorni', long: 'negli ultimi 7 giorni' },
@@ -48,29 +48,56 @@ const share = (part: number, total: number) => (total ? part / total : 0)
 const prevShare = (part: number | undefined, total: number | undefined) => (part != null && total ? part / total : null)
 const pctNum = (n: number) => `${(Math.round(n * 10) / 10).toLocaleString('it-IT')}%`
 
-/** Sezione attiva nella barra laterale, in base a ciò che è sullo schermo. */
-function useActiveSection() {
+/**
+ * Sezione attiva nel menu, aggiornata durante lo scorrimento: è l'ultima sezione il cui inizio ha
+ * superato la parte alta dello schermo; in fondo alla pagina è sempre l'ultima.
+ */
+function useActiveSection(ready: boolean) {
   const [active, setActive] = useState<string>(SECTIONS[0].id)
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
-        if (visible) setActive(visible.target.id)
-      },
-      { rootMargin: '-15% 0px -70% 0px' },
-    )
-    SECTIONS.forEach((s) => {
-      const el = document.getElementById(s.id)
-      if (el) io.observe(el)
-    })
-    return () => io.disconnect()
-  }, [])
+    if (!ready) return
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const line = window.innerHeight * 0.3
+      let current: string = SECTIONS[0].id
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id)
+        if (el && el.getBoundingClientRect().top <= line) current = s.id
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = SECTIONS[SECTIONS.length - 1].id
+      setActive(current)
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      cancelAnimationFrame(frame)
+    }
+  }, [ready])
   return active
+}
+
+/** Nel menu orizzontale (telefono) la voce attiva resta sempre visibile. */
+function useKeepActiveVisible(active: string) {
+  useEffect(() => {
+    const chip = document.querySelector<HTMLElement>(`.mobile-nav a[href="#${active}"]`)
+    const bar = chip?.parentElement
+    if (!chip || !bar || bar.scrollWidth <= bar.clientWidth) return
+    const offset = chip.getBoundingClientRect().left - bar.getBoundingClientRect().left
+    bar.scrollTo({ left: bar.scrollLeft + offset - (bar.clientWidth - chip.clientWidth) / 2, behavior: 'smooth' })
+  }, [active])
 }
 
 export function Dashboard({ data, previous, loading, error, days, country, demo, email, onDays, onCountry, onReload, onSignOut }: Props) {
   const root = useRef<HTMLDivElement>(null)
-  const active = useActiveSection()
+  const active = useActiveSection(Boolean(data))
+  useKeepActiveVisible(active)
   const k = data?.kpi
   const period = PERIODS.find((p) => p.days === days) ?? PERIODS[1]
 
@@ -142,13 +169,15 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                 <button key={p.days} type="button" role="radio" aria-checked={days === p.days} className={days === p.days ? 'is-active' : ''} onClick={() => onDays(p.days)}>{p.label}</button>
               ))}
             </div>
-            <label className="select">
-              <Globe2 size={16} aria-hidden="true" />
-              <select value={country} onChange={(e) => onCountry(e.target.value)} aria-label="Paese">
-                <option value="">Tutti i paesi</option>
-                <option value="IT">Italia</option>
-              </select>
-            </label>
+            <Select
+              label="Paese"
+              value={country}
+              onChange={onCountry}
+              options={[
+                { value: '', label: 'Tutti i paesi', hint: 'Scansioni da ogni paese', icon: Globe2 },
+                { value: 'IT', label: 'Italia', hint: 'Solo scansioni dall’Italia', icon: MapPin },
+              ]}
+            />
             <button className="btn ghost icon-only" type="button" onClick={onReload} disabled={loading} aria-label="Aggiorna i dati" title="Aggiorna i dati">
               <RefreshCw size={17} className={loading ? 'spin' : undefined} />
             </button>
@@ -333,8 +362,10 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
                           <StatusPill tone={a.sospetto ? 'critical' : 'warning'}>{a.sospetto ? 'Link sospetto' : 'Dominio non riconosciuto'}</StatusPill>
                           {a.segnalato_google && <StatusPill tone="critical">Segnalato da Google</StatusPill>}
                         </div>
-                        <p className="alert-domain"><Link2 size={16} /> <code>{a.dominio}</code></p>
-                        {a.somiglia_a && <p className="alert-like">imita <code>{a.somiglia_a}</code></p>}
+                        <div className="alert-head">
+                          <p className="alert-domain"><Link2 size={16} /> <code>{a.dominio}</code></p>
+                          {a.somiglia_a && <p className="alert-like">imita <code>{a.somiglia_a}</code></p>}
+                        </div>
                         <dl>
                           <div><dt>Titolare</dt><dd>{a.titolare ?? '–'}</dd></div>
                           <div><dt>GTIN</dt><dd><code>{gtinDisplay(a.gtin)}</code></dd></div>
