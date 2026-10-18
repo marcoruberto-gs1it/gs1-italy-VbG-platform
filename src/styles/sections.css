@@ -24,7 +24,7 @@
 .prefix-finder input:focus { box-shadow: inset 0 0 0 2px var(--orange); }
 
 /* Sei card in due gruppi, su un'unica griglia: le righe interne (subgrid) restano allineate tra tutte. */
-.ov-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px 14px; }
+.ov-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .ov-group-title { align-self: end; margin: 2px 2px 0; font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .ov-group-title span { margin-left: 8px; font-weight: 600; letter-spacing: 0; text-transform: none; }
 .ov-group-title.g-use { grid-column: 1 / -1; }
@@ -33,8 +33,7 @@
   display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 6px; min-width: 0;
   padding: 18px 18px 16px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow);
 }
-.kpi.is-risk { box-shadow: var(--shadow), inset 0 3px 0 var(--neutral-bar-2); }
-.kpi.is-risk.is-alert { box-shadow: var(--shadow), inset 0 3px 0 var(--critical); }
+.kpi.is-risk.is-alert { box-shadow: var(--shadow), inset 0 3px 0 var(--orange); }
 .kpi-label { align-self: start; font-size: var(--fs-sm); font-weight: 500; line-height: 1.35; color: var(--ink-2); }
 /* Il numero si rimpicciolisce con la larghezza della card e non va mai a capo: con valori grandi
    (es. "123,5 mila", "2,4 Mln") resta dentro. Il contenitore è il paragrafo, non la card, per non
@@ -50,18 +49,19 @@
    non rompere l'allineamento a righe condivise (subgrid) tra le card. */
 .kpi-value { min-width: 0; max-width: 100%; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); line-height: 1.05; font-variant-numeric: tabular-nums; }
 .kpi-value > span { display: block; font-size: clamp(22px, 17cqi, 32px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kpi.is-alert .kpi-value { color: var(--critical-ink); }
+.kpi.is-alert .kpi-value { color: var(--orange-2); }
 .kpi-delta .delta { gap: 2px; padding: 2px 7px; border-radius: 99px; white-space: nowrap; font-size: 11.5px; }
-.kpi-delta .delta.is-good { background: var(--good-bg); }
-.kpi-delta .delta.is-bad { background: var(--critical-bg); }
-.kpi-delta .delta.is-neutral { background: var(--mist); }
+/* Solo colori GS1 Italy: miglioramento in blu, peggioramento in arancio (sempre con la freccia). */
+.kpi-delta .delta.is-good { background: var(--sky); color: var(--navy); }
+.kpi-delta .delta.is-bad { background: var(--peach); color: var(--orange-2); }
+.kpi-delta .delta.is-neutral { background: var(--mist); color: var(--ink-2); }
 .kpi-delta .delta svg { width: 12px; height: 12px; }
 .kpi .delta-ref { display: none; } /* il riferimento è scritto una volta sola, accanto al titolo del gruppo */
 .kpi-visual { display: flex; align-items: flex-end; height: 40px; margin-top: 6px; }
 .kpi-visual > * { flex: 1; }
 .kpi-caption { font-size: var(--fs-xs); color: var(--muted); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi-caption a { font-weight: 700; color: var(--navy); }
-.kpi.is-alert .kpi-caption a { color: var(--critical-ink); }
+.kpi.is-alert .kpi-caption a { color: var(--orange-2); }
 .sparkline { display: block; width: 100%; height: 40px; overflow: visible; }
 .meter, .mini-stack { display: flex; height: 10px; margin-bottom: 4px; border-radius: 5px; overflow: hidden; background: var(--mist); }
 .meter span { display: block; height: 100%; border-radius: 0 5px 5px 0; min-width: 2px; }
@@ -160,9 +160,8 @@
 .live-note { font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
 
 /* ───── Adattamento ───── */
-@media (max-width: 1360px) {
-  .ov-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .kpi.is-risk { grid-column: span 2; order: 1; }
+@media (max-width: 900px) {
+  .ov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 
@@ -189,8 +188,7 @@
 
 @media (max-width: 720px) {
   .audience-icon { display: none; }
-  .ov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .kpi.is-risk { grid-column: auto; }
+  .ov-grid { gap: 10px; }
   .kpi { padding: 14px 12px 12px; border-radius: var(--r-md); }
   .kpi-caption { white-space: normal; }
   .kpi-label { font-size: var(--fs-xs); }

@@ -53,7 +53,7 @@ export function Footer() {
           <br />
           Codice fiscale 80140330152
         </address>
-        <p className="footer-copy">© {YEAR} GS1 Italy <span className="footer-version">· versione {__APP_VERSION__}</span></p>
+        <p className="footer-copy">© {YEAR} GS1 Italy <span className="footer-version" title={`build ${__APP_VERSION__}`}>· v. {__APP_RELEASE__}</span></p>
         <a className="footer-site" href={GS1_IT} target="_blank" rel="noreferrer">
           Vai al sito di GS1 Italy <ArrowUpRight size={17} />
         </a>

@@ -68,7 +68,7 @@ export function Login() {
           <h1>Gli analytics del Barometro 2D</h1>
           <ul className="login-points">
             <li><QrCode size={18} /> Adozione dei codici 2D, giorno per giorno</li>
-            <li><MapIcon size={18} /> Diffusione per regione su tutta Italia</li>
+            <li><MapIcon size={18} /> Diffusione nel mondo, per paese, regione e città</li>
             <li><BadgeCheck size={18} /> Qualità dei codici e conformità GS1</li>
             <li><ShieldAlert size={18} /> Allerte di brand protection</li>
           </ul>
@@ -105,6 +105,7 @@ export function Login() {
             </form>
           )}
           <a className="link-muted" href="?demo">Oppure guarda la dashboard con dati dimostrativi</a>
+          <p className="login-version">VbG Platform · v. {__APP_RELEASE__}</p>
         </div>
       </section>
     </main>

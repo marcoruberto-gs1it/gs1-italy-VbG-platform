@@ -99,14 +99,14 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
           value={<Counter value={k.letture} format={numShort} />}
           full={num(k.letture)}
           delta={prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : noPrev}
-          visual={<Sparkline values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label="Andamento giornaliero delle scansioni" />}
+          visual={<Sparkline color="var(--navy)" values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label="Andamento giornaliero delle scansioni" />}
           caption="al giorno"
         />
         <KpiCard
           label="Quota codici 2D"
           value={<Counter value={share(k.letture_2d, k.letture_simbolo) * 100} format={pctNum} />}
           delta={prev ? <Delta now={share(k.letture_2d, k.letture_simbolo)} before={prevShare(prev.letture_2d, prev.letture_simbolo)} mode="points" good="up" /> : noPrev}
-          visual={<Meter value={share(k.letture_2d, k.letture_simbolo)} color="var(--series-2)" label={`Codici 2D: ${pct(k.letture_2d, k.letture_simbolo)}`} />}
+          visual={<Meter value={share(k.letture_2d, k.letture_simbolo)} color="var(--orange)" label={`Codici 2D: ${pct(k.letture_2d, k.letture_simbolo)}`} />}
           caption={<>{numShort(k.letture_2d)} su {numShort(k.letture_simbolo)}</>}
         />
         <KpiCard
@@ -117,10 +117,10 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
             <MiniStack
               label="Ripartizione per conformità agli standard GS1"
               parts={[
-                { value: c.gs1 ?? 0, color: 'var(--good)', title: 'Codice Standard GS1' },
-                { value: c.partial ?? 0, color: 'var(--warning)', title: 'Non standard' },
-                { value: c.error ?? 0, color: 'var(--critical)', title: 'Con errori' },
-                { value: c.none ?? 0, color: 'var(--neutral-bar)', title: 'Non GS1' },
+                { value: c.gs1 ?? 0, color: 'var(--navy)', title: 'Codice Standard GS1' },
+                { value: c.partial ?? 0, color: 'var(--peach)', title: 'Non standard' },
+                { value: c.error ?? 0, color: 'var(--orange)', title: 'Con errori' },
+                { value: c.none ?? 0, color: 'var(--sky)', title: 'Non GS1' },
               ]}
             />
           }
@@ -130,7 +130,7 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
           label="Schede VbG complete"
           value={<Counter value={share(k.schede_complete, k.schede_valutate) * 100} format={pctNum} />}
           delta={prev ? <Delta now={share(k.schede_complete, k.schede_valutate)} before={prevShare(prev.schede_complete, prev.schede_valutate)} mode="points" good="up" /> : noPrev}
-          visual={<Meter value={share(k.schede_complete, k.schede_valutate)} label={`Schede complete: ${pct(k.schede_complete, k.schede_valutate)}`} />}
+          visual={<Meter value={share(k.schede_complete, k.schede_valutate)} color="var(--navy)" label={`Schede complete: ${pct(k.schede_complete, k.schede_valutate)}`} />}
           caption="7 informazioni su 7"
         />
         <KpiCard
@@ -144,8 +144,8 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
             <MiniStack
               label="Allerte: link sospetti e domini non riconosciuti"
               parts={[
-                { value: k.link_sospetti, color: 'var(--critical)', title: 'Link sospetti' },
-                { value: Math.max(0, k.allerte_link - k.link_sospetti), color: 'var(--warning)', title: 'Domini non riconosciuti' },
+                { value: k.link_sospetti, color: 'var(--orange)', title: 'Link sospetti' },
+                { value: Math.max(0, k.allerte_link - k.link_sospetti), color: 'var(--peach)', title: 'Domini non riconosciuti' },
               ]}
             />
           }
@@ -158,7 +158,7 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
           value={<Counter value={inactive} format={numShort} />}
           full={num(inactive)}
           delta={prev ? <Delta now={inactive} before={prev.licenze_non_attive} good="down" /> : noPrev}
-          visual={<Meter value={share(inactive, k.verificati)} color="var(--critical)" label={`Licenze non attive: ${pct(inactive, k.verificati)} dei prodotti verificati`} />}
+          visual={<Meter value={share(inactive, k.verificati)} color="var(--orange)" label={`Licenze non attive: ${pct(inactive, k.verificati)} dei prodotti verificati`} />}
           caption={inactive ? <><a href="#protezione">{pct(inactive, k.verificati)}</a> dei verificati</> : 'tutte attive'}
         />
       </div>

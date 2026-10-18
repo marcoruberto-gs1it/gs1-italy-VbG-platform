@@ -37,15 +37,29 @@
 .card-message p { color: var(--ink-2); line-height: 1.55; font-size: var(--fs-sm); }
 .message-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; background: var(--critical-bg); color: var(--critical-ink); }
 
+.login-version { font-size: 11px; color: var(--muted); text-align: center; }
+.login-form-card { box-sizing: border-box; }
+
+/* Tablet e telefono: fascia blu compatta in alto e modulo in una card subito sotto, senza dover scorrere. */
 @media (max-width: 1080px) {
-  .login { grid-template-columns: minmax(0, 1fr); min-height: 0; }
-  .login-art { padding-bottom: 8px; }
-  .login-art .ripple-art { max-width: 300px; }
+  .login { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: 100dvh; }
+  .login-art { align-content: start; gap: 0; padding: 28px var(--pad) 72px; }
+  .login-art .ripple-art, .login-art-copy .login-points { display: none; }
+  .login-art-copy { gap: 10px; max-width: 640px; margin: 0 auto; width: 100%; }
+  .login-art h1 { font-size: clamp(24px, 4.6vw, 32px); }
+  .login-logo { height: 46px; padding: 6px 10px; border-radius: 12px; }
+  .login-form { position: relative; z-index: 1; place-items: start center; padding: 0 var(--pad) 32px; margin-top: -48px; }
+  .login-form-card { width: min(100%, 520px); padding: 24px 22px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-lg); }
 }
 @media (max-width: 720px) {
-  .login-art { gap: 16px; padding: 24px 20px 4px; }
-  .login-art .ripple-art { max-width: 200px; }
-  .login-art-copy .login-points { display: none; }
-  .login-form { padding: 20px 16px 32px; }
+  .login-art { padding: 20px 16px 64px; }
+  .login-form { padding: 0 12px 24px; }
+  .login-form-card { padding: 20px 16px; gap: 12px; }
+  .login-form-card h2 { font-size: 20px; }
+  .field { height: 48px; }
   .field input { font-size: 16px; } /* niente zoom automatico su iPhone */
+}
+@media (max-height: 680px) and (max-width: 1080px) {
+  .login-art .eyebrow { display: none; }
+  .login-art { padding-top: 14px; padding-bottom: 56px; }
 }

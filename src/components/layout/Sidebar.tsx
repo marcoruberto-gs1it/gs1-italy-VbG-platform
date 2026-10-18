@@ -12,7 +12,7 @@ export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
         <img src={logo} alt="GS1 Italy" width={52} height={36} />
         <span><b>VbG</b> Platform</span>
       </div>
-      <p className="side-version">versione {__APP_VERSION__}</p>
+      <p className="side-version" title={`build ${__APP_VERSION__}`}>v. {__APP_RELEASE__}</p>
       <nav aria-label="Sezioni">
         <p className="side-group">Analisi</p>
         {sections.map(({ id, label, icon: Icon }) => (

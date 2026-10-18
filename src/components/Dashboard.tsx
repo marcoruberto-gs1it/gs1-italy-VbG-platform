@@ -11,7 +11,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { Footer } from './layout/Footer'
 import { MobileNav } from './layout/MobileNav'
 import { Sidebar } from './layout/Sidebar'
-import { Topbar } from './layout/Topbar'
+import { MobileBrand, Topbar } from './layout/Topbar'
 import { Adoption } from './sections/Adoption'
 import { Brands } from './sections/Brands'
 import { Categories } from './sections/Categories'
@@ -75,8 +75,11 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
       <div className="layout" ref={root}>
         <Sidebar sections={sections} active={active} demo={demo} email={email} onSignOut={onSignOut} />
         <div className="main">
-          <Topbar active={active} countries={data?.paesi?.map((c) => c.country) ?? []} days={days} country={country} audience={audience} loading={loading} demo={demo} onDays={onDays} onCountry={onCountry} onAudience={setAudience} onReload={onReload} onSignOut={onSignOut} />
+          <MobileBrand demo={demo} onSignOut={onSignOut} />
+          <div className="sticky-head">
+          <Topbar active={active} countries={data?.paesi?.map((c) => c.country) ?? []} days={days} country={country} audience={audience} loading={loading} onDays={onDays} onCountry={onCountry} onAudience={setAudience} onReload={onReload} />
           <MobileNav sections={sections} active={active} />
+          </div>
           <main className="content">
             {error && <p className="notice is-error" role="alert"><TriangleAlert size={18} /> {error}</p>}
             {!data && loading && <div className="skeleton-hero" aria-busy="true" aria-label="Caricamento dei dati" />}
