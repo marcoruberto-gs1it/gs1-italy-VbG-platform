@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ImageOff, X } from 'lucide-react'
 import { COMPLIANCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, labelFor } from '../../../lib/eventLabels'
-import { countryName, dateTime, regionName } from '../../../lib/format'
+import { cityName, countryName, dateTime, regionName } from '../../../lib/format'
 import { gsap, motionOk, useGSAP } from '../../../lib/motion'
 import type { ScanEvent } from '../../../lib/types'
 import { isLicenceInactive, licenceLabel } from '../../../lib/licence'
@@ -117,6 +117,7 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
             <dl className="drawer-dl">
               <Row label="Paese">{countryName(e.country)}</Row>
               <Row label="Regione">{regionName(e.country, e.region_code, e.region)}</Row>
+              <Row label="Città (approssimativa)">{e.city ? cityName(e.city) : null}</Row>
               <Row label="Dispositivo">{e.device === 'mobile' ? 'Telefono o tablet' : e.device === 'desktop' ? 'Computer' : null}</Row>
               <Row label="Versione dell’app">{e.app_version}</Row>
               <Row label="Identificativo">#{e.id}</Row>

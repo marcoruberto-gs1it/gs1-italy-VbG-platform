@@ -48,3 +48,13 @@ export function regionName(country: string | null, code: string | null, fallback
 }
 
 export const gtinDisplay = (gtin: string) => (gtin.length === 14 && gtin.startsWith('0') ? gtin.slice(1) : gtin)
+
+// Cloudflare restituisce i nomi delle città in inglese: i più comuni in italiano.
+const CITY_IT: Record<string, string> = {
+  Milan: 'Milano', Rome: 'Roma', Naples: 'Napoli', Turin: 'Torino', Florence: 'Firenze', Genoa: 'Genova', Venice: 'Venezia',
+  Padua: 'Padova', Syracuse: 'Siracusa', Mantua: 'Mantova', Leghorn: 'Livorno', Bolzano: 'Bolzano', Munich: 'Monaco di Baviera',
+  Cologne: 'Colonia', Vienna: 'Vienna', Geneva: 'Ginevra', Zurich: 'Zurigo', Lucerne: 'Lucerna', Basel: 'Basilea', Brussels: 'Bruxelles',
+  London: 'Londra', Lisbon: 'Lisbona', Athens: 'Atene', Warsaw: 'Varsavia', Prague: 'Praga', Moscow: 'Mosca', Marseille: 'Marsiglia',
+  Nice: 'Nizza', Lyon: 'Lione', Seville: 'Siviglia', Belgrade: 'Belgrado', Bucharest: 'Bucarest', Copenhagen: 'Copenaghen',
+}
+export const cityName = (city: string) => CITY_IT[city] ?? city

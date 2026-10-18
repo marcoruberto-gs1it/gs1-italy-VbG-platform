@@ -82,6 +82,14 @@ export function demoData(days: number): DashboardData {
     giornaliero,
     paesi,
     regioni,
+    citta: ([
+      ['IT', '25', 'Lombardy', 'Milan', 0.13], ['IT', '62', 'Lazio', 'Rome', 0.1], ['IT', '72', 'Campania', 'Naples', 0.05], ['IT', '21', 'Piedmont', 'Turin', 0.045],
+      ['IT', '45', 'Emilia-Romagna', 'Bologna', 0.035], ['IT', '34', 'Veneto', 'Verona', 0.025], ['IT', '52', 'Tuscany', 'Florence', 0.024], ['IT', '82', 'Sicily', 'Palermo', 0.02],
+      ['IT', '75', 'Apulia', 'Bari', 0.017], ['IT', '42', 'Liguria', 'Genoa', 0.015], ['FR', 'IDF', 'Île-de-France', 'Paris', 0.012], ['DE', 'BY', 'Bavaria', 'Munich', 0.009],
+    ] as const).map(([country, region_code, region, city, w]) => {
+      const l = Math.round(letture * w * (0.9 + r() * 0.2))
+      return { country, region_code, region, city, letture: l, letture_2d: Math.round(l * (0.16 + r() * 0.14)), conformi: Math.round(l * 0.92) }
+    }).sort((a, b) => b.letture - a.letture),
     licenze: [
       { company_prefix: '8033333', titolare: 'Conserviera Dismessa S.r.l.', letture: Math.round(letture * 0.003), prodotti: 6, stato_licenza: 'INACTIVE', stato_scheda: 'OK', ultima: new Date(Date.now() - 3600e3 * 3).toISOString(), paesi: ['IT', 'DE'] },
       { company_prefix: '8044444', titolare: 'Bevande Storiche S.n.c.', letture: Math.round(letture * 0.001), prodotti: 2, stato_licenza: null, stato_scheda: 'INACTIVE', ultima: new Date(Date.now() - 3600e3 * 40).toISOString(), paesi: ['IT'] },
@@ -179,9 +187,9 @@ const DEMO_SYMBOLOGIES: [string, boolean | null, ScanEvent['source']][] = [
   ['GS1 DataMatrix', true, 'camera'], ['GS1-128', false, 'camera'], ['EAN-8', false, 'camera'], ['GS1 DataBar', false, 'camera'],
   ['Codice con link', true, 'camera'], ['Inserito a mano', null, 'manual'],
 ]
-const DEMO_REGIONS: [string, string, string][] = [
-  ['IT', '25', 'Lombardy'], ['IT', '62', 'Lazio'], ['IT', '72', 'Campania'], ['IT', '34', 'Veneto'], ['IT', '45', 'Emilia-Romagna'], ['IT', '21', 'Piedmont'], ['IT', '82', 'Sicily'],
-  ['IT', '25', 'Lombardy'], ['IT', '62', 'Lazio'], ['IT', '52', 'Tuscany'], ['FR', 'IDF', 'Île-de-France'], ['DE', 'BY', 'Bavaria'], ['CH', 'ZH', 'Zurich'],
+const DEMO_REGIONS: [string, string, string, string][] = [
+  ['IT', '25', 'Lombardy', 'Milan'], ['IT', '62', 'Lazio', 'Rome'], ['IT', '72', 'Campania', 'Naples'], ['IT', '34', 'Veneto', 'Verona'], ['IT', '45', 'Emilia-Romagna', 'Bologna'], ['IT', '21', 'Piedmont', 'Turin'], ['IT', '82', 'Sicily', 'Palermo'],
+  ['IT', '25', 'Lombardy', 'Bergamo'], ['IT', '62', 'Lazio', 'Rome'], ['IT', '52', 'Tuscany', 'Florence'], ['FR', 'IDF', 'Île-de-France', 'Paris'], ['DE', 'BY', 'Bavaria', 'Munich'], ['CH', 'ZH', 'Zurich', 'Zurich'],
 ]
 
 let demoRows: ScanEvent[] | null = null
@@ -192,7 +200,7 @@ function buildDemoRows(): ScanEvent[] {
   return Array.from({ length: 420 }, (_, i) => {
     const [symbology, is2d, source] = pick(DEMO_SYMBOLOGIES)
     const product = pick(DEMO_PRODUCTS)
-    const [country, region_code, region] = pick(DEMO_REGIONS)
+    const [country, region_code, region, city] = pick(DEMO_REGIONS)
     const roll = r()
     const link = symbology === 'Codice con link' || (symbology === 'QR Code Standard GS1' && r() < 0.4)
     const compliance: ScanEvent['compliance'] =
@@ -206,7 +214,7 @@ function buildDemoRows(): ScanEvent[] {
     return {
       id: 100000 - i,
       created_at: new Date(Date.now() - minutes * 60_000).toISOString(),
-      country, region_code, region, is_eu: country !== 'CH',
+      country, region_code, region, city, is_eu: country !== 'CH',
       source, device: r() < 0.86 ? 'mobile' : 'desktop', app_version: '1.4.0',
       symbology, is_2d: is2d,
       content_kind: symbology === 'Codice con link' ? 'url' : 'gs1',

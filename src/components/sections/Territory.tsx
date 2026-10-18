@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { countryName, num, pct } from '../../lib/format'
-import { countryRanking, regionRanking } from '../../lib/regions'
+import { cityName, countryName, num, pct, regionName } from '../../lib/format'
+import { cityRanking, countryRanking, regionRanking } from '../../lib/regions'
 import type { MapMetric } from '../../lib/stats'
 import type { DashboardData } from '../../lib/types'
-import { BarList, DataTable, ItalyMap, RegionTable, WorldMap, type BarRow } from '../charts'
+import { BarList, DataTable, Empty, ItalyMap, RegionTable, WorldMap, type BarRow } from '../charts'
 import { Panel, SectionHeader } from '../ui'
 
 const percent = (v: number) => `${(Math.round(v * 1000) / 10).toLocaleString('it-IT')}%`
@@ -21,6 +21,8 @@ function Ranking({ title, rows, metric }: { title: string; rows: BarRow[]; metri
 export function Territory({ data, country }: { data: DashboardData; country: string }) {
   const [worldMetric, setWorldMetric] = useState<MapMetric>('letture')
   const [italyMetric, setItalyMetric] = useState<MapMetric>('letture')
+  const [cityMetric, setCityMetric] = useState<MapMetric>('letture')
+  const cities = data.citta ?? []
   const countries = data.paesi ?? []
   const total = countries.reduce((a, c) => a + c.letture, 0)
   const italy = countries.find((c) => c.country === 'IT')?.letture ?? 0
@@ -74,6 +76,40 @@ export function Territory({ data, country }: { data: DashboardData; country: str
           <Ranking title="Classifica delle regioni" rows={regionRanking(data.regioni, italyMetric)} metric={italyMetric} />
         </Panel>
       )}
+
+      <Panel
+        title="Città"
+        subtitle="Città approssimativa, dedotta dalla connessione (non dal GPS): con le reti mobili spesso è la città del gestore. Solo città con almeno 5 scansioni."
+        table={
+          <DataTable
+            rows={cities}
+            rowKey={(c) => `${c.country}-${c.city}`}
+            empty="Nessuna città con almeno 5 scansioni nel periodo."
+            columns={[
+              { label: 'Città', render: (c) => cityName(c.city) },
+              { label: 'Regione', render: (c) => regionName(c.country, c.region_code, c.region) },
+              { label: 'Paese', render: (c) => countryName(c.country) },
+              { label: 'Scansioni', render: (c) => num(c.letture), numeric: true },
+              { label: 'Quota 2D', render: (c) => pct(c.letture_2d, c.letture), numeric: true },
+            ]}
+          />
+        }
+      >
+        {cities.length ? (
+          <div className="city-panel">
+            <div className="segmented small" role="radiogroup" aria-label="Misura delle città">
+              {(['letture', 'quota'] as const).map((m) => (
+                <button key={m} type="button" role="radio" aria-checked={cityMetric === m} className={cityMetric === m ? 'is-active' : ''} onClick={() => setCityMetric(m)}>
+                  {m === 'letture' ? 'Scansioni' : 'Quota 2D'}
+                </button>
+              ))}
+            </div>
+            <Ranking title="Classifica delle città" rows={cityRanking(cities, cityMetric)} metric={cityMetric} />
+          </div>
+        ) : (
+          <Empty text="Nessuna città con almeno 5 scansioni nel periodo: la città viene registrata dalle scansioni più recenti." />
+        )}
+      </Panel>
     </section>
   )
 }

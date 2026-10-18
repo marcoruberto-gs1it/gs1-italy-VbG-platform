@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fillDays } from './days'
 import { flag, gtinDisplay, num, numShort, pct, regionName } from './format'
-import { countryRanking, regionRanking } from './regions'
+import { cityRanking, countryRanking, regionRanking } from './regions'
 
 describe('formati', () => {
   it('numeri e percentuali in italiano', () => {
@@ -50,5 +50,9 @@ describe('regionRanking', () => {
     const rows = countryRanking([{ country: 'DE', letture: 5, letture_2d: 1, conformi: 5 }, { country: 'IT', letture: 9, letture_2d: 2, conformi: 9 }], 'letture')
     expect(rows[0].label).toContain('Italia')
     expect(rows[1].label).toContain('Germania')
+  })
+  it('classifica delle città con regione', () => {
+    const rows = cityRanking([{ country: 'IT', region_code: '25', region: 'Lombardy', city: 'Milan', letture: 9, letture_2d: 3, conformi: 9 }], 'letture')
+    expect(rows[0].label).toContain('Milano · Lombardia')
   })
 })

@@ -42,7 +42,7 @@ export const SECTION_COPY: Record<SectionId, Copy> = {
     stampa: 'È il barometro del passaggio dal barcode al QR Code Standard GS1.',
   },
   territorio: {
-    what: 'Da quali regioni arrivano le scansioni e dove i codici 2D sono più diffusi.',
+    what: 'Da quali paesi, regioni e città arrivano le scansioni e dove i codici 2D sono più diffusi.',
     why: 'Aiuta a capire dove concentrare comunicazione, formazione e progetti pilota.',
     distributori: 'Mostra dove i clienti usano di più i codici: utile per scegliere i punti vendita pilota.',
     stampa: 'Permette racconti regionali, con dati confrontabili tra territori.',

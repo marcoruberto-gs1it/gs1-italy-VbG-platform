@@ -1,4 +1,4 @@
-import { countryName, flag, num, pct, regionName } from './format'
+import { cityName, countryName, flag, num, pct, regionName } from './format'
 import type { MapMetric } from './stats'
 import type { DashboardData } from './types'
 
@@ -23,6 +23,11 @@ function rank<T extends Area>(rows: T[], metric: MapMetric, limit: number, key: 
 /** Classifica delle regioni (di un paese o di tutti), per la misura scelta. */
 export function regionRanking(regions: DashboardData['regioni'], metric: MapMetric, limit = 8): RankedRow[] {
   return rank(regions, metric, limit, (r) => `${r.country}-${r.region_code}`, (r) => regionName(r.country, r.region_code, r.region))
+}
+
+/** Classifica delle città approssimative, con regione e bandiera del paese. */
+export function cityRanking(cities: NonNullable<DashboardData['citta']>, metric: MapMetric, limit = 10): RankedRow[] {
+  return rank(cities, metric, limit, (c) => `${c.country}-${c.city}`, (c) => `${flag(c.country)} ${cityName(c.city)} · ${regionName(c.country, c.region_code, c.region)}`.trim())
 }
 
 /** Classifica dei paesi, con bandiera e nome in italiano. */

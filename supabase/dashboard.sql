@@ -13,6 +13,7 @@
 alter table public.scan_events add column if not exists brand_name text;
 alter table public.scan_events add column if not exists vbg_record_status text;
 alter table public.scan_events add column if not exists vbg_licence_status text;
+alter table public.scan_events add column if not exists city text;
 
 -- Licenza GS1 scaduta o non attiva: lo stato della licenza o della scheda, come lo riporta
 -- Verified by GS1, è diverso da "attivo". I valori assenti contano come attivi.
@@ -120,6 +121,19 @@ begin
         where public.licence_inactive(vbg_licence_status, vbg_record_status)
         group by company_prefix order by count(*) desc limit 50
       ) l
+    ),
+    'citta', (
+      -- Città approssimativa (Cloudflare). Per riservatezza solo città con almeno 5 scansioni.
+      select coalesce(jsonb_agg(t order by t.letture desc), '[]'::jsonb) from (
+        select country, max(region_code) as region_code, max(region) as region, city,
+               count(*)                                  as letture,
+               count(*) filter (where is_2d)             as letture_2d,
+               count(*) filter (where compliance = 'gs1') as conformi
+        from e where city is not null
+        group by country, city
+        having count(*) >= 5
+        order by count(*) desc limit 30
+      ) t
     ),
     'regioni', (
       select coalesce(jsonb_agg(r order by r.letture desc), '[]'::jsonb) from (
