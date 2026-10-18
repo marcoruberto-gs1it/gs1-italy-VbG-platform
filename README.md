@@ -64,5 +64,7 @@ src/
   styles/                 tokens.css (colori, misure, livelli z-index), kit, layout, grafici, sezioni, accesso
 ```
 
+Viste per pubblico (`?vista=gs1|produttori|distributori|stampa`): stessi dati, ordine delle sezioni e spiegazioni pensati per chi li legge (`src/lib/audiences.ts`).
+
 Comandi: `npm run dev`, `npm test` (Vitest), `npm run lint`, `npm run build`.
 La pubblicazione su GitHub Pages esegue lint e test prima della build: se uno fallisce, il sito non viene aggiornato.

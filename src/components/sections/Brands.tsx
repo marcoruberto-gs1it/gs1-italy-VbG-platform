@@ -9,7 +9,7 @@ export function Brands({ data }: { data: DashboardData }) {
   const brands = data.brand ?? []
   return (
     <section className="section">
-      <SectionHeader id="brand" title="Brand più scansionati" text="I marchi dei prodotti verificati su Verified by GS1, con il titolare del codice." />
+      <SectionHeader id="brand" title="Brand più scansionati" />
       <Panel
         title="Classifica dei brand"
         subtitle="Per numero di scansioni nel periodo."

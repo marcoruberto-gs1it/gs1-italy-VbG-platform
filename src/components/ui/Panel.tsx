@@ -1,5 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { ChartColumn, Table2 } from 'lucide-react'
+import { useAudience } from '../../hooks/useAudience'
+import { SECTION_COPY, whyFor } from '../../lib/audiences'
+import type { SectionId } from '../../lib/config'
 
 type PanelProps = { title: string; subtitle?: string; children: ReactNode; table?: ReactNode; className?: string }
 
@@ -24,12 +27,17 @@ export function Panel({ title, subtitle, children, table, className = '' }: Pane
   )
 }
 
-/** Intestazione di una sezione della pagina; l'id è l'ancora usata dal menu. */
-export function SectionHeader({ id, title, text }: { id: string; title: string; text?: string }) {
+/**
+ * Intestazione di una sezione: titolo, cosa mostra e perché conta (per il pubblico della vista scelta).
+ * L'id è l'ancora usata dal menu.
+ */
+export function SectionHeader({ id, title }: { id: SectionId; title: string }) {
+  const audience = useAudience()
   return (
     <header className="section-head reveal" id={id}>
       <h2>{title}</h2>
-      {text && <p className="section-text">{text}</p>}
+      <p className="section-what">{SECTION_COPY[id].what}</p>
+      <p className="section-why"><b>Perché conta</b> {whyFor(id, audience)}</p>
     </header>
   )
 }

@@ -13,8 +13,8 @@ export function Territory({ data }: { data: DashboardData }) {
   const rows = regionRanking(data.regioni, metric)
   return (
     <section className="section">
-      <SectionHeader id="territorio" title="Dove si scansiona" text="Regione dedotta da Cloudflare dalla connessione: con le reti mobili può risultare la sede del gestore." />
-      <Panel title="Mappa delle regioni" className="map-panel" table={<RegionTable data={data.regioni} />}>
+      <SectionHeader id="territorio" title="Dove si scansiona" />
+      <Panel title="Mappa delle regioni" subtitle="Regione dedotta dalla connessione: con le reti mobili può risultare la sede del gestore." className="map-panel" table={<RegionTable data={data.regioni} />}>
         <div className="map-layout">
           <ItalyMap data={data.regioni} metric={metric} onMetric={setMetric} />
           <div className="map-side">

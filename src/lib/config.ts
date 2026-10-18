@@ -1,5 +1,5 @@
 /* Configurazione della dashboard: periodi selezionabili e sezioni della pagina (menu e ancore). */
-import { Award, BadgeCheck, LayoutDashboard, Map as MapIcon, QrCode, ShieldAlert, Table2, Tags } from 'lucide-react'
+import { Award, BadgeCheck, LayoutDashboard, Map as MapIcon, Newspaper, QrCode, ShieldAlert, Table2, Tags } from 'lucide-react'
 
 export const PERIODS = [
   { days: 7, label: '7 giorni', long: 'negli ultimi 7 giorni' },
@@ -20,7 +20,11 @@ export const SECTIONS = [
   { id: 'categorie', label: 'Categorie', icon: Tags },
   { id: 'brand', label: 'Brand', icon: Award },
   { id: 'protezione', label: 'Brand protection', icon: ShieldAlert },
+  { id: 'osservatorio', label: 'Osservatorio', icon: Newspaper },
   { id: 'dati', label: 'Dati grezzi', icon: Table2 },
 ] as const
 
 export type SectionId = (typeof SECTIONS)[number]['id']
+export type Section = (typeof SECTIONS)[number]
+
+export const sectionById = (id: SectionId): Section => SECTIONS.find((s) => s.id === id)!

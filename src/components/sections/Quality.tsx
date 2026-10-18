@@ -99,7 +99,7 @@ function SyntaxTable({ rows }: { rows: DashboardData['errori_sintassi'] }) {
 export function Quality({ data }: { data: DashboardData }) {
   return (
     <section className="section">
-      <SectionHeader id="qualita" title="Qualità dei codici" text="Quanti codici letti rispettano gli standard GS1 e quali errori ricorrono." />
+      <SectionHeader id="qualita" title="Qualità dei codici" />
       <div className="grid g-two">
         <Panel title="Conformità agli standard GS1">
           <ComplianceBar data={data.conformita} />

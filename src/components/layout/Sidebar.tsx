@@ -1,11 +1,11 @@
 import { LogOut } from 'lucide-react'
 import logo from '../../assets/gs1-italy-logo.png'
-import { SECTIONS, type SectionId } from '../../lib/config'
+import type { Section, SectionId } from '../../lib/config'
 
-type Props = { active: SectionId; demo: boolean; email?: string; onSignOut: () => void }
+type Props = { sections: Section[]; active: SectionId; demo: boolean; email?: string; onSignOut: () => void }
 
 /** Barra laterale (computer): marchio, sezioni della pagina, account. */
-export function Sidebar({ active, demo, email, onSignOut }: Props) {
+export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
   return (
     <aside className="sidebar">
       <div className="side-brand">
@@ -13,7 +13,7 @@ export function Sidebar({ active, demo, email, onSignOut }: Props) {
         <span><b>VbG</b> Platform</span>
       </div>
       <nav aria-label="Sezioni">
-        {SECTIONS.map(({ id, label, icon: Icon }) => (
+        {sections.map(({ id, label, icon: Icon }) => (
           <a key={id} href={`#${id}`} className={`side-item ${active === id ? 'is-active' : ''}`} aria-current={active === id ? 'location' : undefined}>
             <Icon size={19} strokeWidth={2.1} /> <span>{label}</span>
           </a>

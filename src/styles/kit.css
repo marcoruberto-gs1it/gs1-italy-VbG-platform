@@ -103,9 +103,11 @@
 .panel-title { flex: 1; min-width: 0; }
 .panel-title h3 { font-size: var(--fs-md); font-weight: 800; color: var(--navy); }
 .panel-title p { margin-top: 2px; font-size: var(--fs-xs); color: var(--muted); line-height: 1.45; }
-.section-head { display: grid; gap: 3px; margin-top: 6px; }
+.section-head { display: grid; gap: 4px; margin-top: 6px; }
 .section-head h2 { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.015em; color: var(--navy); }
-.section-text { font-size: var(--fs-sm); color: var(--muted); line-height: 1.5; max-width: 760px; }
+.section-what { font-size: var(--fs-md); color: var(--ink-2); line-height: 1.5; max-width: 820px; }
+.section-why { font-size: var(--fs-sm); color: var(--muted); line-height: 1.5; max-width: 820px; }
+.section-why b { margin-right: 4px; font-weight: 700; color: var(--orange-2); }
 .grid { display: grid; gap: var(--gap); }
 .g-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g-adoption { grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr); }
@@ -148,6 +150,7 @@ th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .panel { padding: 16px; gap: 14px; border-radius: var(--r-md); }
   .panel-head { flex-wrap: wrap; }
   .section-head h2 { font-size: 20px; }
+  .section-what { font-size: var(--fs-sm); }
   .g-two, .g-adoption { grid-template-columns: minmax(0, 1fr); }
   .info-btn { width: 40px; height: 40px; }
 

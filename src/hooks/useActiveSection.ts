@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react'
-import { SECTIONS, type SectionId } from '../lib/config'
+import type { SectionId } from '../lib/config'
 
 /**
  * Sezione attiva nel menu, aggiornata durante lo scorrimento: è l'ultima sezione il cui inizio ha
  * superato il 30% dell'altezza dello schermo; in fondo alla pagina è sempre l'ultima.
  */
-export function useActiveSection(ready: boolean): SectionId {
-  const [active, setActive] = useState<SectionId>(SECTIONS[0].id)
+export function useActiveSection(ready: boolean, order: SectionId[]): SectionId {
+  const [active, setActive] = useState<SectionId>(order[0])
   useEffect(() => {
     if (!ready) return
     let frame = 0
     const update = () => {
       frame = 0
       const line = window.innerHeight * 0.3
-      let current: SectionId = SECTIONS[0].id
-      for (const s of SECTIONS) {
-        const el = document.getElementById(s.id)
-        if (el && el.getBoundingClientRect().top <= line) current = s.id
+      let current: SectionId = order[0]
+      for (const id of order) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= line) current = id
       }
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = SECTIONS[SECTIONS.length - 1].id
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = order[order.length - 1]
       setActive(current)
     }
     const schedule = () => {
@@ -32,7 +32,9 @@ export function useActiveSection(ready: boolean): SectionId {
       window.removeEventListener('resize', schedule)
       cancelAnimationFrame(frame)
     }
-  }, [ready])
+    // order cambia solo con la vista: la chiave testuale evita di ricreare l'ascolto a ogni render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, order.join()])
   return active
 }
 

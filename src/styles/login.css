@@ -7,6 +7,7 @@
   position: relative; overflow: hidden; display: grid; align-content: center; gap: 24px; padding: clamp(28px, 5vw, 64px); color: #fff;
   background: radial-gradient(120% 120% at 80% 0%, #1d4f9a 0%, #0b3a80 40%, #002c6c 75%), var(--navy);
 }
+.ripple-art { width: 100%; overflow: visible; }
 .login-art .ripple-art { justify-self: center; max-width: 420px; }
 .login-art-copy { display: grid; gap: 14px; max-width: 520px; }
 .login-logo { height: 58px; width: auto; padding: 8px 12px; border-radius: 14px; background: #fff; }

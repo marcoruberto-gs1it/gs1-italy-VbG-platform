@@ -2,21 +2,18 @@ import type { RefObject } from 'react'
 import { gsap, motionOk, useGSAP } from '../lib/motion'
 
 /**
- * Movimento della pagina: ingresso di barra laterale, intestazione e indicatori; onde GS1 in loop;
+ * Movimento della pagina: ingresso di barra laterale, intestazione e indicatori;
  * comparsa delle sezioni quando entrano nello schermo.
  */
-export function usePageMotion(root: RefObject<HTMLElement | null>, ready: boolean) {
+export function usePageMotion(root: RefObject<HTMLElement | null>, key: string) {
   useGSAP(
     () => {
       if (!motionOk()) return
       gsap.timeline({ defaults: { ease: 'power3.out' } })
         .from('.side-item', { x: -14, opacity: 0, duration: 0.45, stagger: 0.05, clearProps: 'transform,opacity' })
-        .from('.hero', { y: 24, opacity: 0, duration: 0.7, clearProps: 'transform,opacity' }, 0.1)
-        .from('.hero-copy > *', { y: 16, opacity: 0, duration: 0.5, stagger: 0.08, clearProps: 'transform,opacity' }, 0.3)
-        .from('.ga-core', { scale: 0.5, opacity: 0, transformOrigin: '50% 50%', duration: 0.8, ease: 'back.out(1.8)' }, 0.35)
-        .from('.kpi', { y: 22, opacity: 0, duration: 0.55, stagger: 0.07, clearProps: 'transform,opacity' }, 0.45)
-      gsap.to('.ga-wave', { attr: { r: 128 }, strokeOpacity: 0, duration: 3.2, ease: 'sine.out', stagger: { each: 0.8, repeat: -1 } })
-      gsap.fromTo('.ga-scanline', { y: -16 }, { y: 16, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1 })
+        .from('.overview-title > *', { y: 14, opacity: 0, duration: 0.5, stagger: 0.07, clearProps: 'transform,opacity' }, 0.1)
+        .from('.kpi', { y: 22, opacity: 0, duration: 0.55, stagger: 0.07, clearProps: 'transform,opacity' }, 0.3)
+        .from('.kpi-chart', { opacity: 0, y: 8, duration: 0.5, stagger: 0.07, clearProps: 'transform,opacity' }, 0.6)
 
       // Comparsa allo scorrimento: si anima solo ciò che entra davvero sullo schermo (con un salto lungo
       // non si accoda tutto ciò che è stato saltato). A fine animazione si tolgono le trasformazioni,
@@ -36,6 +33,6 @@ export function usePageMotion(root: RefObject<HTMLElement | null>, ready: boolea
       return () => io.disconnect()
     },
     // revertOnUpdate: quando arrivano i dati si riparte da zero, senza ereditare stati a metà animazione.
-    { scope: root, dependencies: [ready], revertOnUpdate: true },
+    { scope: root, dependencies: [key], revertOnUpdate: true },
   )
 }

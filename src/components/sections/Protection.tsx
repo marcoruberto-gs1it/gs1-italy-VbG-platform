@@ -9,7 +9,7 @@ import { Panel, SectionHeader, StatusPill } from '../ui'
 export function Protection({ data }: { data: DashboardData }) {
   return (
     <section className="section">
-      <SectionHeader id="protezione" title="Brand protection" text="Codici autentici, verificati su Verified by GS1, che puntano a domini non registrati dal titolare." />
+      <SectionHeader id="protezione" title="Brand protection" />
       {data.allerte.length ? (
         <ul className="alert-grid">
           {data.allerte.map((a) => (

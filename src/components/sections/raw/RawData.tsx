@@ -17,12 +17,12 @@ const options = (all: string, map: LabelMap | Record<string, string>): SelectOpt
   ...Object.entries(map).map(([value, v]) => ({ value, label: typeof v === 'string' ? v : v[0] })),
 ]
 
-type Props = { days: number; country: string; demo: boolean; symbologies: string[] }
+type Props = { days: number; country: string; demo: boolean; symbologies: string[]; initialSearch?: string }
 
 /** Dati grezzi: tutte le scansioni del periodo, filtrabili, con il dettaglio di ciascuna. */
-export function RawData({ days, country, demo, symbologies }: Props) {
-  const [filters, setFilters] = useState<EventFilters>(EMPTY)
-  const [search, setSearch] = useState('')
+export function RawData({ days, country, demo, symbologies, initialSearch = '' }: Props) {
+  const [filters, setFilters] = useState<EventFilters>({ ...EMPTY, q: initialSearch })
+  const [search, setSearch] = useState(initialSearch)
   const [page, setPage] = useState(0)
   const [scope, setScope] = useState(`${days}|${country}`)
   const [result, setResult] = useState<{ key: string; page: EventsPage | null; error: string | null } | null>(null)

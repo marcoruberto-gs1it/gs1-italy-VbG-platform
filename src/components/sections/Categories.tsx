@@ -10,7 +10,7 @@ const average = (n: number | null) => `${n?.toLocaleString('it-IT') ?? '–'}/7`
 export function Categories({ data }: { data: DashboardData }) {
   return (
     <section className="section">
-      <SectionHeader id="categorie" title="Categorie di prodotto (GPC)" text="Le categorie più lette, con la completezza delle schede Verified by GS1." />
+      <SectionHeader id="categorie" title="Categorie di prodotto (GPC)" />
       <Panel
         title="Classifica delle categorie"
         subtitle="Per numero di scansioni. Schede complete: quota di scansioni con tutti i 7 attributi essenziali su Verified by GS1."

@@ -9,7 +9,7 @@ export function Adoption({ data, days }: { data: DashboardData; days: number }) 
   const k = data.kpi
   return (
     <section className="section">
-      <SectionHeader id="adozione" title="Adozione dei codici 2D" text="Quanto i codici 2D (QR Code Standard GS1, GS1 DataMatrix) stanno affiancando i barcode tradizionali." />
+      <SectionHeader id="adozione" title="Adozione dei codici 2D" />
       <div className="grid g-adoption">
         <Panel title="Quota sul totale">
           <RingGauge value={k.letture_2d} total={k.letture_simbolo} label="codici 2D" caption={`${num(k.letture_2d)} codici 2D su ${num(k.letture_simbolo)} codici letti con fotocamera o da foto.`} />
