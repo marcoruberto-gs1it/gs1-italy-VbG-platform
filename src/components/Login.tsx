@@ -9,11 +9,15 @@ import { configured, supabase } from '../lib/supabase'
  * che non riceve posta. Gli utenti li crea solo un amministratore: la registrazione libera è chiusa.
  */
 const INTERNAL_DOMAIN = 'vbg-platform.example'
+// DEMO: credenziali precompilate per mostrare la piattaforma con un clic.
+// Sono pubbliche (sito e repository): da togliere prima di qualsiasi uso in produzione.
+const DEMO_USER = 'demo'
+const DEMO_PASSWORD = 'gs1italy'
 const toEmail = (user: string) => (user.includes('@') ? user : `${user}@${INTERNAL_DOMAIN}`).trim().toLowerCase()
 
 export function Login() {
-  const [user, setUser] = useState('')
-  const [password, setPassword] = useState('')
+  const [user, setUser] = useState(DEMO_USER)
+  const [password, setPassword] = useState(DEMO_PASSWORD)
   const [visible, setVisible] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
@@ -53,6 +57,7 @@ export function Login() {
                 {visible ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            <p className="demo-hint">Credenziali della demo già inserite: premi Accedi.</p>
             <button className="primary-btn" type="submit" disabled={busy}>
               {busy ? 'Accesso in corso…' : 'Accedi'} <ArrowRight size={18} />
             </button>
