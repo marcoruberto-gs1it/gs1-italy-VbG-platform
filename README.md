@@ -32,9 +32,8 @@ npm run dev
 
 ## Pubblicazione
 
-```sh
-npm run deploy   # build + Cloudflare Workers (solo file statici)
-```
+- **GitHub Pages**: a ogni push su `main` il workflow `.github/workflows/pages.yml` pubblica su https://marcoruberto-gs1it.github.io/gs1-italy-VbG-platform/
+- **Cloudflare Workers** (file statici): `npm run deploy` → https://gs1-vbg-platform.marco-ruberto.workers.dev
 
 ## Grafici
 
