@@ -4,6 +4,7 @@ import { useActiveSection, useKeepActiveVisible } from '../hooks/useActiveSectio
 import { AudienceContext, useAudienceState } from '../hooks/useAudience'
 import { usePageMotion } from '../hooks/usePageMotion'
 import { loadVersion, useUpdateAvailable } from '../hooks/useUpdate'
+import { t } from '../i18n'
 import { SECTION_ORDER } from '../lib/audiences'
 import { periodFor, sectionById, type SectionId } from '../lib/config'
 import type { DashboardData, Kpi } from '../lib/types'
@@ -82,14 +83,14 @@ export function Dashboard({ data, previous, loading, error, days, country, demo,
           </div>
           <main className="content">
             {error && <p className="notice is-error" role="alert"><TriangleAlert size={18} /> {error}</p>}
-            {!data && loading && <div className="skeleton-hero" aria-busy="true" aria-label="Caricamento dei dati" />}
+            {!data && loading && <div className="skeleton-hero" aria-busy="true" aria-label={t('Caricamento dei dati')} />}
             {data && order.map((id) => <ErrorBoundary key={id}>{render(id, data)}</ErrorBoundary>)}
           </main>
           <Footer />
           {update && (
             <div className="update-toast" role="status">
-              <span>È disponibile una nuova versione della dashboard</span>
-              <button className="btn primary small" type="button" onClick={() => loadVersion(update)}>Aggiorna</button>
+              <span>{t('È disponibile una nuova versione della dashboard')}</span>
+              <button className="btn primary small" type="button" onClick={() => loadVersion(update)}>{t('Aggiorna')}</button>
             </div>
           )}
         </div>

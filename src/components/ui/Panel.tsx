@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { ChartColumn, Table2 } from 'lucide-react'
 import { useAudience } from '../../hooks/useAudience'
-import { SECTION_COPY, whyFor } from '../../lib/audiences'
+import { t } from '../../i18n'
+import { whatOf, whyFor } from '../../lib/audiences'
 import type { SectionId } from '../../lib/config'
 
 type PanelProps = { title: string; subtitle?: string; children: ReactNode; table?: ReactNode; className?: string }
@@ -18,7 +19,7 @@ export function Panel({ title, subtitle, children, table, className = '' }: Pane
         </div>
         {table && (
           <button className="chip-btn" type="button" onClick={() => setShowTable((v) => !v)} aria-pressed={showTable}>
-            {showTable ? <><ChartColumn size={15} /> Grafico</> : <><Table2 size={15} /> Tabella</>}
+            {showTable ? <><ChartColumn size={15} /> {t('Grafico')}</> : <><Table2 size={15} /> {t('Tabella')}</>}
           </button>
         )}
       </header>
@@ -36,8 +37,8 @@ export function SectionHeader({ id, title }: { id: SectionId; title: string }) {
   return (
     <header className="section-head reveal" id={id}>
       <h2>{title}</h2>
-      <p className="section-what">{SECTION_COPY[id].what}</p>
-      <p className="section-why"><b>Perché conta</b> {whyFor(id, audience)}</p>
+      <p className="section-what">{whatOf(id)}</p>
+      <p className="section-why"><b>{t('Perché conta')}</b> {whyFor(id, audience)}</p>
     </header>
   )
 }

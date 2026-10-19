@@ -5,6 +5,7 @@ import { day, longDay, num, pct } from '../../lib/format'
 import { niceScale, topRounded } from '../../lib/stats'
 import type { DashboardData } from '../../lib/types'
 import { Empty } from './Empty'
+import { t } from '../../i18n'
 
 const HEIGHT = 260
 const PAD = { top: 14, right: 8, bottom: 28, left: 44 }
@@ -27,19 +28,19 @@ export function DailyChart({ data }: { data: DashboardData['giornaliero'] }) {
     tl.from(ref.current!.querySelectorAll('.daily-bar'), { scaleY: 0, transformOrigin: '50% 100%', duration: 0.7, ease: 'power3.out', stagger: { amount: 0.6 } })
   }, [totals.join(',')])
 
-  if (!totals.some(Boolean) && !data.some((d) => d.manuali)) return <Empty text="Nessuna scansione nel periodo." />
+  if (!totals.some(Boolean) && !data.some((d) => d.manuali)) return <Empty text={t('Nessuna scansione nel periodo.')} />
 
   return (
     <div className="chart" ref={ref}>
       <ul className="legend">
         <li><i style={{ background: 'var(--series-1)' }} /> Barcode 1D</li>
-        <li><i style={{ background: 'var(--series-2)' }} /> Codici 2D</li>
+        <li><i style={{ background: 'var(--series-2)' }} /> {t('Codici 2D')}</li>
       </ul>
-      <svg width={width} height={HEIGHT} role="img" aria-label="Scansioni al giorno, divise tra barcode 1D e codici 2D" onMouseLeave={() => setHover(null)}>
-        {ticks.map((t) => (
-          <g key={t}>
-            <line x1={PAD.left} x2={PAD.left + innerW} y1={y(t)} y2={y(t)} className={t === 0 ? 'axis' : 'grid'} />
-            <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" className="tick">{num(t)}</text>
+      <svg width={width} height={HEIGHT} role="img" aria-label={t('Scansioni al giorno, divise tra barcode 1D e codici 2D')} onMouseLeave={() => setHover(null)}>
+        {ticks.map((tick) => (
+          <g key={tick}>
+            <line x1={PAD.left} x2={PAD.left + innerW} y1={y(tick)} y2={y(tick)} className={tick === 0 ? 'axis' : 'grid'} />
+            <text x={PAD.left - 8} y={y(tick) + 4} textAnchor="end" className="tick">{num(tick)}</text>
           </g>
         ))}
         {data.map((d, i) => {
@@ -65,7 +66,7 @@ export function DailyChart({ data }: { data: DashboardData['giornaliero'] }) {
                 onFocus={() => setHover(i)}
                 onClick={() => setHover(i)}
                 tabIndex={0}
-                aria-label={`${longDay(d.giorno)}: ${d.letture_1d} barcode 1D, ${d.letture_2d} codici 2D`}
+                aria-label={t('{day}: {a} barcode 1D, {b} codici 2D', { day: longDay(d.giorno), a: d.letture_1d, b: d.letture_2d })}
               />
             </g>
           )
@@ -74,9 +75,9 @@ export function DailyChart({ data }: { data: DashboardData['giornaliero'] }) {
       {active && hover != null && (
         <div className="tooltip" style={{ left: Math.min(width - 200, Math.max(0, PAD.left + hover * step + step / 2 - 100)), top: 34 }}>
           <strong>{longDay(active.giorno)}</strong>
-          <span><i style={{ background: 'var(--series-2)' }} /> Codici 2D <b>{num(active.letture_2d)}</b></span>
+          <span><i style={{ background: 'var(--series-2)' }} /> {t('Codici 2D')} <b>{num(active.letture_2d)}</b></span>
           <span><i style={{ background: 'var(--series-1)' }} /> Barcode 1D <b>{num(active.letture_1d)}</b></span>
-          <span className="tooltip-muted">Quota 2D {pct(active.letture_2d, active.letture_1d + active.letture_2d)} · a mano {num(active.manuali)}</span>
+          <span className="tooltip-muted">{t('Quota 2D {pct} · a mano {n}', { pct: pct(active.letture_2d, active.letture_1d + active.letture_2d), n: num(active.manuali) })}</span>
         </div>
       )}
     </div>

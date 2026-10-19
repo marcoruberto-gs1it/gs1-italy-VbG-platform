@@ -1,3 +1,5 @@
+import { t } from '../i18n'
+
 export type GlyphKind = 'ean' | 'gs1128' | 'databar' | 'datamatrix' | 'qr' | 'link' | 'keyboard'
 
 /** Glifo da mostrare per il nome di una simbologia. */
@@ -22,3 +24,15 @@ export function glyphFor(symbology: string): GlyphKind {
 const GS1_SYMBOLOGIES = /^(EAN-13|EAN-8|UPC-A|UPC-E|ITF-14|GS1-128|GS1 DataBar( .+)?|GS1 Composite( .+)?|GS1 DataMatrix|QR Code Standard GS1|Data Matrix con GS1 Digital Link|GS1 DotCode)$/
 
 export const isGs1Symbology = (symbology: string) => GS1_SYMBOLOGIES.test(symbology)
+
+/** Nome da mostrare: le simbologie vere restano col loro nome; i casi descritti dall'app si traducono. */
+export function symbologyName(symbology: string | null): string {
+  switch (symbology) {
+    case 'Codice con link': return t('Codice con link')
+    case 'Codice con dati GS1': return t('Codice con dati GS1')
+    case 'Codice con testo': return t('Codice con testo')
+    case 'Inserito a mano': return t('Inserito a mano')
+    case 'Data Matrix con GS1 Digital Link': return t('Data Matrix con GS1 Digital Link')
+    default: return symbology ?? '–'
+  }
+}

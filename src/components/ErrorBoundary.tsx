@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { TriangleAlert } from 'lucide-react'
+import { t } from '../i18n'
 
 type Props = { children: ReactNode; title?: string }
 type State = { error: Error | null }
@@ -25,8 +26,8 @@ export class ErrorBoundary extends Component<Props, State> {
       <div className="notice is-error" role="alert">
         <TriangleAlert size={18} />
         <span>
-          {this.props.title ?? 'Questa parte della pagina non si è caricata.'}{' '}
-          <button className="link-btn" type="button" onClick={() => this.setState({ error: null })}>Riprova</button>
+          {this.props.title ?? t('Questa parte della pagina non si è caricata.')}{' '}
+          <button className="link-btn" type="button" onClick={() => this.setState({ error: null })}>{t('Riprova')}</button>
         </span>
       </div>
     )

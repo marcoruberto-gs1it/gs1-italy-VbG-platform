@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
-import { cityName, countryName, flag, num, pct, regionName } from '../../lib/format'
+import { cityName, countryName, dec1, flag, num, pct, regionName } from '../../lib/format'
 import { cityRanking, countryRanking, regionRanking } from '../../lib/regions'
 import type { MapMetric } from '../../lib/stats'
 import type { DashboardData } from '../../lib/types'
 import { BarList, DataTable, Empty, ItalyMap, MetricSwitch, WorldMap } from '../charts'
 import { Panel, SectionHeader } from '../ui'
+import { t } from '../../i18n'
 
 type Tab = 'aree' | 'citta'
 
-const percent = (v: number) => `${(Math.round(v * 1000) / 10).toLocaleString('it-IT')}%`
+const percent = (v: number) => `${dec1(v * 100)}%`
 
 type Props = { data: DashboardData; country: string; onCountry: (country: string) => void }
 
@@ -30,20 +31,23 @@ export function Territory({ data, country, onCountry }: Props) {
 
   const rows = tab === 'citta' ? cityRanking(cities, metric) : isWorld ? countryRanking(countries, metric) : regionRanking(regions, metric, 8, false)
   const subtitle = isWorld
-    ? `${num(countries.length)} ${countries.length === 1 ? 'paese' : 'paesi'} nel periodo; dall’estero il ${pct(total - italy, total)} delle scansioni. Scegli un paese per vederne regioni e città.`
-    : 'Regioni e città dedotte dalla connessione: con le reti mobili spesso indicano la sede del gestore.'
+    ? t('{countries} nel periodo; dall’estero il {pct} delle scansioni. Scegli un paese per vederne regioni e città.', {
+        countries: countries.length === 1 ? t('1 paese') : t('{n} paesi', { n: num(countries.length) }),
+        pct: pct(total - italy, total),
+      })
+    : t('Regioni e città dedotte dalla connessione: con le reti mobili spesso indicano la sede del gestore.')
 
   const table =
     tab === 'citta' ? (
       <DataTable
         rows={cities}
         rowKey={(c) => `${c.country}-${c.city}`}
-        empty="Nessuna città nel periodo."
+        empty={t('Nessuna città nel periodo.')}
         columns={[
-          { label: 'Città', render: (c) => cityName(c.city) },
-          { label: 'Regione', render: (c) => regionName(c.country, c.region_code, c.region) },
-          { label: 'Scansioni', render: (c) => num(c.letture), numeric: true },
-          { label: 'Quota 2D', render: (c) => pct(c.letture_2d, c.letture), numeric: true },
+          { label: t('Città'), render: (c) => cityName(c.city) },
+          { label: t('Regione'), render: (c) => regionName(c.country, c.region_code, c.region) },
+          { label: t('Scansioni'), render: (c) => num(c.letture), numeric: true },
+          { label: t('Quota 2D'), render: (c) => pct(c.letture_2d, c.letture), numeric: true },
         ]}
       />
     ) : isWorld ? (
@@ -51,10 +55,10 @@ export function Territory({ data, country, onCountry }: Props) {
         rows={countries}
         rowKey={(c) => c.country}
         columns={[
-          { label: 'Paese', render: (c) => countryName(c.country) },
-          { label: 'Scansioni', render: (c) => num(c.letture), numeric: true },
-          { label: 'Quota 2D', render: (c) => pct(c.letture_2d, c.letture), numeric: true },
-          { label: 'Conformi GS1', render: (c) => pct(c.conformi, c.letture), numeric: true },
+          { label: t('Paese'), render: (c) => countryName(c.country) },
+          { label: t('Scansioni'), render: (c) => num(c.letture), numeric: true },
+          { label: t('Quota 2D'), render: (c) => pct(c.letture_2d, c.letture), numeric: true },
+          { label: t('Conformi GS1'), render: (c) => pct(c.conformi, c.letture), numeric: true },
         ]}
       />
     ) : (
@@ -62,17 +66,17 @@ export function Territory({ data, country, onCountry }: Props) {
         rows={regions}
         rowKey={(r) => `${r.country}-${r.region_code}`}
         columns={[
-          { label: 'Regione', render: (r) => (r.country === 'IT' ? regionName(r.country, r.region_code, r.region) : r.region ?? r.region_code) },
-          { label: 'Scansioni', render: (r) => num(r.letture), numeric: true },
-          { label: 'Quota 2D', render: (r) => pct(r.letture_2d, r.letture), numeric: true },
-          { label: 'Conformi GS1', render: (r) => pct(r.conformi, r.letture), numeric: true },
+          { label: t('Regione'), render: (r) => (r.country === 'IT' ? regionName(r.country, r.region_code, r.region) : r.region ?? r.region_code) },
+          { label: t('Scansioni'), render: (r) => num(r.letture), numeric: true },
+          { label: t('Quota 2D'), render: (r) => pct(r.letture_2d, r.letture), numeric: true },
+          { label: t('Conformi GS1'), render: (r) => pct(r.conformi, r.letture), numeric: true },
         ]}
       />
     )
 
   return (
     <section className="section">
-      <SectionHeader id="territorio" title="Dove si scansiona" />
+      <SectionHeader id="territorio" title={t('Dove si scansiona')} />
       <Panel title={isWorld ? 'Mondo' : `${flag(country)} ${countryName(country)}`.trim()} subtitle={subtitle} className="map-panel" table={table}>
         <div className="territory-tools">
           {!isWorld && (
@@ -89,10 +93,10 @@ export function Territory({ data, country, onCountry }: Props) {
             <WorldMap data={countries} metric={metric} onMetric={setMetric} focus={country || undefined} toolbar={false} />
           )}
           <div className="map-side">
-            <div className="segmented small territory-tabs" role="tablist" aria-label="Classifica">
-              {(['aree', 'citta'] as const).map((t) => (
-                <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? 'is-active' : ''} onClick={() => setTab(t)}>
-                  {t === 'aree' ? (isWorld ? 'Paesi' : 'Regioni') : 'Città'}
+            <div className="segmented small territory-tabs" role="tablist" aria-label={t('Classifica')}>
+              {(['aree', 'citta'] as const).map((tb) => (
+                <button key={tb} type="button" role="tab" aria-selected={tab === tb} className={tab === tb ? 'is-active' : ''} onClick={() => setTab(tb)}>
+                  {tb === 'aree' ? (isWorld ? t('Paesi') : t('Regioni')) : t('Città')}
                 </button>
               ))}
             </div>
@@ -103,16 +107,16 @@ export function Territory({ data, country, onCountry }: Props) {
                 max={metric === 'letture' ? undefined : 1}
                 format={metric === 'letture' ? undefined : percent}
                 onSelect={isWorld && tab === 'aree' ? onCountry : undefined}
-                selectLabel={(r) => `Vedi ${r.label}: regioni e città`}
+                selectLabel={(r) => t('Vedi {name}: regioni e città', { name: r.label })}
               />
             ) : (
-              <Empty text={tab === 'citta' ? 'Nessuna città nel periodo.' : 'Nessuna regione nel periodo.'} />
+              <Empty text={tab === 'citta' ? t('Nessuna città nel periodo.') : t('Nessuna regione nel periodo.')} />
             )}
-            {isWorld && tab === 'aree' && rows.length > 0 && <p className="map-source"><ChevronRight size={12} /> Clicca un paese per vederne regioni e città.</p>}
-            {tab === 'citta' && rows.length > 0 && <p className="map-source">Città approssimativa, dedotta dalla connessione: con le reti mobili spesso è quella del gestore.</p>}
+            {isWorld && tab === 'aree' && rows.length > 0 && <p className="map-source"><ChevronRight size={12} /> {t('Clicca un paese per vederne regioni e città.')}</p>}
+            {tab === 'citta' && rows.length > 0 && <p className="map-source">{t('Città approssimativa, dedotta dalla connessione: con le reti mobili spesso è quella del gestore.')}</p>}
           </div>
         </div>
-        <p className="map-source">{country === 'IT' ? 'Confini regionali: ISTAT, CC BY 4.0.' : 'Confini: Natural Earth (dominio pubblico).'} Posizione dedotta dalla connessione, non dal GPS.</p>
+        <p className="map-source">{country === 'IT' ? t('Confini regionali: ISTAT, CC BY 4.0.') : t('Confini: Natural Earth (dominio pubblico).')} {t('Posizione dedotta dalla connessione, non dal GPS.')}</p>
       </Panel>
     </section>
   )

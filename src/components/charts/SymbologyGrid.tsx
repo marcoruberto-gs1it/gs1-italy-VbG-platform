@@ -2,10 +2,11 @@ import { useRef } from 'react'
 import { useReveal } from '../../hooks/useReveal'
 import { num, pct } from '../../lib/format'
 import { pieSlice } from '../../lib/stats'
-import { glyphFor, isGs1Symbology } from '../../lib/symbology'
+import { glyphFor, isGs1Symbology, symbologyName } from '../../lib/symbology'
 import type { DashboardData } from '../../lib/types'
 import { SymbologyGlyph } from '../illustrations'
 import { Empty } from './Empty'
+import { t } from '../../i18n'
 
 type Rows = DashboardData['simbologie']
 
@@ -26,11 +27,11 @@ function SymbologyCards({ rows, total }: { rows: Rows; total: number }) {
         <li key={s.simbologia} className={`sym-card ${isGs1Symbology(s.simbologia) ? 'is-gs1' : ''}`}>
           <span className="sym-glyph"><SymbologyGlyph kind={glyphFor(s.simbologia)} size={40} /></span>
           <span className="sym-text">
-            <strong>{s.simbologia}</strong>
-            <small>{s.is_2d == null ? 'senza simbolo' : s.is_2d ? 'codice 2D' : 'barcode 1D'}</small>
-            <small>{num(s.letture)} scansioni</small>
+            <strong>{symbologyName(s.simbologia)}</strong>
+            <small>{s.is_2d == null ? t('senza simbolo') : s.is_2d ? t('codice 2D') : t('barcode 1D')}</small>
+            <small>{t('{n} scansioni', { n: num(s.letture) })}</small>
           </span>
-          <span className="sym-share" aria-label={`${pct(s.letture, total)} delle scansioni`}>
+          <span className="sym-share" aria-label={t('{pct} delle scansioni', { pct: pct(s.letture, total) })}>
             <MiniPie value={total ? s.letture / total : 0} color={s.is_2d ? 'var(--series-2)' : 'var(--series-1)'} />
             <b>{pct(s.letture, total)}</b>
           </span>
@@ -46,8 +47,8 @@ export function SymbologyGrid({ data }: { data: Rows }) {
   const total = data.reduce((a, s) => a + s.letture, 0)
   const byReads = [...data].sort((a, b) => b.letture - a.letture)
   const groups = [
-    { title: 'Standard GS1', rows: byReads.filter((s) => isGs1Symbology(s.simbologia)) },
-    { title: 'Altri codici', rows: byReads.filter((s) => !isGs1Symbology(s.simbologia)) },
+    { title: t('Standard GS1'), rows: byReads.filter((s) => isGs1Symbology(s.simbologia)) },
+    { title: t('Altri codici'), rows: byReads.filter((s) => !isGs1Symbology(s.simbologia)) },
   ].filter((g) => g.rows.length)
 
   useReveal(ref, (tl) => {
@@ -60,7 +61,7 @@ export function SymbologyGrid({ data }: { data: Rows }) {
     <div className="sym-groups" ref={ref}>
       {groups.map((g) => (
         <section key={g.title}>
-          <h4 className="sym-group-title">{g.title} <span>{pct(g.rows.reduce((a, s) => a + s.letture, 0), total)} delle scansioni</span></h4>
+          <h4 className="sym-group-title">{g.title} <span>{t('{pct} delle scansioni', { pct: pct(g.rows.reduce((a, s) => a + s.letture, 0), total) })}</span></h4>
           <SymbologyCards rows={g.rows} total={total} />
         </section>
       ))}

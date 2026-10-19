@@ -2,11 +2,12 @@ import { useRef } from 'react'
 import { useReveal } from '../../hooks/useReveal'
 import { num } from '../../lib/format'
 import { Empty } from './Empty'
+import { t } from '../../i18n'
 
 export type RankRow = { key: string; label: string; sub?: string | null; value: number; stats: { label: string; value: string; meter?: number }[] }
 
 /** Classifica a righe: posizione, nome, barra delle scansioni e indicatori. Su telefono, una scheda per riga. */
-export function RankingList({ rows, valueLabel = 'Scansioni', empty }: { rows: RankRow[]; valueLabel?: string; empty?: string }) {
+export function RankingList({ rows, valueLabel, empty }: { rows: RankRow[]; valueLabel?: string; empty?: string }) {
   const ref = useRef<HTMLOListElement>(null)
   const max = Math.max(...rows.map((r) => r.value), 1)
   useReveal(ref, (tl) => {
@@ -18,8 +19,8 @@ export function RankingList({ rows, valueLabel = 'Scansioni', empty }: { rows: R
     <div className="rank">
       <div className="rank-head" aria-hidden="true">
         <span>#</span>
-        <span>Nome</span>
-        <span>{valueLabel}</span>
+        <span>{t('Nome')}</span>
+        <span>{valueLabel ?? t('Scansioni')}</span>
         {rows[0].stats.map((s) => <span key={s.label}>{s.label}</span>)}
       </div>
       <ol className="rank-list" ref={ref}>

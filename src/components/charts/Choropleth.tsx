@@ -3,6 +3,7 @@ import { useReveal } from '../../hooks/useReveal'
 import { useWidth } from '../../hooks/useWidth'
 import { num, pct } from '../../lib/format'
 import { mapClass, mapLegend, type MapMetric } from '../../lib/stats'
+import { t } from '../../i18n'
 
 const SEQ = ['var(--seq-1)', 'var(--seq-2)', 'var(--seq-3)', 'var(--seq-4)', 'var(--seq-5)', 'var(--seq-6)']
 
@@ -11,10 +12,10 @@ export type Shape = { code: string; name: string; d: string }
 /** Selettore della misura (scansioni o quota di codici 2D), condiviso da mappe e classifiche. */
 export function MetricSwitch({ metric, onMetric }: { metric: MapMetric; onMetric: (m: MapMetric) => void }) {
   return (
-    <div className="segmented small" role="radiogroup" aria-label="Misura">
+    <div className="segmented small" role="radiogroup" aria-label={t('Misura')}>
       {(['letture', 'quota'] as const).map((m) => (
         <button key={m} type="button" role="radio" aria-checked={metric === m} className={metric === m ? 'is-active' : ''} onClick={() => onMetric(m)}>
-          {m === 'letture' ? 'Scansioni' : 'Quota 2D'}
+          {m === 'letture' ? t('Scansioni') : t('Quota 2D')}
         </button>
       ))}
     </div>
@@ -74,7 +75,7 @@ export function Choropleth({ shapes, width, height, stats, metric, onMetric, lab
         </div>
       )}
       <div className="map-canvas">
-        <svg viewBox={viewBox ?? `0 0 ${width} ${height}`} role="img" aria-label={`${label}: ${metric === 'letture' ? 'scansioni' : 'quota di codici 2D'}`} onMouseLeave={() => setHover(null)}>
+        <svg viewBox={viewBox ?? `0 0 ${width} ${height}`} role="img" aria-label={`${label}: ${metric === 'letture' ? t('scansioni') : t('quota di codici 2D')}`} onMouseLeave={() => setHover(null)}>
           {shapes.map((s) => {
             const v = valueOf(s.code)
             return (
@@ -84,7 +85,7 @@ export function Choropleth({ shapes, width, height, stats, metric, onMetric, lab
                 className={`map-region ${hover?.code === s.code ? 'is-hover' : ''} ${focus === s.code ? 'is-focus' : ''}`}
                 style={{ fill: v == null ? 'var(--seq-empty)' : SEQ[mapClass(metric, v, max)] }}
                 tabIndex={v == null ? -1 : 0}
-                aria-label={`${nameOf(s)}: ${v == null ? 'nessuna scansione' : fmt(v)}`}
+                aria-label={`${nameOf(s)}: ${v == null ? t('nessuna scansione') : fmt(v)}`}
                 onMouseMove={(e) => pointAt(s.code, e.clientX, e.clientY)}
                 onClick={(e) => pointAt(s.code, e.clientX, e.clientY)}
                 onFocus={() => setHover({ code: s.code, x: 40, y: 60 })}
@@ -98,19 +99,19 @@ export function Choropleth({ shapes, width, height, stats, metric, onMetric, lab
             <strong>{nameOf(activeShape)}</strong>
             {active ? (
               <>
-                <span>Scansioni <b>{num(active.letture)}</b></span>
-                <span>Quota 2D <b>{pct(active.letture_2d, active.letture)}</b></span>
-                <span>Conformi GS1 <b>{pct(active.conformi, active.letture)}</b></span>
+                <span>{t('Scansioni')} <b>{num(active.letture)}</b></span>
+                <span>{t('Quota 2D')} <b>{pct(active.letture_2d, active.letture)}</b></span>
+                <span>{t('Conformi GS1')} <b>{pct(active.conformi, active.letture)}</b></span>
               </>
             ) : (
-              <span className="tooltip-muted">Nessuna scansione nel periodo</span>
+              <span className="tooltip-muted">{t('Nessuna scansione nel periodo')}</span>
             )}
           </div>
         )}
       </div>
-      <ul className="map-legend" aria-label="Legenda">
+      <ul className="map-legend" aria-label={t('Legenda')}>
         {legend.map((l, i) => <li key={l}><i style={{ background: SEQ[i] }} />{l}</li>)}
-        <li><i style={{ background: 'var(--seq-empty)' }} />nessun dato</li>
+        <li><i style={{ background: 'var(--seq-empty)' }} />{t('nessun dato')}</li>
       </ul>
     </div>
   )

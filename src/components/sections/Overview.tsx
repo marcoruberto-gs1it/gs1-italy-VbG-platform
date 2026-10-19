@@ -9,6 +9,7 @@ import { pctNum, prevShare, share } from '../../lib/stats'
 import type { DashboardData, Kpi } from '../../lib/types'
 import { Meter, MiniStack, Sparkline } from '../charts'
 import { Counter, Delta } from '../ui'
+import { t } from '../../i18n'
 
 type Props = {
   data: DashboardData
@@ -48,9 +49,9 @@ function PrefixFinder({ onFind }: { onFind: (prefix: string) => void }) {
   }
   return (
     <form className="prefix-finder" onSubmit={submit}>
-      <label htmlFor="prefix" className="visually-hidden">Il tuo GS1 Company Prefix</label>
-      <input id="prefix" inputMode="numeric" autoComplete="off" placeholder="Il tuo GS1 Company Prefix, es. 8012345" value={value} onChange={(e) => setValue(e.target.value)} />
-      <button className="btn primary" type="submit" disabled={digits.length < 6}><Search size={16} /> Vedi le tue scansioni</button>
+      <label htmlFor="prefix" className="visually-hidden">{t('Il tuo GS1 Company Prefix')}</label>
+      <input id="prefix" inputMode="numeric" autoComplete="off" placeholder={t('Il tuo GS1 Company Prefix, es. 8012345')} value={value} onChange={(e) => setValue(e.target.value)} />
+      <button className="btn primary" type="submit" disabled={digits.length < 6}><Search size={16} /> {t('Vedi le tue scansioni')}</button>
     </form>
   )
 }
@@ -65,20 +66,20 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
   const inactive = k.licenze_non_attive ?? 0
   const daily = fillDays(data.giornaliero, Math.min(days, 90))
   const c = data.conformita
-  const noPrev = <span className="delta is-neutral">nessun dato precedente</span>
+  const noPrev = <span className="delta is-neutral">{t('nessun dato precedente')}</span>
   const AudienceIcon = AUDIENCE_ICONS[audience]
 
   return (
     <section id="panoramica" className="section overview">
       <header className="ov-head reveal">
         <div className="ov-title">
-          <h1>Panoramica</h1>
+          <h1>{t('Panoramica')}</h1>
           <p className="ov-lead">
-            {period.long[0].toUpperCase() + period.long.slice(1)} · {country ? countryName(country) : 'tutto il mondo'}
+            {period.long[0].toUpperCase() + period.long.slice(1)} · {country ? countryName(country) : t('tutto il mondo')}
           </p>
-          <ul className="ov-meta" aria-label="In sintesi">
-            <li><Package size={15} aria-hidden="true" /> {numShort(k.prodotti_distinti)} prodotti diversi</li>
-            {!country && countries > 0 && <li><a href="#territorio"><MapPinned size={15} aria-hidden="true" /> {num(countries)} {countries === 1 ? 'paese' : 'paesi'}</a></li>}
+          <ul className="ov-meta" aria-label={t('In sintesi')}>
+            <li><Package size={15} aria-hidden="true" /> {t('{n} prodotti diversi', { n: numShort(k.prodotti_distinti) })}</li>
+            {!country && countries > 0 && <li><a href="#territorio"><MapPinned size={15} aria-hidden="true" /> {countries === 1 ? t('1 paese') : t('{n} paesi', { n: num(countries) })}</a></li>}
           </ul>
         </div>
       </header>
@@ -86,80 +87,80 @@ export function Overview({ data, previous, period, days, country, onFindPrefix }
       {audience !== 'tutti' && (
         <div className="audience-note reveal">
           <span className="audience-icon"><AudienceIcon size={18} /></span>
-          <p>{AUDIENCES.find((a) => a.id === audience)?.lead} Le sezioni sono in ordine di utilità per questa vista.</p>
+          <p>{AUDIENCES.find((a) => a.id === audience)?.lead} {t('Le sezioni sono in ordine di utilità per questa vista.')}</p>
           {audience === 'produttori' && <PrefixFinder onFind={onFindPrefix} />}
         </div>
       )}
 
       <div className="ov-grid">
-        <h2 className="ov-group-title g-use">Numeri chiave <span>{prev ? `variazioni rispetto ai ${period.label} precedenti` : 'nessun periodo precedente da confrontare'}</span></h2>
+        <h2 className="ov-group-title g-use">{t('Numeri chiave')} <span>{prev ? t('variazioni rispetto ai {period} precedenti', { period: period.label }) : t('nessun periodo precedente da confrontare')}</span></h2>
 
         <KpiCard
-          label="Scansioni"
+          label={t('Scansioni')}
           value={<Counter value={k.letture} format={numShort} />}
           full={num(k.letture)}
           delta={prev ? <Delta now={k.letture} before={prev.letture} good="neutral" /> : noPrev}
-          visual={<Sparkline color="var(--navy)" values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label="Andamento giornaliero delle scansioni" />}
-          caption="al giorno"
+          visual={<Sparkline color="var(--navy)" values={daily.map((d) => d.letture_1d + d.letture_2d + d.manuali)} label={t('Andamento giornaliero delle scansioni')} />}
+          caption={t('al giorno')}
         />
         <KpiCard
-          label="Quota codici 2D"
+          label={t('Quota codici 2D')}
           value={<Counter value={share(k.letture_2d, k.letture_simbolo) * 100} format={pctNum} />}
           delta={prev ? <Delta now={share(k.letture_2d, k.letture_simbolo)} before={prevShare(prev.letture_2d, prev.letture_simbolo)} mode="points" good="up" /> : noPrev}
-          visual={<Meter value={share(k.letture_2d, k.letture_simbolo)} color="var(--orange)" label={`Codici 2D: ${pct(k.letture_2d, k.letture_simbolo)}`} />}
-          caption={<>{numShort(k.letture_2d)} su {numShort(k.letture_simbolo)}</>}
+          visual={<Meter value={share(k.letture_2d, k.letture_simbolo)} color="var(--orange)" label={t('Codici 2D: {pct}', { pct: pct(k.letture_2d, k.letture_simbolo) })} />}
+          caption={t('{a} su {b}', { a: numShort(k.letture_2d), b: numShort(k.letture_simbolo) })}
         />
         <KpiCard
-          label="Conformi agli standard GS1"
+          label={t('Conformi agli standard GS1')}
           value={<Counter value={share(k.conformi, k.letture_simbolo) * 100} format={pctNum} />}
           delta={prev ? <Delta now={share(k.conformi, k.letture_simbolo)} before={prevShare(prev.conformi, prev.letture_simbolo)} mode="points" good="up" /> : noPrev}
           visual={
             <MiniStack
-              label="Ripartizione per conformità agli standard GS1"
+              label={t('Ripartizione per conformità agli standard GS1')}
               parts={[
-                { value: c.gs1 ?? 0, color: 'var(--navy)', title: 'Codice Standard GS1' },
-                { value: c.partial ?? 0, color: 'var(--peach)', title: 'Non standard' },
-                { value: c.error ?? 0, color: 'var(--orange)', title: 'Con errori' },
-                { value: c.none ?? 0, color: 'var(--sky)', title: 'Non GS1' },
+                { value: c.gs1 ?? 0, color: 'var(--navy)', title: t('Codice Standard GS1') },
+                { value: c.partial ?? 0, color: 'var(--peach)', title: t('Non standard') },
+                { value: c.error ?? 0, color: 'var(--orange)', title: t('Con errori') },
+                { value: c.none ?? 0, color: 'var(--sky)', title: t('Non GS1') },
               ]}
             />
           }
-          caption={<><a href="#qualita">{numShort((c.error ?? 0) + (c.partial ?? 0))}</a> da correggere</>}
+          caption={<><a href="#qualita">{numShort((c.error ?? 0) + (c.partial ?? 0))}</a> {t('da correggere')}</>}
         />
         <KpiCard
-          label="Schede VbG complete"
+          label={t('Schede VbG complete')}
           value={<Counter value={share(k.schede_complete, k.schede_valutate) * 100} format={pctNum} />}
           delta={prev ? <Delta now={share(k.schede_complete, k.schede_valutate)} before={prevShare(prev.schede_complete, prev.schede_valutate)} mode="points" good="up" /> : noPrev}
-          visual={<Meter value={share(k.schede_complete, k.schede_valutate)} color="var(--navy)" label={`Schede complete: ${pct(k.schede_complete, k.schede_valutate)}`} />}
-          caption="7 informazioni su 7"
+          visual={<Meter value={share(k.schede_complete, k.schede_valutate)} color="var(--navy)" label={t('Schede complete: {pct}', { pct: pct(k.schede_complete, k.schede_valutate) })} />}
+          caption={t('7 informazioni su 7')}
         />
         <KpiCard
           risk
           alert={k.allerte_link > 0}
-          label="Allerte di brand protection"
+          label={t('Allerte di brand protection')}
           value={<Counter value={k.allerte_link} format={numShort} />}
           full={num(k.allerte_link)}
           delta={prev ? <Delta now={k.allerte_link} before={prev.allerte_link} good="down" /> : noPrev}
           visual={
             <MiniStack
-              label="Allerte: link sospetti e domini non riconosciuti"
+              label={t('Allerte: link sospetti e domini non riconosciuti')}
               parts={[
-                { value: k.link_sospetti, color: 'var(--orange)', title: 'Link sospetti' },
-                { value: Math.max(0, k.allerte_link - k.link_sospetti), color: 'var(--peach)', title: 'Domini non riconosciuti' },
+                { value: k.link_sospetti, color: 'var(--orange)', title: t('Link sospetti') },
+                { value: Math.max(0, k.allerte_link - k.link_sospetti), color: 'var(--peach)', title: t('Domini non riconosciuti') },
               ]}
             />
           }
-          caption={k.allerte_link ? <><a href="#protezione">{numShort(k.link_sospetti)} link sospetti</a></> : 'nessun link estraneo'}
+          caption={k.allerte_link ? <><a href="#protezione">{t('{n} link sospetti', { n: numShort(k.link_sospetti) })}</a></> : t('nessun link estraneo')}
         />
         <KpiCard
           risk
           alert={inactive > 0}
-          label="Licenza GS1 non attiva"
+          label={t('Licenza GS1 non attiva')}
           value={<Counter value={inactive} format={numShort} />}
           full={num(inactive)}
           delta={prev ? <Delta now={inactive} before={prev.licenze_non_attive} good="down" /> : noPrev}
-          visual={<Meter value={share(inactive, k.verificati)} color="var(--orange)" label={`Licenze non attive: ${pct(inactive, k.verificati)} dei prodotti verificati`} />}
-          caption={inactive ? <><a href="#protezione">{pct(inactive, k.verificati)}</a> dei verificati</> : 'tutte attive'}
+          visual={<Meter value={share(inactive, k.verificati)} color="var(--orange)" label={t('Licenze non attive: {pct} dei prodotti verificati', { pct: pct(inactive, k.verificati) })} />}
+          caption={inactive ? <><a href="#protezione">{pct(inactive, k.verificati)}</a> {t('dei verificati')}</> : t('tutte attive')}
         />
       </div>
     </section>

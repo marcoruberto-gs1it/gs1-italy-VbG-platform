@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { t } from '../../i18n'
 import { countryName } from '../../lib/format'
 import type { MapMetric } from '../../lib/stats'
 import type { DashboardData } from '../../lib/types'
@@ -21,7 +22,7 @@ export function WorldMap({ data, metric, onMetric, focus, toolbar }: Props) {
       stats={stats}
       metric={metric}
       onMetric={onMetric}
-      label={shape ? `Mappa: ${countryName(focus!)}` : 'Mappa del mondo per paese'}
+      label={shape ? t('Mappa: {country}', { country: countryName(focus!) }) : t('Mappa del mondo per paese')}
       nameOf={(s) => countryName(s.code)}
       viewBox={shape ? shapeViewBox(shape.d) : undefined}
       focus={shape?.code}

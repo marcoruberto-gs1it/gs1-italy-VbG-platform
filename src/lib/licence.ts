@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 /*
  * Licenza GS1 scaduta o non attiva: lo stato della licenza o della scheda riportato da Verified by GS1
  * è diverso da "attivo". Stessa regola della funzione licence_inactive nel database.
@@ -10,15 +11,17 @@ export function isLicenceInactive(licence: string | null | undefined, record: st
 }
 
 /** Stati di Verified by GS1 in italiano; quelli sconosciuti restano come arrivano. */
+/** Segna un testo da tradurre senza tradurlo subito. */
+const k = (s: string) => s
 const STATE_IT: Record<string, string> = {
-  INACTIVE: 'non attiva', LAPSED: 'scaduta', EXPIRED: 'scaduta', SUSPENDED: 'sospesa', TERMINATED: 'cessata',
-  WITHDRAWN: 'ritirata', DISCONTINUED: 'ritirata', CANCELLED: 'annullata', TRANSFERRED: 'trasferita',
+  INACTIVE: k('non attiva'), LAPSED: k('scaduta'), EXPIRED: k('scaduta'), SUSPENDED: k('sospesa'), TERMINATED: k('cessata'),
+  WITHDRAWN: k('ritirata'), DISCONTINUED: k('ritirata'), CANCELLED: k('annullata'), TRANSFERRED: k('trasferita'),
 }
-const it = (state: string) => STATE_IT[state.toUpperCase()] ?? state.toLowerCase()
+const it = (state: string) => t(STATE_IT[state.toUpperCase()] ?? state.toLowerCase())
 
 /** Spiegazione breve dello stato, per tabelle e dettaglio. */
 export function licenceLabel(licence: string | null | undefined, record: string | null | undefined) {
-  if (licence != null && !ACTIVE_LICENCE.has(licence.toUpperCase())) return `Licenza ${it(licence)}`
-  if (record != null && !ACTIVE_RECORD.has(record.toUpperCase())) return `Scheda ${it(record)}`
-  return 'Attiva'
+  if (licence != null && !ACTIVE_LICENCE.has(licence.toUpperCase())) return t('Licenza {state}', { state: it(licence) })
+  if (record != null && !ACTIVE_RECORD.has(record.toUpperCase())) return t('Scheda {state}', { state: it(record) })
+  return t('Attiva')
 }

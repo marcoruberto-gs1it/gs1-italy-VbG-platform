@@ -2,6 +2,7 @@
 export { Counter } from './Counter'
 export { Delta } from './Delta'
 export { InfoPopover } from './InfoPopover'
+export { LangSwitch } from './LangSwitch'
 export { Panel, SectionHeader } from './Panel'
 export { Select, type SelectOption } from './Select'
 export { StatusPill, type Tone } from './StatusPill'

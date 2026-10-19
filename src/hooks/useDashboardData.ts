@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { demoData, demoPrevious, scaleDemo } from '../lib/demo'
+import { t } from '../i18n'
 import { supabase } from '../lib/supabase'
 import type { DashboardData, Kpi } from '../lib/types'
 
@@ -55,13 +56,13 @@ export function useDashboardData({ days, country, demo, signedIn }: Query): Dash
         if (cancelled) return
         if (current.error) {
           const forbidden = current.error.code === '42501'
-          setResult({ key, data: null, previous: null, forbidden, error: forbidden ? null : `Impossibile caricare i dati: ${current.error.message}` })
+          setResult({ key, data: null, previous: null, forbidden, error: forbidden ? null : t('Impossibile caricare i dati: {error}', { error: current.error.message }) })
           return
         }
         setResult({ key, data: current.data as DashboardData, previous: prev.error ? null : (prev.data as DashboardData).kpi, error: null, forbidden: false })
       })
       .catch((e: unknown) => {
-        if (!cancelled) setResult({ key, data: null, previous: null, forbidden: false, error: `Impossibile caricare i dati: ${e instanceof Error ? e.message : String(e)}` })
+        if (!cancelled) setResult({ key, data: null, previous: null, forbidden: false, error: t('Impossibile caricare i dati: {error}', { error: e instanceof Error ? e.message : String(e) }) })
       })
     return () => {
       cancelled = true

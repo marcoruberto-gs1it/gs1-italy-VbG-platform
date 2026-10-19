@@ -9,13 +9,15 @@ import type { EventFilters, EventsPage, ScanEvent } from '../../../lib/types'
 import { Panel, Select, StatusPill, type SelectOption } from '../../ui'
 import { EventDetail } from './EventDetail'
 import { EventStatus } from './EventStatus'
+import { t } from '../../../i18n'
+import { symbologyName } from '../../../lib/symbology'
 
 const PAGE_SIZE = 25
 const EMPTY: EventFilters = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '' }
 
 const options = (all: string, map: LabelMap | Record<string, string>): SelectOption<string>[] => [
   { value: '', label: all },
-  ...Object.entries(map).map(([value, v]) => ({ value, label: typeof v === 'string' ? v : v[0] })),
+  ...Object.entries(map).map(([value, v]) => ({ value, label: typeof v === 'string' ? v : t(v[0]) })),
 ]
 
 type Props = { days: number; country: string; demo: boolean; symbologies: string[]; initialSearch?: string }
@@ -38,11 +40,11 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
   // Ricerca libera con un attimo di attesa, per non interrogare a ogni tasto.
   useEffect(() => {
     if (filters.q === search) return
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setFilters((f) => ({ ...f, q: search }))
       setPage(0)
     }, 300)
-    return () => clearTimeout(t)
+    return () => clearTimeout(timer)
   }, [search, filters.q])
 
   const requestKey = JSON.stringify({ days, country, filters, page, demo })
@@ -69,21 +71,21 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
 
   return (
     <Panel
-      title="Tutte le scansioni"
-      subtitle="Una riga per scansione, dalla più recente. Apri una riga per il dettaglio e la scheda attuale su Verified by GS1."
+      title={t('Tutte le scansioni')}
+      subtitle={t('Una riga per scansione, dalla più recente. Apri una riga per il dettaglio e la scheda attuale su Verified by GS1.')}
       className="raw-panel"
     >
       <div className="raw-filters">
         <label className="raw-search">
           <Search size={17} aria-hidden="true" />
-          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca codice, titolare, categoria, dominio" aria-label="Cerca nelle scansioni" />
+          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('Cerca codice, titolare, categoria, dominio')} aria-label={t('Cerca nelle scansioni')} />
         </label>
-        <Select align="left" label="Simbologia" value={filters.symbology} onChange={(v) => setFilter('symbology', v)} options={[{ value: '', label: 'Tutte le simbologie' }, ...symbologies.map((s) => ({ value: s, label: s }))]} />
-        <Select align="left" label="Esito GS1" value={filters.compliance} onChange={(v) => setFilter('compliance', v)} options={options('Ogni esito GS1', COMPLIANCE_LABELS)} />
-        <Select align="left" label="Verified by GS1" value={filters.vbg_state} onChange={(v) => setFilter('vbg_state', v)} options={options('Ogni esito VbG', VBG_LABELS)} />
-        <Select align="left" label="Link" value={filters.link_level} onChange={(v) => setFilter('link_level', v)} options={options('Con e senza link', LINK_LABELS)} />
-        <Select align="left" label="Licenza GS1" value={filters.licence} onChange={(v) => setFilter('licence', v)} options={options('Ogni licenza', LICENCE_LABELS)} />
-        <Select align="left" label="Origine" value={filters.source} onChange={(v) => setFilter('source', v)} options={options('Ogni origine', SOURCE_LABELS)} />
+        <Select align="left" label={t('Simbologia')} value={filters.symbology} onChange={(v) => setFilter('symbology', v)} options={[{ value: '', label: t('Tutte le simbologie') }, ...symbologies.map((s) => ({ value: s, label: symbologyName(s) }))]} />
+        <Select align="left" label={t('Esito GS1')} value={filters.compliance} onChange={(v) => setFilter('compliance', v)} options={options(t('Ogni esito GS1'), COMPLIANCE_LABELS)} />
+        <Select align="left" label={t('Verified by GS1')} value={filters.vbg_state} onChange={(v) => setFilter('vbg_state', v)} options={options(t('Ogni esito VbG'), VBG_LABELS)} />
+        <Select align="left" label={t('Link')} value={filters.link_level} onChange={(v) => setFilter('link_level', v)} options={options('Con e senza link', LINK_LABELS)} />
+        <Select align="left" label={t('Licenza GS1')} value={filters.licence} onChange={(v) => setFilter('licence', v)} options={options(t('Ogni licenza'), LICENCE_LABELS)} />
+        <Select align="left" label={t('Origine')} value={filters.source} onChange={(v) => setFilter('source', v)} options={options(t('Ogni origine'), SOURCE_LABELS)} />
         {active > 0 && (
           <button className="chip-btn" type="button" onClick={() => { setFilters(EMPTY); setSearch(''); setPage(0) }}>
             <X size={14} /> Azzera filtri
@@ -99,13 +101,13 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
             <table className="raw-table">
               <thead>
                 <tr>
-                  <th>Data e ora</th>
-                  <th>Codice</th>
-                  <th>Prodotto e titolare</th>
-                  <th>Esito GS1</th>
+                  <th>{t('Data e ora')}</th>
+                  <th>{t('Codice')}</th>
+                  <th>{t('Prodotto e titolare')}</th>
+                  <th>{t('Esito GS1')}</th>
                   <th>Verified by GS1</th>
-                  <th>Regione</th>
-                  <th><span className="visually-hidden">Dettaglio</span></th>
+                  <th>{t('Regione')}</th>
+                  <th><span className="visually-hidden">{t('Dettaglio')}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -114,7 +116,7 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
                     <td className="raw-when">{dateTime(e.created_at)}</td>
                     <td className="raw-code">
                       <span className="raw-stack">
-                        <small>{e.symbology ?? '–'}</small>
+                        <small>{symbologyName(e.symbology)}</small>
                         <code>{keyLabel(e) ?? e.link_domain ?? '–'}</code>
                       </span>
                     </td>
@@ -128,28 +130,28 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
                     <td>
                       <span className="raw-pills">
                         <EventStatus map={VBG_LABELS} value={e.vbg_state} />
-                        {isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) && <StatusPill tone="critical">Licenza non attiva</StatusPill>}
+                        {isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) && <StatusPill tone="critical">{t('Licenza non attiva')}</StatusPill>}
                       </span>
                     </td>
                     <td className="raw-region">{regionName(e.country, e.region_code, e.region)}</td>
                     <td className="raw-open">
-                      <button className="chip-btn" type="button" onClick={(ev) => { ev.stopPropagation(); setSelected(e) }} aria-label={`Dettaglio della scansione del ${dateTime(e.created_at)}`}>
-                        Dettaglio <ChevronRight size={14} />
+                      <button className="chip-btn" type="button" onClick={(ev) => { ev.stopPropagation(); setSelected(e) }} aria-label={t('Dettaglio della scansione del {when}', { when: dateTime(e.created_at) })}>
+                        {t('Dettaglio')} <ChevronRight size={14} />
                       </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {data && !data.rows.length && <p className="raw-empty">Nessuna scansione con questi filtri.</p>}
+            {data && !data.rows.length && <p className="raw-empty">{t('Nessuna scansione con questi filtri.')}</p>}
           </div>
 
           <footer className="raw-pager">
-            <span>{total ? `${num(page * PAGE_SIZE + 1)}–${num(Math.min(total, (page + 1) * PAGE_SIZE))} di ${num(total)} scansioni` : loading ? 'Caricamento…' : '0 scansioni'}</span>
+            <span>{total ? t('{from}–{to} di {total} scansioni', { from: num(page * PAGE_SIZE + 1), to: num(Math.min(total, (page + 1) * PAGE_SIZE)), total: num(total) }) : loading ? t('Caricamento…') : t('0 scansioni')}</span>
             <div>
-              <button className="btn ghost icon-only" type="button" disabled={page === 0 || loading} onClick={() => setPage((p) => p - 1)} aria-label="Pagina precedente"><ChevronLeft size={18} /></button>
-              <span className="raw-page">Pagina {page + 1} di {pages}</span>
-              <button className="btn ghost icon-only" type="button" disabled={page + 1 >= pages || loading} onClick={() => setPage((p) => p + 1)} aria-label="Pagina successiva"><ChevronRight size={18} /></button>
+              <button className="btn ghost icon-only" type="button" disabled={page === 0 || loading} onClick={() => setPage((p) => p - 1)} aria-label={t('Pagina precedente')}><ChevronLeft size={18} /></button>
+              <span className="raw-page">{t('Pagina {n} di {total}', { n: page + 1, total: pages })}</span>
+              <button className="btn ghost icon-only" type="button" disabled={page + 1 >= pages || loading} onClick={() => setPage((p) => p + 1)} aria-label={t('Pagina successiva')}><ChevronRight size={18} /></button>
             </div>
           </footer>
         </>

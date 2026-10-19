@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { num, pct, regionName } from '../../lib/format'
 import type { DashboardData } from '../../lib/types'
 import { Empty } from './Empty'
+import { t } from '../../i18n'
 
 export type Column<T> = { label: string; render: (row: T) => ReactNode; numeric?: boolean }
 
@@ -38,10 +39,10 @@ export function RegionTable({ data }: { data: DashboardData['regioni'] }) {
       rows={data}
       rowKey={(r) => `${r.country}-${r.region_code}`}
       columns={[
-        { label: 'Regione', render: (r) => regionName(r.country, r.region_code, r.region) },
-        { label: 'Scansioni', render: (r) => num(r.letture), numeric: true },
-        { label: 'Quota 2D', render: (r) => pct(r.letture_2d, r.letture), numeric: true },
-        { label: 'Conformi GS1', render: (r) => pct(r.conformi, r.letture), numeric: true },
+        { label: t('Regione'), render: (r) => regionName(r.country, r.region_code, r.region) },
+        { label: t('Scansioni'), render: (r) => num(r.letture), numeric: true },
+        { label: t('Quota 2D'), render: (r) => pct(r.letture_2d, r.letture), numeric: true },
+        { label: t('Conformi GS1'), render: (r) => pct(r.conformi, r.letture), numeric: true },
       ]}
     />
   )

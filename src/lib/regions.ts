@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { cityName, countryName, flag, num, pct, regionName } from './format'
 import type { MapMetric } from './stats'
 import type { DashboardData } from './types'
@@ -16,7 +17,7 @@ function rank<T extends Area>(rows: T[], metric: MapMetric, limit: number, key: 
     key: key(r),
     label: label(r),
     value: metric === 'letture' ? r.letture : share2d(r),
-    note: metric === 'letture' ? `2D ${pct(r.letture_2d, r.letture)}` : `${num(r.letture_2d)} su ${num(r.letture)}`,
+    note: metric === 'letture' ? `2D ${pct(r.letture_2d, r.letture)}` : t('{a} su {b}', { a: num(r.letture_2d), b: num(r.letture) }),
   }))
 }
 

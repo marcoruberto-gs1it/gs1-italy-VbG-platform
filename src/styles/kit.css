@@ -56,6 +56,9 @@
 .segmented button.is-active { background: var(--navy); color: #fff; box-shadow: 0 4px 10px -6px rgba(0, 44, 108, 0.6); }
 .segmented.small button { height: 30px; font-size: var(--fs-xs); }
 
+/* Lingua */
+.lang-switch button { min-width: 40px; padding: 0 10px; font-weight: 700; letter-spacing: 0.02em; }
+
 /* ───── Menu a tendina ───── */
 .select { position: relative; min-width: 0; }
 .select-trigger {

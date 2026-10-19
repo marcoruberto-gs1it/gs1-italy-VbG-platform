@@ -4,13 +4,14 @@ import { useReveal } from '../../hooks/useReveal'
 import { num, pct } from '../../lib/format'
 import type { DashboardData } from '../../lib/types'
 import { Empty } from './Empty'
+import { t } from '../../i18n'
 
 const META = {
-  gs1: { label: 'Codice Standard GS1', color: 'var(--good)', icon: CircleCheck },
-  partial: { label: 'Dati GS1 in codice non standard', color: 'var(--warning)', icon: TriangleAlert },
-  error: { label: 'Codice GS1 con errori', color: 'var(--critical)', icon: OctagonAlert },
-  none: { label: 'Non è un codice GS1', color: 'var(--neutral-bar)', icon: CircleSlash },
-  manual: { label: 'Inserito a mano', color: 'var(--neutral-bar-2)', icon: Keyboard },
+  gs1: { get label() { return t('Codice Standard GS1') }, color: 'var(--good)', icon: CircleCheck },
+  partial: { get label() { return t('Dati GS1 in codice non standard') }, color: 'var(--warning)', icon: TriangleAlert },
+  error: { get label() { return t('Codice GS1 con errori') }, color: 'var(--critical)', icon: OctagonAlert },
+  none: { get label() { return t('Non è un codice GS1') }, color: 'var(--neutral-bar)', icon: CircleSlash },
+  manual: { get label() { return t('Inserito a mano') }, color: 'var(--neutral-bar-2)', icon: Keyboard },
 } as const
 const ORDER = ['gs1', 'partial', 'error', 'none', 'manual'] as const
 
@@ -25,7 +26,7 @@ export function ComplianceBar({ data }: { data: DashboardData['conformita'] }) {
   if (!total) return <Empty />
   return (
     <div className="compliance" ref={ref}>
-      <div className="stack" role="img" aria-label="Ripartizione delle scansioni per conformità agli standard GS1">
+      <div className="stack" role="img" aria-label={t('Ripartizione delle scansioni per conformità agli standard GS1')}>
         {ORDER.filter((k) => data[k]).map((k) => (
           <span key={k} style={{ flexGrow: data[k], background: META[k].color }} title={`${META[k].label}: ${num(data[k])} (${pct(data[k] ?? 0, total)})`} />
         ))}

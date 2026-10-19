@@ -1,6 +1,8 @@
 import { LogOut } from 'lucide-react'
 import logo from '../../assets/gs1-italy-logo.png'
+import { t } from '../../i18n'
 import type { Section, SectionId } from '../../lib/config'
+import { LangSwitch } from '../ui'
 
 type Props = { sections: Section[]; active: SectionId; demo: boolean; email?: string; onSignOut: () => void }
 
@@ -13,11 +15,11 @@ export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
         <span><b>VbG</b> Platform</span>
       </div>
       <p className="side-version" title={`build ${__APP_VERSION__}`}>v. {__APP_RELEASE__}</p>
-      <nav aria-label="Sezioni">
-        <p className="side-group">Analisi</p>
+      <nav aria-label={t('Sezioni')}>
+        <p className="side-group">{t('Analisi')}</p>
         {sections.map(({ id, label, icon: Icon }) => (
           <div key={id} className="side-entry">
-            {id === 'dati' && <p className="side-group">Dati</p>}
+            {id === 'dati' && <p className="side-group">{t('Dati')}</p>}
             <a href={`#${id}`} className={`side-item ${active === id ? 'is-active' : ''}`} aria-current={active === id ? 'location' : undefined}>
               <Icon size={19} strokeWidth={1.9} /> <span>{label}</span>
             </a>
@@ -25,11 +27,14 @@ export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
         ))}
       </nav>
       <div className="side-foot side-item">
-        {demo ? <span className="badge is-demo">Dati dimostrativi</span> : <span className="side-user" title={email}>{email}</span>}
+        <div className="side-foot-row">
+          {demo ? <span className="badge is-demo">{t('Dati dimostrativi')}</span> : <span className="side-user" title={email}>{email}</span>}
+          <LangSwitch />
+        </div>
         {demo ? (
-          <a className="btn ghost" href="./">Accedi</a>
+          <a className="btn ghost" href="./">{t('Accedi')}</a>
         ) : (
-          <button className="btn ghost" type="button" onClick={onSignOut}><LogOut size={16} /> Esci</button>
+          <button className="btn ghost" type="button" onClick={onSignOut}><LogOut size={16} /> {t('Esci')}</button>
         )}
       </div>
     </aside>

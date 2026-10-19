@@ -1,3 +1,4 @@
+import { dec1 } from './format'
 /* Calcoli sui numeri della dashboard, senza dipendenze dall'interfaccia. */
 
 /** Quota tra 0 e 1; 0 se il totale è zero. */
@@ -7,7 +8,7 @@ export const share = (part: number, total: number) => (total ? part / total : 0)
 export const prevShare = (part: number | undefined, total: number | undefined) => (part != null && total ? part / total : null)
 
 /** Percentuale già moltiplicata per 100, con un decimale (es. 22,3%). */
-export const pctNum = (n: number) => `${(Math.round(n * 10) / 10).toLocaleString('it-IT')}%`
+export const pctNum = (n: number) => `${dec1(n)}%`
 
 /** Scala con tacche tonde (1, 2, 5 × 10ⁿ), circa quattro intervalli, solo numeri interi. */
 export function niceScale(v: number) {

@@ -1,5 +1,6 @@
 import { SectionHeader } from '../../ui'
 import { RawData } from './RawData'
+import { t } from '../../../i18n'
 
 type Props = { days: number; country: string; demo: boolean; symbologies: string[]; search: string }
 
@@ -7,7 +8,7 @@ type Props = { days: number; country: string; demo: boolean; symbologies: string
 export function RawSection({ days, country, demo, symbologies, search }: Props) {
   return (
     <section className="section">
-      <SectionHeader id="dati" title="Dati grezzi" />
+      <SectionHeader id="dati" title={t('Dati grezzi')} />
       <RawData key={search} days={days} country={country} demo={demo} symbologies={symbologies} initialSearch={search} />
     </section>
   )
