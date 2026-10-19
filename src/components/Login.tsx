@@ -63,6 +63,9 @@ export function Login() {
 
   return (
     <main className="login" ref={root}>
+      <div className="login-lang">
+        <LangSwitch />
+      </div>
       <section className="login-art">
         <div className="login-art-copy">
           <img src={logo} alt="GS1 Italy" width={84} height={58} className="login-logo" />
@@ -80,10 +83,7 @@ export function Login() {
 
       <section className="login-form">
         <div className="login-form-card">
-          <div className="login-form-head">
-            <h2>{t('Accedi')}</h2>
-            <LangSwitch />
-          </div>
+          <h2>{t('Accedi')}</h2>
           <p className="login-lead">{t('Area riservata agli utenti abilitati da GS1 Italy.')}</p>
           {!configured ? (
             <p className="notice">{t('La piattaforma non è ancora collegata a Supabase: manca la chiave pubblica del progetto.')}</p>

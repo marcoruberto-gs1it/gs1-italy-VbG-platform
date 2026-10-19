@@ -80,6 +80,10 @@ export function Topbar({ active, countries, days, country, audience, loading, on
           <RefreshCw size={17} className={loading ? 'spin' : undefined} />
         </button>
       </div>
+      {/* Lingua: nell'angolo in alto a destra, separata dai filtri dei dati. */}
+      <div className="topbar-lang">
+        <LangSwitch />
+      </div>
     </header>
   )
 }

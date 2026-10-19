@@ -2,7 +2,6 @@ import { LogOut } from 'lucide-react'
 import logo from '../../assets/gs1-italy-logo.png'
 import { t } from '../../i18n'
 import type { Section, SectionId } from '../../lib/config'
-import { LangSwitch } from '../ui'
 
 type Props = { sections: Section[]; active: SectionId; demo: boolean; email?: string; onSignOut: () => void }
 
@@ -27,10 +26,7 @@ export function Sidebar({ sections, active, demo, email, onSignOut }: Props) {
         ))}
       </nav>
       <div className="side-foot side-item">
-        <div className="side-foot-row">
-          {demo ? <span className="badge is-demo">{t('Dati dimostrativi')}</span> : <span className="side-user" title={email}>{email}</span>}
-          <LangSwitch />
-        </div>
+        {demo ? <span className="badge is-demo">{t('Dati dimostrativi')}</span> : <span className="side-user" title={email}>{email}</span>}
         {demo ? (
           <a className="btn ghost" href="./">{t('Accedi')}</a>
         ) : (

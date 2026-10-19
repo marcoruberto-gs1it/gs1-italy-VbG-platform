@@ -4,7 +4,16 @@ import { Check, ChevronDown } from 'lucide-react'
 import { useDismiss } from '../../hooks/useDismiss'
 import { gsap, motionOk, useGSAP } from '../../lib/motion'
 
-export type SelectOption<T extends string> = { value: T; label: string; hint?: string; icon?: LucideIcon }
+export type SelectOption<T extends string> = {
+  value: T
+  label: string
+  hint?: string
+  icon?: LucideIcon
+  /** Testo breve mostrato nel pulsante in modalità compatta (es. IT). */
+  short?: string
+  /** Lingua del testo dell'opzione (es. nomi delle lingue). */
+  lang?: string
+}
 
 type Props<T extends string> = {
   value: T
@@ -13,10 +22,12 @@ type Props<T extends string> = {
   label: string
   icon?: LucideIcon
   align?: 'left' | 'right'
+  /** Pulsante stretto: mostra solo il testo breve dell'opzione scelta. */
+  compact?: boolean
 }
 
 /** Menu a tendina del UI kit (al posto del <select> nativo): lista accessibile da tastiera. */
-export function Select<T extends string>({ value, options, onChange, label, icon: TriggerIcon, align = 'right' }: Props<T>) {
+export function Select<T extends string>({ value, options, onChange, label, icon: TriggerIcon, align = 'right', compact = false }: Props<T>) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const root = useRef<HTMLDivElement>(null)
@@ -66,9 +77,9 @@ export function Select<T extends string>({ value, options, onChange, label, icon
     }
   }
 
-  const CurrentIcon = current.icon ?? TriggerIcon
+  const CurrentIcon = compact ? TriggerIcon : (current.icon ?? TriggerIcon)
   return (
-    <div className={`select align-${align} ${open ? 'is-open' : ''}`} ref={root}>
+    <div className={`select align-${align} ${compact ? 'is-compact' : ''} ${open ? 'is-open' : ''}`} ref={root}>
       <button
         type="button"
         className="select-trigger"
@@ -80,7 +91,7 @@ export function Select<T extends string>({ value, options, onChange, label, icon
         onKeyDown={onKeyDown}
       >
         {CurrentIcon && <CurrentIcon size={17} aria-hidden="true" />}
-        <span>{current.label}</span>
+        <span>{compact ? (current.short ?? current.label) : current.label}</span>
         <ChevronDown size={16} className="select-chevron" aria-hidden="true" />
       </button>
       {open && (
@@ -92,6 +103,7 @@ export function Select<T extends string>({ value, options, onChange, label, icon
                 key={o.value}
                 id={`${listId}-${i}`}
                 role="option"
+                lang={o.lang}
                 aria-selected={o.value === value}
                 className={`select-option ${i === active ? 'is-active' : ''} ${o.value === value ? 'is-selected' : ''}`}
                 onMouseEnter={() => setActive(i)}

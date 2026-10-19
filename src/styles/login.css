@@ -2,7 +2,8 @@
    VbG Platform · accesso e schermate di servizio
    ============================================================================ */
 
-.login { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); min-height: 100vh; }
+.login-lang { position: absolute; top: 20px; right: 24px; z-index: 5; }
+.login { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); min-height: 100vh; }
 .login-art {
   position: relative; overflow: hidden; display: grid; align-content: center; gap: 24px; padding: clamp(28px, 5vw, 64px); color: #fff;
   background: radial-gradient(120% 120% at 80% 0%, #1d4f9a 0%, #0b3a80 40%, #002c6c 75%), var(--navy);
@@ -37,7 +38,6 @@
 .card-message p { color: var(--ink-2); line-height: 1.55; font-size: var(--fs-sm); }
 .message-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; background: var(--critical-bg); color: var(--critical-ink); }
 
-.login-form-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .login-version { font-size: 11px; color: var(--muted); text-align: center; }
 .login-form-card { box-sizing: border-box; }
 
@@ -63,4 +63,7 @@
 @media (max-height: 680px) and (max-width: 1080px) {
   .login-art .eyebrow { display: none; }
   .login-art { padding-top: 14px; padding-bottom: 56px; }
+}
+@media (max-width: 720px) {
+  .login-lang { top: 16px; right: 16px; }
 }

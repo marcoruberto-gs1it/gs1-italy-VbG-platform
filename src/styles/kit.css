@@ -56,8 +56,11 @@
 .segmented button.is-active { background: var(--navy); color: #fff; box-shadow: 0 4px 10px -6px rgba(0, 44, 108, 0.6); }
 .segmented.small button { height: 30px; font-size: var(--fs-xs); }
 
-/* Lingua */
-.lang-switch button { min-width: 40px; padding: 0 10px; font-weight: 700; letter-spacing: 0.02em; }
+/* Menu compatto (lingua): solo icona e testo breve, elenco stretto. */
+.select.is-compact .select-trigger { width: auto; height: 38px; gap: 6px; padding: 0 10px 0 11px; }
+.select.is-compact .select-trigger span { font-weight: 700; letter-spacing: 0.03em; color: var(--navy); }
+.select.is-compact .select-chevron { width: 15px; height: 15px; }
+.select.is-compact .select-menu { min-width: 180px; }
 
 /* ───── Menu a tendina ───── */
 .select { position: relative; min-width: 0; }
