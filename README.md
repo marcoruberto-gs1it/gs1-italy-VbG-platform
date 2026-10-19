@@ -68,7 +68,7 @@ Barra in alto: periodo, area (mondo o un paese, unica per tutta la pagina) e vis
 
 Demo: `?demo` mostra dati generati nel browser; `?demo&scala=1000` moltiplica i conteggi per vedere l'interfaccia con numeri molto grandi.
 
-Lingue: italiano e inglese. La lingua si sceglie con `?lang=it|en`, poi con la scelta salvata (menu della lingua in alto a destra, anche su telefono e nella login), poi con la prima lingua del browser (italiano se è italiano, altrimenti inglese). I testi restano in italiano nel codice dentro `t('…')`; le traduzioni sono in `src/i18n/en.json`, e un test blocca la pubblicazione se ne manca una.
+Lingue: italiano e inglese. La lingua si sceglie con `?lang=it|en`, poi con la scelta salvata (menu della lingua in alto a destra, anche su telefono e nella login), poi con le lingue preferite del browser, in ordine (la prima tra italiano e inglese; altrimenti inglese). La scelta si salva solo se diversa dalla lingua del browser, ed è condivisa con l'app di scansione (stesso dominio). I testi restano in italiano nel codice dentro `t('…')`; le traduzioni sono in `src/i18n/en.json`, e un test blocca la pubblicazione se ne manca una.
 
 Comandi: `npm run dev`, `npm test` (Vitest), `npm run lint`, `npm run build`.
 La pubblicazione su GitHub Pages esegue lint e test prima della build: se uno fallisce, il sito non viene aggiornato.
