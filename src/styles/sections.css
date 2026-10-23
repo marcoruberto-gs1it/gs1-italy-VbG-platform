@@ -140,6 +140,7 @@
 .drawer-section h3, .live-vbg h3 { font-size: var(--fs-sm); font-weight: 700; color: var(--navy); }
 .drawer-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 0; }
 .drawer-dl dt { font-size: var(--fs-xs); color: var(--muted); }
+.drawer-line { display: block; }
 .drawer-dl dd { margin: 2px 0 0; font-size: var(--fs-sm); font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 .live-vbg { box-shadow: inset 0 0 0 1.5px var(--navy-2); }
 .live-vbg header p { margin-top: 2px; font-size: var(--fs-xs); color: var(--muted); }

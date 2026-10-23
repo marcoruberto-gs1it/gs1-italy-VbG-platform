@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ImageOff, X } from 'lucide-react'
-import { COMPLIANCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, labelFor } from '../../../lib/eventLabels'
+import { ASSOC_LABELS, COMPLIANCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, labelFor } from '../../../lib/eventLabels'
 import { cityName, countryName, dateTime, regionName } from '../../../lib/format'
 import { gsap, motionOk, useGSAP } from '../../../lib/motion'
 import type { ScanEvent } from '../../../lib/types'
@@ -10,6 +10,7 @@ import { StatusPill } from '../../ui'
 import { EventStatus } from './EventStatus'
 import { t } from '../../../i18n'
 import { symbologyName } from '../../../lib/symbology'
+import { describeNotice } from '../../../lib/associations'
 
 /* ───── Dettaglio di una scansione: i dati salvati e la scheda attuale su Verified by GS1 ───── */
 
@@ -69,6 +70,7 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
             <EventStatus map={VBG_LABELS} value={e.vbg_state} />
             {isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) && <StatusPill tone="critical">{t('Licenza non attiva')}</StatusPill>}
             {e.link_domain && <EventStatus map={LINK_LABELS} value={e.link_level} />}
+            {e.assoc_notices?.length ? <StatusPill tone={e.assoc_outcome === 'declined' ? 'critical' : 'warning'}>{t('Avvisi sui dati')}</StatusPill> : null}
           </div>
 
           {canLookup(e.primary_ai) && e.primary_key && <LiveVbg ai={e.primary_ai!} value={e.primary_key} demo={demo} />}
@@ -83,6 +85,13 @@ export function EventDetail({ event: e, demo, onClose }: { event: ScanEvent; dem
               <Row label={t('Cifra di controllo')}>{yesNo(e.check_digit_ok)}</Row>
               <Row label={t('Sintassi GS1 corretta')}>{yesNo(e.syntax_ok)}</Row>
               {e.syntax_error && <Row label={t('Errore di sintassi')}>{e.syntax_error}</Row>}
+              {(e.barcode_count ?? 1) > 1 && <Row label={t('Barcode letti')}>{t('{n} barcode dello stesso articolo', { n: e.barcode_count! })}</Row>}
+              {e.assoc_notices?.length ? (
+                <Row label={t('Avvisi sui dati')}>
+                  {e.assoc_notices.map((code) => <span key={code} className="drawer-line">{describeNotice(code).title}</span>)}
+                </Row>
+              ) : null}
+              {e.assoc_outcome && e.assoc_outcome !== 'completed' && <Row label={t('Altro barcode')}>{labelFor(ASSOC_LABELS, e.assoc_outcome)[0]}</Row>}
               <Row label={t('Prefisso emesso da')}>{e.issuer_mo}</Row>
             </dl>
           </section>

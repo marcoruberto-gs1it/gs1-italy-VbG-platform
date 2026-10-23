@@ -37,6 +37,10 @@ export type DashboardData = {
   allerte: { company_prefix: string | null; titolare: string | null; gtin: string; dominio: string; somiglia_a: string | null; sospetto: boolean; segnalato_google: boolean; letture: number; ultima: string; regioni: string[] | null }[]
   non_assegnati: { inizio_codice: string; letture: number; codici: number; ultima: string }[]
   domini: { dominio: string; letture: number; verificati: number; sospetti: number }[]
+  /** Avvisi sulle associazioni obbligatorie tra AI (assente nei database non aggiornati). */
+  associazioni?: { avviso: string; letture: number; confermati: number; senza_risposta: number; aziende: number; esempio: string | null }[]
+  /** Articoli letti da più barcode. */
+  piu_barcode?: { articoli: number; completati: number }
 }
 
 export type ErrorReason = { tipo: 'cifra' | 'sintassi' | 'non_standard'; simbologia: string | null; errore: string | null; letture: number; esempio: string | null }
@@ -81,6 +85,12 @@ export type ScanEvent = {
   link_level: 'trusted' | 'unknown' | 'danger' | 'pending' | null
   link_imitates: string | null
   link_threats: string[] | null
+  /** Barcode letti per l'articolo (più di 1: dati su più barcode). Assente nei database non aggiornati. */
+  barcode_count?: number | null
+  /** Avvisi sulle associazioni obbligatorie tra AI, es. missing:3922 (vedi lib/associations.ts). */
+  assoc_notices?: string[] | null
+  /** Risposta alla domanda sull'altro barcode. */
+  assoc_outcome?: 'completed' | 'declined' | 'unanswered' | null
 }
 
 export type EventFilters = {
@@ -91,6 +101,7 @@ export type EventFilters = {
   link_level: string
   source: string
   licence: string
+  assoc: string
 }
 
 export type EventsPage = { total: number; rows: ScanEvent[] }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
-import { COMPLIANCE_LABELS, LICENCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, productLabel, type LabelMap } from '../../../lib/eventLabels'
+import { ASSOC_LABELS, COMPLIANCE_LABELS, LICENCE_LABELS, LINK_LABELS, SOURCE_LABELS, VBG_LABELS, keyLabel, productLabel, type LabelMap } from '../../../lib/eventLabels'
 import { isLicenceInactive } from '../../../lib/licence'
 import { fetchEvents } from '../../../lib/events'
 import { dateTime, num, regionName } from '../../../lib/format'
@@ -13,7 +13,7 @@ import { t } from '../../../i18n'
 import { symbologyName } from '../../../lib/symbology'
 
 const PAGE_SIZE = 25
-const EMPTY: EventFilters = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '' }
+const EMPTY: EventFilters = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '', assoc: '' }
 
 const options = (all: string, map: LabelMap | Record<string, string>): SelectOption<string>[] => [
   { value: '', label: all },
@@ -85,6 +85,7 @@ export function RawData({ days, country, demo, symbologies, initialSearch = '' }
         <Select align="left" label={t('Verified by GS1')} value={filters.vbg_state} onChange={(v) => setFilter('vbg_state', v)} options={options(t('Ogni esito VbG'), VBG_LABELS)} />
         <Select align="left" label={t('Link')} value={filters.link_level} onChange={(v) => setFilter('link_level', v)} options={options('Con e senza link', LINK_LABELS)} />
         <Select align="left" label={t('Licenza GS1')} value={filters.licence} onChange={(v) => setFilter('licence', v)} options={options(t('Ogni licenza'), LICENCE_LABELS)} />
+        <Select align="left" label={t('Avvisi sui dati')} value={filters.assoc} onChange={(v) => setFilter('assoc', v)} options={options(t('Con e senza avvisi'), ASSOC_LABELS)} />
         <Select align="left" label={t('Origine')} value={filters.source} onChange={(v) => setFilter('source', v)} options={options(t('Ogni origine'), SOURCE_LABELS)} />
         {active > 0 && (
           <button className="chip-btn" type="button" onClick={() => { setFilters(EMPTY); setSearch(''); setPage(0) }}>

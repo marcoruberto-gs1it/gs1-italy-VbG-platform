@@ -35,6 +35,14 @@ export const LICENCE_LABELS: LabelMap = {
   active: [k('Licenza attiva'), 'good'],
 }
 
+/** Filtro sugli avvisi delle associazioni tra AI e sulla risposta dell'utente. */
+export const ASSOC_LABELS: LabelMap = {
+  any: [k('Con avvisi sui dati'), 'warning'],
+  unanswered: [k('Avvisi senza risposta'), 'warning'],
+  declined: [k('Avvisi confermati (nessun altro barcode)'), 'critical'],
+  completed: [k('Completati con un altro barcode'), 'good'],
+}
+
 export const SOURCE_LABELS: Record<ScanEvent['source'], string> = {
   get camera() { return t('Fotocamera') },
   get image() { return t('Da foto') },

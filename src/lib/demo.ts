@@ -167,6 +167,12 @@ export function demoData(days: number): DashboardData {
       { dominio: 'marchio-esernpio.com', letture: 17, verificati: 0, sospetti: 17 },
       { dominio: 'promo-qr.example', letture: 6, verificati: 0, sospetti: 0 },
     ],
+    associazioni: [
+      { avviso: 'variable-measure:01', letture: 38, confermati: 9, senza_risposta: 21, aziende: 4, esempio: '98012345000013' },
+      { avviso: 'missing:3922', letture: 14, confermati: 3, senza_risposta: 8, aziende: 2, esempio: '08012345000017' },
+      { avviso: 'fixed-gtin:3103', letture: 6, confermati: 0, senza_risposta: 0, aziende: 1, esempio: '18012345000010' },
+    ],
+    piu_barcode: { articoli: 52, completati: 47 },
   }
 }
 
@@ -243,6 +249,10 @@ function buildDemoRows(): ScanEvent[] {
       link_level: link ? (suspicious ? 'danger' : 'trusted') : null,
       link_imitates: suspicious ? 'marchio-esempio.com' : null,
       link_threats: suspicious && r() < 0.5 ? ['SOCIAL_ENGINEERING'] : null,
+      // Avvisi sulle associazioni tra AI e letture da più barcode, su alcune righe.
+      barcode_count: isGs1 && i % 41 === 0 ? 2 : 1,
+      assoc_notices: isGs1 && i % 37 === 0 ? ['variable-measure:01'] : isGs1 && i % 53 === 0 ? ['missing:3922'] : null,
+      assoc_outcome: isGs1 && i % 41 === 0 ? 'completed' : isGs1 && i % 37 === 0 ? (i % 2 ? 'declined' : 'unanswered') : isGs1 && i % 53 === 0 ? 'unanswered' : null,
     }
   })
 }
@@ -258,6 +268,8 @@ export function demoEvents(days: number, filters: EventFilters, limit: number, o
     (!filters.vbg_state || (filters.vbg_state === 'none' ? e.vbg_state == null : e.vbg_state === filters.vbg_state)) &&
     (!filters.link_level || (filters.link_level === 'none' ? e.link_domain == null : e.link_level === filters.link_level)) &&
     (!filters.source || e.source === filters.source) &&
+    (!filters.assoc ||
+      (filters.assoc === 'any' ? Boolean(e.assoc_notices?.length) : e.assoc_outcome === filters.assoc)) &&
     (!filters.licence ||
       (filters.licence === 'inactive' ? isLicenceInactive(e.vbg_licence_status, e.vbg_record_status) : (e.vbg_state === 'verified' || e.vbg_state === 'licensed') && !isLicenceInactive(e.vbg_licence_status, e.vbg_record_status))) &&
     (!q || [e.primary_key, e.licensee_name, e.gpc_brick_name, e.link_domain].some((v) => v?.toLowerCase().includes(q)) || Boolean(e.company_prefix?.startsWith(q)))

@@ -5,6 +5,7 @@ import { ComplianceBar, Empty } from '../charts'
 import { InfoPopover, Panel, SectionHeader, StatusPill } from '../ui'
 import { t } from '../../i18n'
 import { symbologyName } from '../../lib/symbology'
+import { describeNotice } from '../../lib/associations'
 
 const TONE = { cifra: 'critical', sintassi: 'critical', non_standard: 'warning' } as const
 const TAG = {
@@ -101,6 +102,47 @@ function SyntaxTable({ rows }: { rows: DashboardData['errori_sintassi'] }) {
   )
 }
 
+/** Avvisi sulle associazioni obbligatorie tra AI: dati mancanti o incoerenti, con la risposta degli utenti. */
+function AssociationTable({ rows }: { rows: NonNullable<DashboardData['associazioni']> }) {
+  if (!rows.length) return <Empty text={t('Nessun avviso nel periodo.')} />
+  return (
+    <div className="err-table-wrap">
+      <table className="err-table is-syntax">
+        <thead>
+          <tr>
+            <th className="c-reason">{t('Avviso')}</th>
+            <th className="c-count num">{t('Scansioni')}</th>
+            <th className="c-info"><span className="visually-hidden">{t('Spiegazione')}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((x) => {
+            const d = describeNotice(x.avviso)
+            return (
+              <tr key={x.avviso}>
+                <td className="err-reason" title={d.title}>{d.title}</td>
+                <td data-unit={t('scansioni')} className="num err-count">{num(x.letture)}</td>
+                <td className="err-info">
+                  <InfoPopover label={t('Perché è un avviso: {reason}', { reason: d.title })}>
+                    <b className="info-title">{d.title}</b>
+                    <span className="info-text">{d.detail}</span>
+                    <code className="info-code">{x.avviso}</code>
+                    <span className="info-text"><b>{t('Come correggere:')}</b> {d.fix}</span>
+                    <span className="info-muted">
+                      {t('{c} confermati dall’utente (nessun altro barcode) · {u} senza risposta · {a} aziende', { c: num(x.confermati), u: num(x.senza_risposta), a: num(x.aziende) })}
+                      {x.esempio && <> {t('· esempio')} <code>{gtinDisplay(x.esempio)}</code></>}
+                    </span>
+                  </InfoPopover>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 /** Qualità dei codici: conformità, errori di sintassi, aziende con errori. */
 export function Quality({ data }: { data: DashboardData }) {
   return (
@@ -114,6 +156,16 @@ export function Quality({ data }: { data: DashboardData }) {
           <SyntaxTable rows={data.errori_sintassi} />
         </Panel>
       </div>
+      {data.associazioni && (
+        <Panel
+          title={t('Dati mancanti o incoerenti tra AI')}
+          subtitle={data.piu_barcode?.articoli
+            ? t('Associazioni obbligatorie GS1 (§4.13.2). {n} articoli letti da più barcode, {c} completati così.', { n: num(data.piu_barcode.articoli), c: num(data.piu_barcode.completati) })
+            : t('Associazioni obbligatorie GS1 (§4.13.2). Clicca l’icona per la spiegazione.')}
+        >
+          <AssociationTable rows={data.associazioni} />
+        </Panel>
+      )}
       <Panel title={t('Aziende con errori nei codici')} subtitle={t('Una riga per ogni motivo di errore. Clicca l’icona per il motivo e la correzione.')}>
         <ErrorTable rows={errorRows(data.qualita)} />
       </Panel>

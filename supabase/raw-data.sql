@@ -15,6 +15,7 @@
 --   link_level  trusted | unknown | danger | pending | none (= senza link)
 --   source      camera | image | manual
 --   licence     inactive (licenza scaduta o non attiva) | active
+--   assoc       any (con avvisi sulle associazioni tra AI) | unanswered | declined | completed
 -- ============================================================================
 
 create or replace function public.dashboard_events(
@@ -36,6 +37,7 @@ declare
   f_link  text := nullif(p_filters ->> 'link_level', '');
   f_src   text := nullif(p_filters ->> 'source', '');
   f_lic   text := nullif(p_filters ->> 'licence', '');
+  f_assoc text := nullif(p_filters ->> 'assoc', '');
   result  jsonb;
 begin
   if not public.is_dashboard_user() then
@@ -54,6 +56,9 @@ begin
       and (f_lic  is null
         or (f_lic = 'inactive' and public.licence_inactive(vbg_licence_status, vbg_record_status))
         or (f_lic = 'active' and vbg_state in ('verified', 'licensed') and not public.licence_inactive(vbg_licence_status, vbg_record_status)))
+      and (f_assoc is null
+        or (f_assoc = 'any' and cardinality(assoc_notices) > 0)
+        or assoc_outcome = f_assoc)
       and (q is null
         or primary_key    ilike '%' || q || '%'
         or company_prefix ilike q || '%'

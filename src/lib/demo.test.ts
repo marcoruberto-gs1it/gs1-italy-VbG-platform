@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { demoData, demoEvents, scaleDemo } from './demo'
 
-const none = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '' }
+const none = { q: '', symbology: '', compliance: '', vbg_state: '', link_level: '', source: '', licence: '', assoc: '' }
 
 describe('demoEvents', () => {
   it('pagina e conta le righe', () => {
@@ -14,6 +14,10 @@ describe('demoEvents', () => {
     expect(errors.rows.every((r) => r.compliance === 'error')).toBe(true)
     const noLink = demoEvents(90, { ...none, link_level: 'none' }, 200, 0)
     expect(noLink.rows.every((r) => r.link_domain == null)).toBe(true)
+    const notices = demoEvents(90, { ...none, assoc: 'any' }, 200, 0)
+    expect(notices.rows.length > 0 && notices.rows.every((r) => r.assoc_notices?.length)).toBe(true)
+    const declined = demoEvents(90, { ...none, assoc: 'declined' }, 200, 0)
+    expect(declined.rows.every((r) => r.assoc_outcome === 'declined')).toBe(true)
     const search = demoEvents(90, { ...none, q: '8076802085738' }, 200, 0)
     expect(search.rows.every((r) => r.primary_key?.includes('8076802085738'))).toBe(true)
   })

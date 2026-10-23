@@ -14,6 +14,9 @@ alter table public.scan_events add column if not exists brand_name text;
 alter table public.scan_events add column if not exists vbg_record_status text;
 alter table public.scan_events add column if not exists vbg_licence_status text;
 alter table public.scan_events add column if not exists city text;
+alter table public.scan_events add column if not exists barcode_count smallint;
+alter table public.scan_events add column if not exists assoc_notices text[];
+alter table public.scan_events add column if not exists assoc_outcome text;
 
 -- Licenza GS1 scaduta o non attiva: lo stato della licenza o della scheda, come lo riporta
 -- Verified by GS1, è diverso da "attivo". I valori assenti contano come attivi.
@@ -246,6 +249,26 @@ begin
         from e where link_domain is not null
         group by 1 order by 2 desc limit 15
       ) d
+    ),
+    -- Associazioni obbligatorie tra AI (GS1 General Specifications §4.13.2): avvisi rimasti alla chiusura
+    -- dell'articolo, con la risposta dell'utente sull'altro barcode.
+    'associazioni', (
+      select coalesce(jsonb_agg(a order by a.letture desc), '[]'::jsonb) from (
+        select n.code                                              as avviso,
+               count(*)                                            as letture,
+               count(*) filter (where e.assoc_outcome = 'declined')   as confermati,
+               count(*) filter (where e.assoc_outcome = 'unanswered') as senza_risposta,
+               count(distinct e.company_prefix)                    as aziende,
+               max(e.primary_key)                                  as esempio
+        from e cross join lateral unnest(e.assoc_notices) as n(code)
+        group by 1 order by 2 desc limit 15
+      ) a
+    ),
+    'piu_barcode', (
+      select jsonb_build_object(
+        'articoli',   count(*) filter (where barcode_count > 1),
+        'completati', count(*) filter (where assoc_outcome = 'completed')
+      ) from e
     )
   ) into result;
 
